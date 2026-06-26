@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake } from 'lucide-react'
+import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake, Copy } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function Sidebar({ clinic }: { clinic: any }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -34,14 +35,29 @@ export default function Sidebar({ clinic }: { clinic: any }) {
         md:relative md:translate-x-0
       `}>
         <div className="p-6 border-b border-black/10 hidden md:block">
-          <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 object-contain mb-3" />
+          <img src="/full-logo.png" alt="AgendaClick Logo" className="h-16 w-full object-contain mb-6 object-left" />
           <p className="text-xs text-black/50 truncate tracking-wider uppercase font-bold">
             {clinic?.name || 'Mi Negocio'}
           </p>
           {clinic?.slug && (
-            <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 hover:underline mt-1 block">
-              🔗 Ver Página Pública
-            </a>
+            <div className="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl shadow-sm">
+              <p className="text-xs text-blue-900 font-medium leading-tight">Este enlace es para que tus clientes agenden cita:</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="flex-1 text-[11px] font-mono text-blue-700 bg-white px-2 py-1.5 border border-blue-200 rounded-lg truncate hover:border-blue-400 transition-colors">
+                  agendaclick.com/{clinic.slug}
+                </a>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/${clinic.slug}`)
+                    toast.success('¡Enlace copiado!')
+                  }} 
+                  className="bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  title="Copiar enlace"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           )}
         </div>
         
@@ -51,9 +67,24 @@ export default function Sidebar({ clinic }: { clinic: any }) {
             {clinic?.name || 'Mi Negocio'}
           </p>
           {clinic?.slug && (
-            <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 hover:underline mt-1 block">
-              🔗 Ver Página Pública
-            </a>
+            <div className="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl shadow-sm">
+              <p className="text-xs text-blue-900 font-medium leading-tight">Este enlace es para que tus clientes agenden cita:</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="flex-1 text-[11px] font-mono text-blue-700 bg-white px-2 py-1.5 border border-blue-200 rounded-lg truncate hover:border-blue-400 transition-colors">
+                  agendaclick.com/{clinic.slug}
+                </a>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/${clinic.slug}`)
+                    toast.success('¡Enlace copiado!')
+                  }} 
+                  className="bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  title="Copiar enlace"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           )}
         </div>
 
