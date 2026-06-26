@@ -7,8 +7,8 @@ export default function LoginPage({
   searchParams: { message?: string, invite?: string }
 }) {
   return (
-    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
-      <form className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
+    <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
+      <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
         <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 mx-auto mb-6 object-contain" />
         
         {/* Hidden field to pass the invite ID if present */}
@@ -20,7 +20,7 @@ export default function LoginPage({
           Correo Electrónico
         </label>
         <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
+          className="rounded-md px-4 py-2 bg-white border border-gray-300 text-black mb-6 focus:outline-none focus:ring-2 focus:ring-black"
           name="email"
           placeholder="tu@estetica.com"
           required
@@ -30,7 +30,7 @@ export default function LoginPage({
           Contraseña
         </label>
         <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
+          className="rounded-md px-4 py-2 bg-white border border-gray-300 text-black mb-6 focus:outline-none focus:ring-2 focus:ring-black"
           type="password"
           name="password"
           placeholder="••••••••"
@@ -45,7 +45,7 @@ export default function LoginPage({
         </button>
         <button
           formAction={signup}
-          className="border border-foreground/20 rounded-md px-4 py-2 mb-4 hover:bg-gray-50 transition-colors"
+          className="border border-gray-300 rounded-md px-4 py-2 mb-4 hover:bg-gray-50 text-black transition-colors"
         >
           Crear cuenta con correo
         </button>
@@ -62,7 +62,7 @@ export default function LoginPage({
         <GoogleLoginButton action={loginWithGoogle} />
 
         {searchParams?.message && (
-          <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
+          <p className="mt-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-100 text-center text-sm font-medium">
             {searchParams.message}
           </p>
         )}
