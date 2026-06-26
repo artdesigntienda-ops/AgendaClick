@@ -30,7 +30,7 @@ export default async function DashboardOverview() {
   }
 
   // 2. Fetch de citas para esta clínica, desde hoy en adelante
-  let appointments = []
+  let appointments: any[] = []
   if (clinicId) {
     const todayISO = startOfToday().toISOString()
     const { data: apts, error } = await supabase
