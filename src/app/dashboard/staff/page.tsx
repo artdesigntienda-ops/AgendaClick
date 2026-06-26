@@ -37,15 +37,15 @@ export default function StaffPage() {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8">
       <motion.div variants={itemVariants}>
-        <h1 className="text-4xl font-black tracking-tighter">Staff & Equipo</h1>
-        <p className="text-gray-500 mt-2">Administra los profesionales de tu estética.</p>
+        <h1 className="text-4xl font-black tracking-tighter">Profesionales</h1>
+        <p className="text-gray-500 mt-2">Administra los profesionales de tu negocio.</p>
       </motion.div>
 
       <motion.div variants={itemVariants} className="bg-black p-8 shadow-xl text-white relative overflow-hidden group">
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-5 rounded-full blur-3xl group-hover:opacity-10 transition-opacity"></div>
-        <h2 className="text-xl font-bold mb-2">Invitar Empleado</h2>
+        <h2 className="text-xl font-bold mb-2">Invitar Profesional</h2>
         <p className="text-gray-400 mb-6 max-w-2xl">
-          Comparte este enlace con tus empleados. Al registrarse, quedarán vinculados automáticamente a <b>{clinic.name}</b>.
+          Comparte este enlace con tus profesionales. Al registrarse, quedarán vinculados automáticamente a <b>{clinic.name}</b>.
         </p>
         <div className="flex items-center gap-3 max-w-xl">
           <input 
@@ -81,7 +81,7 @@ export default function StaffPage() {
                 <td className="p-4 text-gray-500">{member.email}</td>
                 <td className="p-4">
                   <span className={`px-2 py-1 text-xs font-bold uppercase tracking-wider ${member.role === 'owner' ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}>
-                    {member.role === 'owner' ? 'Dueño' : 'Staff'}
+                    {member.role === 'owner' ? 'Dueño' : 'Profesional'}
                   </span>
                 </td>
                 <td className="p-4 text-right">
