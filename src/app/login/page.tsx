@@ -1,5 +1,4 @@
 import { login, signup, loginWithGoogle } from './actions'
-import Image from 'next/image'
 
 export default function LoginPage({
   searchParams,
@@ -56,9 +55,10 @@ export default function LoginPage({
 
         <button
           formAction={loginWithGoogle}
+          formNoValidate
           className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md px-4 py-2 bg-white text-black hover:bg-gray-50 transition-colors"
         >
-          <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} />
+          <img src="https://www.google.com/favicon.ico" alt="Google" width="16" height="16" />
           <span>Google</span>
         </button>
 
