@@ -1,4 +1,5 @@
 import { login, signup, loginWithGoogle } from './actions'
+import { GoogleLoginButton } from './GoogleLoginButton'
 
 export default function LoginPage({
   searchParams,
@@ -53,14 +54,7 @@ export default function LoginPage({
           </div>
         </div>
 
-        <button
-          formAction={loginWithGoogle}
-          formNoValidate
-          className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md px-4 py-2 bg-white text-black hover:bg-gray-50 transition-colors"
-        >
-          <img src="https://www.google.com/favicon.ico" alt="Google" width="16" height="16" />
-          <span>Google</span>
-        </button>
+        <GoogleLoginButton action={loginWithGoogle} />
 
         {searchParams?.message && (
           <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
