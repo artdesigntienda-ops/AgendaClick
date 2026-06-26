@@ -36,24 +36,24 @@ export default async function DashboardLayout({
           </p>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link href="/dashboard" className="animate-fade-in-right delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Calendar className="w-4 h-4" />
             Agenda Maestra
           </Link>
-          <Link href="/dashboard/services" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link href="/dashboard/services" className="animate-fade-in-right delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Scissors className="w-4 h-4" />
             Servicios
           </Link>
-          <Link href="/dashboard/staff" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link href="/dashboard/staff" className="animate-fade-in-right delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Users className="w-4 h-4" />
             Staff & Equipo
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link href="/dashboard/settings" className="animate-fade-in-right delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Settings className="w-4 h-4" />
             Configuración
           </Link>
         </nav>
-        <div className="p-4 border-t border-black/10">
+        <div className="p-4 border-t border-black/10 animate-fade-in-right delay-500">
           <form action="/auth/signout" method="post">
             <button className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-none hover:bg-red-600 hover:text-white transition-colors duration-200">
               <LogOut className="w-4 h-4" />

@@ -145,15 +145,12 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Categoría de tu Negocio</label>
             <select name="business_type" defaultValue={clinic?.business_type || 'belleza'} className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black">
-              <option value="belleza">Estética y Belleza</option>
-              <option value="salud">Salud y Clínicas</option>
-              <option value="bienestar">Spas y Bienestar</option>
+              <option value="belleza">Estética y Belleza (Peluquerías, Barberías, Uñas, Cejas)</option>
+              <option value="salud">Salud y Clínicas (Odontología, Fisioterapia, Nutrición)</option>
+              <option value="bienestar">Spas y Bienestar (Masajes, Yoga, Terapias Alternativas)</option>
             </select>
-            <p className="text-xs text-gray-500 mt-1">
-              <strong>Estética:</strong> Peluquerías, barberías, uñas. <strong>Salud:</strong> Odontología, fisio. <strong>Spas:</strong> Masajes, yoga.
-            </p>
           </div>
 
           <div>
