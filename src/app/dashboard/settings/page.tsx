@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import AddressAutocomplete from '@/components/AddressAutocomplete'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -26,6 +27,14 @@ export default async function SettingsPage() {
     const facebook = formData.get('facebook') as string
     const tiktok = formData.get('tiktok') as string
     const youtube = formData.get('youtube') as string
+    
+    // Maps
+    const address = formData.get('address') as string
+    const latitudeRaw = formData.get('latitude') as string
+    const longitudeRaw = formData.get('longitude') as string
+    
+    const latitude = latitudeRaw ? parseFloat(latitudeRaw) : null
+    const longitude = longitudeRaw ? parseFloat(longitudeRaw) : null
     
     // Manejo de la subida del logo
     const logoFile = formData.get('logo') as File
@@ -60,7 +69,10 @@ export default async function SettingsPage() {
       facebook_url: facebook,
       tiktok_url: tiktok,
       youtube_url: youtube,
-      logo_url: logoUrl
+      logo_url: logoUrl,
+      address,
+      latitude,
+      longitude
     }, { onConflict: 'owner_id' })
 
     revalidatePath('/dashboard/settings')
@@ -155,6 +167,15 @@ export default async function SettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp (Notificaciones)</label>
                 <input name="phone" required defaultValue={clinic?.phone || ''} placeholder="+57300..." className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección del Negocio</label>
+                <AddressAutocomplete 
+                  defaultAddress={clinic?.address || ''} 
+                  defaultLat={clinic?.latitude || ''}
+                  defaultLng={clinic?.longitude || ''}
+                />
               </div>
             </div>
           </div>

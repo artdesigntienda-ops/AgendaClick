@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Instagram, Facebook, Youtube, Video } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Instagram, Facebook, Youtube, Video, MapPin } from 'lucide-react'
 import { createAppointment } from './actions'
 
 const bookingSchema = z.object({
@@ -114,6 +114,18 @@ export default function BookingClient({ clinic, services }: Props) {
           <p className="text-gray-400 mt-2 text-sm uppercase tracking-widest">{clinic.business_type}</p>
         )}
         
+        {clinic.address && (
+          <a 
+            href={`https://www.google.com/maps/search/?api=1&query=${clinic.latitude},${clinic.longitude}`} 
+            target="_blank" 
+            rel="noreferrer"
+            className="flex items-center gap-1.5 mt-4 text-xs text-gray-300 hover:text-white transition-colors"
+          >
+            <MapPin className="w-3.5 h-3.5" />
+            {clinic.address}
+          </a>
+        )}
+
         {/* Redes Sociales */}
         {(clinic.instagram_url || clinic.facebook_url || clinic.tiktok_url || clinic.youtube_url) && (
           <div className="flex items-center justify-center gap-4 mt-6">

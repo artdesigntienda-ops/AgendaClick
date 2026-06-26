@@ -71,6 +71,16 @@ export default async function PublicClinicPage({ params }: { params: { slug: str
     name: clinic.name,
     url: `https://agendaclick.com/${clinic.slug}`,
     telephone: clinic.phone,
+    address: clinic.address ? {
+      "@type": "PostalAddress",
+      "streetAddress": clinic.address,
+      "addressCountry": "CO"
+    } : undefined,
+    geo: clinic.latitude && clinic.longitude ? {
+      "@type": "GeoCoordinates",
+      "latitude": clinic.latitude,
+      "longitude": clinic.longitude
+    } : undefined,
     ...(clinic.logo_url && { image: clinic.logo_url }),
     ...(sameAsLinks.length > 0 && { sameAs: sameAsLinks }),
     isAcceptingNewPatients: true,
