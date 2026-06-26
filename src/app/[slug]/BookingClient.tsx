@@ -17,7 +17,7 @@ const bookingSchema = z.object({
   clientPhone: z.string().min(7, 'Teléfono inválido'),
   acceptTerms: z.literal(true, {
     errorMap: () => ({ message: "Debes aceptar los Términos y Condiciones" }),
-  }),
+  } as any),
 })
 
 type BookingFormData = z.infer<typeof bookingSchema>
