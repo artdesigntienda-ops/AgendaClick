@@ -85,24 +85,13 @@ export default function BookingClient({ clinic, services }: Props) {
   }
 
   const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 20 : -20,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 20 : -20,
-      opacity: 0
-    })
+    enter: { x: 20, opacity: 0 },
+    center: { zIndex: 1, x: 0, opacity: 1 },
+    exit: { zIndex: 0, x: -20, opacity: 0 }
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border">
+    <div className="w-full max-w-lg mx-auto bg-white text-black rounded-2xl shadow-xl overflow-hidden border">
       <div className="bg-black text-white p-8 text-center flex flex-col items-center">
         {clinic.logo_url ? (
           <img src={clinic.logo_url} alt={clinic.name} className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-white/20 shadow-lg" />
@@ -138,7 +127,7 @@ export default function BookingClient({ clinic, services }: Props) {
       </div>
 
       <div className="p-8 relative min-h-[400px]">
-        <AnimatePresence mode="wait" custom={1}>
+        <AnimatePresence mode="wait">
           
           {step === 1 && (
             <motion.div
