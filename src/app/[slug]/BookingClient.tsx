@@ -211,7 +211,10 @@ export default function BookingClient({ clinic, services }: Props) {
                 {availableTimes.map(time => (
                   <button
                     key={time}
-                    onClick={() => setSelectedTime(time)}
+                    onClick={() => {
+                      setSelectedTime(time)
+                      setStep(3)
+                    }}
                     className={`py-3 rounded-lg border text-sm font-medium transition-colors ${
                       selectedTime === time
                         ? 'bg-black text-white border-black'
@@ -222,14 +225,6 @@ export default function BookingClient({ clinic, services }: Props) {
                   </button>
                 ))}
               </div>
-
-              <button
-                disabled={!selectedTime}
-                onClick={() => setStep(3)}
-                className="w-full mt-8 bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2"
-              >
-                Continuar <ArrowRight className="w-4 h-4" />
-              </button>
             </motion.div>
           )}
 
