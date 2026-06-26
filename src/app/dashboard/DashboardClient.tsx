@@ -22,8 +22,9 @@ const COLORS = [
   'bg-gray-800 text-white',
 ]
 
-export default function DashboardClient({ appointments }: { appointments: Appointment[] }) {
+export default function DashboardClient({ appointments, clinicSlug }: { appointments: Appointment[], clinicSlug?: string }) {
   const [mounted, setMounted] = useState(false)
+  const [selectedStaff, setSelectedStaff] = useState<string | null>(null)
   useEffect(() => setMounted(true), [])
 
   if (!mounted) return null 
@@ -63,12 +64,18 @@ export default function DashboardClient({ appointments }: { appointments: Appoin
     >
       <motion.div variants={itemVariants} className="flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter">Torre de Control</h1>
-          <p className="text-gray-500 mt-2">Visión global de tu negocio hoy, {format(new Date(), "d 'de' MMMM", { locale: es })}</p>
+          <h1 className="text-4xl font-black tracking-tighter">Recepción & Agenda</h1>
+          <p className="text-gray-500 mt-2">Visión global de tu estética hoy, {format(new Date(), "d 'de' MMMM", { locale: es })}</p>
         </div>
-        <button className="bg-black text-white px-6 py-3 font-medium hover:bg-gray-900 transition-colors shadow-lg shadow-black/10">
-          Nueva Cita Manual
-        </button>
+        {clinicSlug ? (
+          <a href={`/${clinicSlug}`} target="_blank" rel="noreferrer" className="bg-black text-white px-6 py-3 font-medium hover:bg-gray-900 transition-colors shadow-lg shadow-black/10 inline-block text-center">
+            Nueva Cita Manual
+          </a>
+        ) : (
+          <button disabled className="bg-gray-200 text-gray-400 px-6 py-3 font-medium cursor-not-allowed">
+            Configura tu negocio primero
+          </button>
+        )}
       </motion.div>
 
       {/* Métricas */}
@@ -94,11 +101,24 @@ export default function DashboardClient({ appointments }: { appointments: Appoin
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl font-bold tracking-tight">Calendario Maestro (Hoy)</h2>
           <div className="flex gap-2">
-            {uniqueStaff.map(staffName => (
-              <span key={staffName} className={`px-3 py-1 text-xs font-bold rounded-full ${staffColors[staffName]}`}>
-                {staffName}
-              </span>
-            ))}
+            {uniqueStaff.map(staffName => {
+              const isSelected = selectedStaff === staffName
+              const isFaded = selectedStaff !== null && !isSelected
+              return (
+                <button 
+                  key={staffName} 
+                  onClick={() => setSelectedStaff(isSelected ? null : staffName)}
+                  className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${staffColors[staffName]} ${isFaded ? 'opacity-30' : 'opacity-100 hover:scale-105'}`}
+                >
+                  {staffName}
+                </button>
+              )
+            })}
+            {selectedStaff && (
+              <button onClick={() => setSelectedStaff(null)} className="px-2 py-1 text-xs text-gray-500 hover:text-black underline ml-2">
+                Limpiar filtro
+              </button>
+            )}
           </div>
         </div>
         
@@ -114,14 +134,14 @@ export default function DashboardClient({ appointments }: { appointments: Appoin
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {appointments.length === 0 ? (
+              {appointments.filter(apt => selectedStaff ? (apt.profiles?.name || 'Sin Asignar') === selectedStaff : true).length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-gray-500">
-                    No hay citas programadas para hoy.
+                    No hay citas programadas para hoy {selectedStaff ? `con ${selectedStaff}` : ''}.
                   </td>
                 </tr>
               ) : (
-                appointments.map((apt) => {
+                appointments.filter(apt => selectedStaff ? (apt.profiles?.name || 'Sin Asignar') === selectedStaff : true).map((apt) => {
                   const staffName = apt.profiles?.name || 'Sin Asignar'
                   return (
                     <tr key={apt.id} className="hover:bg-gray-50 transition-colors group cursor-pointer">
