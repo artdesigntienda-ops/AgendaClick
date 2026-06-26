@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
 import { State, City } from 'country-state-city'
 
@@ -74,13 +75,18 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
     setSlug(generated)
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     formData.set('phone', `${phonePrefix}${phoneNumber}`)
-    // countryCode is selected programmatically
     formData.set('country', countryCode)
-    saveAction(formData)
+    
+    try {
+      await saveAction(formData)
+      toast.success('Configuración guardada con éxito')
+    } catch (error) {
+      toast.error('Ocurrió un error al guardar')
+    }
   }
 
   return (

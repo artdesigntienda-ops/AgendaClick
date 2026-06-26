@@ -34,8 +34,8 @@ body {
   animation: fade-in-right 0.5s ease-out forwards;
   opacity: 0;
 }
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
+.anim-delay-100 { animation-delay: 100ms; }
+.anim-delay-200 { animation-delay: 200ms; }
+.anim-delay-300 { animation-delay: 300ms; }
+.anim-delay-400 { animation-delay: 400ms; }
+.anim-delay-500 { animation-delay: 500ms; }

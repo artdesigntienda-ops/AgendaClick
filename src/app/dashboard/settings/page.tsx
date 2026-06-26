@@ -61,8 +61,7 @@ export default async function SettingsPage() {
       }
     }
 
-    await supabase.from('clinics').upsert({
-      id: clinic?.id, 
+    const payload = {
       owner_id: user.id,
       name,
       phone,
@@ -81,7 +80,13 @@ export default async function SettingsPage() {
       neighborhood,
       latitude,
       longitude
-    }, { onConflict: 'owner_id' })
+    }
+
+    if (clinic?.id) {
+      await supabase.from('clinics').update(payload).eq('id', clinic.id)
+    } else {
+      await supabase.from('clinics').insert([payload])
+    }
 
     revalidatePath('/dashboard/settings')
     revalidatePath(`/${slug}`)
