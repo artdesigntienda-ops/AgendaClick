@@ -59,12 +59,20 @@ export default async function PublicClinicPage({ params }: { params: { slug: str
                    : clinic.business_type === 'salud' ? 'MedicalClinic' 
                    : 'LocalBusiness'
 
+  const sameAsLinks = []
+  if (clinic.instagram_url) sameAsLinks.push(clinic.instagram_url)
+  if (clinic.facebook_url) sameAsLinks.push(clinic.facebook_url)
+  if (clinic.tiktok_url) sameAsLinks.push(clinic.tiktok_url)
+  if (clinic.youtube_url) sameAsLinks.push(clinic.youtube_url)
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': schemaType,
     name: clinic.name,
     url: `https://agendaclick.com/${clinic.slug}`,
     telephone: clinic.phone,
+    ...(clinic.logo_url && { image: clinic.logo_url }),
+    ...(sameAsLinks.length > 0 && { sameAs: sameAsLinks }),
     isAcceptingNewPatients: true,
     potentialAction: {
       '@type': 'ReserveAction',
