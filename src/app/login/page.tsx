@@ -1,4 +1,5 @@
-import { login, signup } from './actions'
+import { login, signup, loginWithGoogle } from './actions'
+import Image from 'next/image'
 
 export default function LoginPage({
   searchParams,
@@ -39,10 +40,28 @@ export default function LoginPage({
         </button>
         <button
           formAction={signup}
-          className="border border-foreground/20 rounded-md px-4 py-2 mb-2"
+          className="border border-foreground/20 rounded-md px-4 py-2 mb-4 hover:bg-gray-50 transition-colors"
         >
-          Registrarse
+          Crear cuenta con correo
         </button>
+
+        <div className="relative mb-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500">O continúa con</span>
+          </div>
+        </div>
+
+        <button
+          formAction={loginWithGoogle}
+          className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md px-4 py-2 bg-white text-black hover:bg-gray-50 transition-colors"
+        >
+          <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} />
+          <span>Google</span>
+        </button>
+
         {searchParams?.message && (
           <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
             {searchParams.message}
