@@ -79,7 +79,7 @@ export default function DashboardClient({ appointments, clinicSlug }: { appointm
     setIsCancelling(false)
     if (res.success) {
       toast.success('Cita cancelada. No olvides avisarle al cliente por WhatsApp.')
-      setSelectedAppointment(null)
+      setSelectedAppointment(prev => prev ? { ...prev, status: 'cancelled' } : null)
     } else {
       toast.error('Error al cancelar la cita')
     }
@@ -263,19 +263,30 @@ export default function DashboardClient({ appointments, clinicSlug }: { appointm
                 </div>
               </div>
               <div className="p-6 pt-0 space-y-3">
-                <button 
-                  onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time)}
-                  className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
-                >
-                  <MessageCircle className="w-5 h-5" /> Contactar por WhatsApp
-                </button>
-                <button 
-                  disabled={isCancelling}
-                  onClick={() => handleCancelAppointment(selectedAppointment.id)}
-                  className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
-                >
-                  {isCancelling ? 'Cancelando...' : 'Cancelar Cita'}
-                </button>
+                {selectedAppointment.status === 'cancelled' ? (
+                  <button 
+                    onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, true)}
+                    className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
+                  >
+                    <MessageCircle className="w-5 h-5" /> Avisar Cancelación por WhatsApp
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time)}
+                      className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
+                    >
+                      <MessageCircle className="w-5 h-5" /> Contactar por WhatsApp
+                    </button>
+                    <button 
+                      disabled={isCancelling}
+                      onClick={() => handleCancelAppointment(selectedAppointment.id)}
+                      className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
+                    >
+                      {isCancelling ? 'Cancelando...' : 'Cancelar Cita'}
+                    </button>
+                  </>
+                )}
               </div>
             </motion.div>
           </div>
