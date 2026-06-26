@@ -15,6 +15,9 @@ const bookingSchema = z.object({
   clientName: z.string().min(2, 'El nombre es muy corto'),
   clientEmail: z.string().email('Correo inválido'),
   clientPhone: z.string().min(7, 'Teléfono inválido'),
+  acceptTerms: z.literal(true, {
+    errorMap: () => ({ message: "Debes aceptar los Términos y Condiciones" }),
+  }),
 })
 
 type BookingFormData = z.infer<typeof bookingSchema>
@@ -259,6 +262,19 @@ export default function BookingClient({ clinic, services }: Props) {
                   </div>
                   {errors.clientPhone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientPhone.message}</p>}
                 </div>
+
+                <div className="flex items-start gap-2 pt-2">
+                  <input
+                    type="checkbox"
+                    id="acceptTerms"
+                    {...register('acceptTerms')}
+                    className="mt-1 w-4 h-4 rounded border-gray-300 text-black focus:ring-black"
+                  />
+                  <label htmlFor="acceptTerms" className="text-xs text-gray-500 leading-tight">
+                    He leído y acepto los <a href="/terminos" target="_blank" className="underline hover:text-black">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-black">Política de Privacidad</a>. Entiendo que AgendaClick es solo un intermediario tecnológico.
+                  </label>
+                </div>
+                {errors.acceptTerms && <p className="text-red-500 text-xs ml-1">{errors.acceptTerms.message}</p>}
 
                 <button
                   type="submit"
