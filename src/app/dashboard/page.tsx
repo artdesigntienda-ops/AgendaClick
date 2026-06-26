@@ -19,14 +19,23 @@ export default async function DashboardOverview() {
     .single()
 
   let clinicId = profile?.clinic_id
+  let clinicSlug = ''
 
   if (!clinicId && profile?.role === 'owner') {
     const { data: clinic } = await supabase
       .from('clinics')
-      .select('id')
+      .select('id, slug')
       .eq('owner_id', user.id)
       .single()
     clinicId = clinic?.id
+    clinicSlug = clinic?.slug || ''
+  } else if (clinicId) {
+    const { data: clinic } = await supabase
+      .from('clinics')
+      .select('slug')
+      .eq('id', clinicId)
+      .single()
+    clinicSlug = clinic?.slug || ''
   }
 
   // 2. Fetch de citas para esta clínica, desde hoy en adelante
@@ -52,5 +61,5 @@ export default async function DashboardOverview() {
     }
   }
 
-  return <DashboardClient appointments={appointments as any} />
+  return <DashboardClient appointments={appointments as any} clinicSlug={clinicSlug} />
 }
