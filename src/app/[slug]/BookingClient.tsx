@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Instagram, Facebook, Youtube, Video, MapPin } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon } from 'lucide-react'
 import { createAppointment } from './actions'
 
 const bookingSchema = z.object({
@@ -129,10 +129,10 @@ export default function BookingClient({ clinic, services }: Props) {
         {/* Redes Sociales */}
         {(clinic.instagram_url || clinic.facebook_url || clinic.tiktok_url || clinic.youtube_url) && (
           <div className="flex items-center justify-center gap-4 mt-6">
-            {clinic.instagram_url && <a href={clinic.instagram_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><Instagram className="w-5 h-5" /></a>}
-            {clinic.facebook_url && <a href={clinic.facebook_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><Facebook className="w-5 h-5" /></a>}
+            {clinic.instagram_url && <a href={clinic.instagram_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><LinkIcon className="w-5 h-5" /></a>}
+            {clinic.facebook_url && <a href={clinic.facebook_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><LinkIcon className="w-5 h-5" /></a>}
             {clinic.tiktok_url && <a href={clinic.tiktok_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><Video className="w-5 h-5" /></a>}
-            {clinic.youtube_url && <a href={clinic.youtube_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><Youtube className="w-5 h-5" /></a>}
+            {clinic.youtube_url && <a href={clinic.youtube_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><LinkIcon className="w-5 h-5" /></a>}
           </div>
         )}
       </div>
