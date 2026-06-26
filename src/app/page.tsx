@@ -58,7 +58,7 @@ export default function LandingPage() {
         >
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 border text-sm font-medium text-gray-700">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            La herramienta favorita de las emprendedoras
+            El software de los salones y estéticas más exclusivos
           </motion.div>
           
           <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
