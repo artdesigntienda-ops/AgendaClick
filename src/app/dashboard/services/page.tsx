@@ -108,6 +108,7 @@ export default async function ServicesPage() {
           </thead>
           <tbody className="divide-y">
             {services.map((service) => (
+              <tr key={service.id}>
                 <td className="px-6 py-4">
                   <p className="font-medium">{service.name}</p>
                   {service.description && <p className="text-xs text-gray-500 mt-1 max-w-xs">{service.description}</p>}
