@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot, Shield, User, XCircle } from 'lucide-react'
 
 // Variantes de animación para hacer la página fluida y elegante
 const fadeInUp = {
@@ -211,8 +211,32 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Una experiencia de reserva encantadora</h4>
-                  <p className="text-gray-500 leading-relaxed">Tus clientas odian las contraseñas. Diseñamos un proceso tan fluido y hermoso que reservar una cita tomará menos de 1 minuto, enamorándolas desde el primer clic.</p>
+                  <h4 className="text-xl font-semibold mb-2">Experiencia de reserva encantadora</h4>
+                  <p className="text-gray-500 leading-relaxed">Las mujeres odian tener que crear "usuarios y contraseñas" para un corte de cabello. Diseñamos un proceso fluido que toma menos de 1 minuto, enamorando a tus clientas desde el primer clic.</p>
+                </div>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="flex gap-4">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-gray-700" />
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-xl font-semibold mb-2">Escudo Anti-Citas Falsas</h4>
+                  <p className="text-gray-500 leading-relaxed">En lugar de contraseñas, usamos un código único temporal (OTP) enviado a su celular o correo. Así nos aseguramos de que la persona es real, bloqueando agendamientos falsos de la competencia.</p>
+                </div>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="flex gap-4">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <User className="w-5 h-5 text-gray-700" />
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-xl font-semibold mb-2">Historial de Clientas Invisible (CRM)</h4>
+                  <p className="text-gray-500 leading-relaxed">Aunque tus clientas no creen una cuenta formal, nuestro sistema las reconoce mágicamente por su número de teléfono. Podrás ver cuántas veces ha venido "María" sin que ella tenga que recordar una clave.</p>
                 </div>
               </motion.div>
 
@@ -223,8 +247,8 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Conexión directa a tu WhatsApp</h4>
-                  <p className="text-gray-500 leading-relaxed">Al finalizar la reserva, el sistema genera mágicamente un mensaje pre-armado para que la clienta te contacte por WhatsApp de inmediato. Sin costos extra por mensajes.</p>
+                  <h4 className="text-xl font-semibold mb-2">Conexión invisible a WhatsApp</h4>
+                  <p className="text-gray-500 leading-relaxed">Al finalizar la reserva, el navegador dirige automáticamente a la clienta a su WhatsApp con un mensaje pre-armado hacia ti. Ella no hace esfuerzos extra y a ti no te cuesta dinero en recargas de mensajes.</p>
                 </div>
               </motion.div>
 
