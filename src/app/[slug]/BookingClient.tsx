@@ -64,13 +64,13 @@ export default function BookingClient({ clinic, services }: Props) {
       endTime: endTime.toISOString()
     })
 
-    setIsSubmitting(false)
-
     if (result?.error) {
+      setIsSubmitting(false)
       toast.error('Hubo un error al agendar tu cita')
     } else {
-      toast.success('¡Cita agendada con éxito!')
-      setStep(4) // Success screen
+      toast.success('¡Cita agendada con éxito! Redirigiendo a WhatsApp...')
+      // Redireccionamiento invisible a WhatsApp
+      window.location.href = generateWhatsAppLink()
     }
   }
 
@@ -316,38 +316,7 @@ export default function BookingClient({ clinic, services }: Props) {
             </motion.div>
           )}
 
-          {step === 4 && (
-            <motion.div
-              key="step4"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center py-8"
-            >
-              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-green-500" />
-              </div>
-              <h2 className="text-2xl font-medium mb-2">¡Cita Confirmada!</h2>
-              <p className="text-gray-500 mb-8">
-                Tu turno para <strong>{selectedService?.name}</strong> ha sido agendado exitosamente.
-              </p>
-
-              <div className="bg-gray-50 p-6 rounded-2xl mb-8 border">
-                <p className="text-sm font-medium uppercase tracking-wider text-gray-400 mb-4">Siguiente paso (Importante)</p>
-                <p className="text-sm text-gray-600 mb-6">
-                  Por favor envía un mensaje a {clinic.name} por WhatsApp para que tengan tu contacto directo.
-                </p>
-                <a
-                  href={generateWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-xl font-medium transition-colors shadow-lg shadow-green-500/20"
-                >
-                  <Phone className="w-5 h-5" />
-                  Enviar WhatsApp ahora
-                </a>
-              </div>
-            </motion.div>
-          )}
+          {/* Paso 4 (Botón gigante) eliminado para flujo invisible */}
 
         </AnimatePresence>
       </div>

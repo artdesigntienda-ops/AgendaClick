@@ -8,6 +8,36 @@ import { es } from 'date-fns/locale'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+function generateICS(
+  uid: string,
+  startTime: string, 
+  endTime: string, 
+  summary: string, 
+  description: string, 
+  location: string
+) {
+  const formatICSDate = (dateString: string) => {
+    return new Date(dateString).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  }
+
+  return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//AgendaClick//ES
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatICSDate(new Date().toISOString())}
+DTSTART:${formatICSDate(startTime)}
+DTEND:${formatICSDate(endTime)}
+SUMMARY:${summary}
+DESCRIPTION:${description}
+LOCATION:${location}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`.replace(/\n/g, '\r\n');
+}
+
 export async function createAppointment(data: {
   clinicId: string
   serviceId: string
@@ -50,32 +80,73 @@ export async function createAppointment(data: {
     .single()
 
   const ownerEmail = clinicInfo?.profiles?.email
+  const serviceName = serviceInfo?.name || 'Cita'
+  const clinicName = clinicInfo?.name || 'Estética'
   
-  if (ownerEmail) {
-    const formattedDate = format(new Date(data.startTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
-    
-    try {
+  // Generar archivo de calendario (.ics)
+  const appointmentUid = `${Date.now()}@agendaclick.com`
+  const icsContent = generateICS(
+    appointmentUid,
+    data.startTime,
+    data.endTime,
+    `${serviceName} - ${data.clientName}`,
+    `Cita agendada vía AgendaClick.\nCliente: ${data.clientName}\nTeléfono: ${data.clientPhone}\nCorreo: ${data.clientEmail}`,
+    clinicName
+  )
+
+  const attachment = {
+    filename: 'cita.ics',
+    content: Buffer.from(icsContent).toString('base64'),
+    contentType: 'text/calendar'
+  }
+
+  const formattedDate = format(new Date(data.startTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
+  
+  try {
+    // 1. Enviar correo al Dueño
+    if (ownerEmail) {
       await resend.emails.send({
-        from: 'AgendaClick Notificaciones <onboarding@resend.dev>', // Usar correo verificado en prod
+        from: 'AgendaClick Notificaciones <onboarding@resend.dev>',
         to: ownerEmail,
-        subject: `¡Nueva Cita Agendada! - ${data.clientName}`,
+        subject: `¡Nueva Cita! ${serviceName} - ${data.clientName}`,
         html: `
           <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #000;">Tienes una nueva cita en ${clinicInfo?.name}</h2>
+            <h2 style="color: #000;">Tienes una nueva cita en ${clinicName}</h2>
             <p><strong>Cliente:</strong> ${data.clientName}</p>
             <p><strong>Teléfono:</strong> ${data.clientPhone}</p>
             <p><strong>Correo:</strong> ${data.clientEmail}</p>
-            <p><strong>Servicio:</strong> ${serviceInfo?.name}</p>
+            <p><strong>Servicio:</strong> ${serviceName}</p>
             <p><strong>Fecha y Hora:</strong> ${formattedDate}</p>
             <br/>
             <p>El cliente también tiene la instrucción de contactarte vía WhatsApp.</p>
+            <p><i>Abre el archivo adjunto (cita.ics) desde tu celular para guardar este evento en tu calendario de Google o Apple.</i></p>
           </div>
-        `
+        `,
+        attachments: [attachment]
       })
-    } catch (e) {
-      console.error('Error sending email via Resend:', e)
-      // No devolvemos error al cliente porque la cita sí se guardó en DB
     }
+
+    // 2. Enviar correo a la Clienta
+    await resend.emails.send({
+      from: 'AgendaClick <onboarding@resend.dev>',
+      to: data.clientEmail,
+      subject: `Reserva Confirmada en ${clinicName}`,
+      html: `
+        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #000;">¡Hola ${data.clientName}, tu reserva está confirmada!</h2>
+          <p>Has agendado exitosamente tu cita en <strong>${clinicName}</strong>.</p>
+          <p><strong>Servicio:</strong> ${serviceName}</p>
+          <p><strong>Fecha y Hora:</strong> ${formattedDate}</p>
+          <br/>
+          <p>Abre el archivo adjunto (cita.ics) para guardarlo en tu calendario.</p>
+          <p>¡Gracias por usar AgendaClick!</p>
+        </div>
+      `,
+      attachments: [attachment]
+    })
+  } catch (e) {
+    console.error('Error sending emails via Resend:', e)
+    // No devolvemos error al frontend porque la cita sí se guardó en DB
   }
 
   revalidatePath('/dashboard') // Refrescar el dashboard del dueño
