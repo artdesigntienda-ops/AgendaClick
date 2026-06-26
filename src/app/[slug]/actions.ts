@@ -79,7 +79,7 @@ export async function createAppointment(data: {
     .eq('id', data.serviceId)
     .single()
 
-  const ownerEmail = clinicInfo?.profiles?.email
+  const ownerEmail = (clinicInfo?.profiles as any)?.email || (Array.isArray(clinicInfo?.profiles) ? (clinicInfo?.profiles as any)[0]?.email : null)
   const serviceName = serviceInfo?.name || 'Cita'
   const clinicName = clinicInfo?.name || 'Estética'
   
