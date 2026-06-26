@@ -1,12 +1,17 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const supabaseAdmin = createSupabaseClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 function generateICS(
   uid: string,
@@ -49,7 +54,7 @@ export async function sendOtpCode(email: string, clientName: string) {
   expiresAt.setMinutes(expiresAt.getMinutes() + 10)
 
   // Guardar en base de datos
-  const { error } = await supabase.from('otp_verifications').insert({
+  const { error } = await supabaseAdmin.from('otp_verifications').insert({
     email: email.trim().toLowerCase(),
     otp_code: otpCode,
     expires_at: expiresAt.toISOString()
@@ -97,7 +102,7 @@ export async function createAppointment(data: {
 
   // 1. Validar OTP
   const normalizedEmail = data.clientEmail.trim().toLowerCase()
-  const { data: verifications, error: otpError } = await supabase
+  const { data: verifications, error: otpError } = await supabaseAdmin
     .from('otp_verifications')
     .select('*')
     .eq('email', normalizedEmail)
@@ -128,7 +133,7 @@ export async function createAppointment(data: {
   }
 
   // Borramos el OTP que ya se usó para evitar reusos (fire and forget)
-  supabase.from('otp_verifications').delete().eq('id', verifications[0].id).then()
+  supabaseAdmin.from('otp_verifications').delete().eq('id', verifications[0].id).then()
 
   // 3. Obtener info adicional (correo del dueño y nombre del servicio) para el email
   const { data: clinicInfo } = await supabase
