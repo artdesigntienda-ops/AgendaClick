@@ -11,7 +11,7 @@ export default async function ServicesPage() {
     .eq('owner_id', user?.id)
     .single()
 
-  let services = []
+  let services: any[] = []
   if (clinic) {
     const { data } = await supabase
       .from('services')
