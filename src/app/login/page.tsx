@@ -4,12 +4,17 @@ import { GoogleLoginButton } from './GoogleLoginButton'
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: { message?: string, invite?: string }
 }) {
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <h1 className="text-2xl font-semibold text-center mb-6">PrestigeCitas</h1>
+        <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 mx-auto mb-6 object-contain" />
+        
+        {/* Hidden field to pass the invite ID if present */}
+        {searchParams?.invite && (
+          <input type="hidden" name="invite" value={searchParams.invite} />
+        )}
         
         <label className="text-md" htmlFor="email">
           Correo Electrónico

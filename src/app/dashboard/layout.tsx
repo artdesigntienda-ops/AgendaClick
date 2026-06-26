@@ -30,7 +30,7 @@ export default async function DashboardLayout({
       {/* Sidebar Ultra Minimalista */}
       <aside className="w-64 bg-white border-r border-black/10 flex flex-col">
         <div className="p-6 border-b border-black/10">
-          <h2 className="text-xl font-bold tracking-tighter uppercase">Prestige</h2>
+          <img src="/full-logo.png" alt="AgendaClick Logo" className="h-8 object-contain mb-2" />
           <p className="text-xs text-black/50 truncate mt-1 tracking-wider uppercase">
             {clinic?.name || 'Mi Negocio'}
           </p>
