@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon } from 'lucide-react'
-import { createAppointment } from './actions'
+import { createAppointment, sendOtpCode } from './actions'
 
 const bookingSchema = z.object({
   clientName: z.string().min(2, 'El nombre es muy corto'),
@@ -33,8 +33,10 @@ export default function BookingClient({ clinic, services }: Props) {
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday())
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+  const [isVerifying, setIsVerifying] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<BookingFormData>({
+  const { register, handleSubmit, getValues, formState: { errors } } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema)
   })
 
@@ -46,31 +48,52 @@ export default function BookingClient({ clinic, services }: Props) {
 
   const onSubmit = async (data: BookingFormData) => {
     if (!selectedService || !selectedTime) return
-    
     setIsSubmitting(true)
+    
+    // Solicitamos OTP
+    const result = await sendOtpCode(data.clientEmail, data.clientName)
+    setIsSubmitting(false)
+
+    if (result?.error) {
+      toast.error(result.error)
+    } else {
+      setStep(4) // Move to OTP step
+      toast.success('Código enviado a tu correo')
+    }
+  }
+
+  const verifyOtpAndBook = async () => {
+    if (otpCode.length !== 6) {
+      toast.error('El código debe tener 6 dígitos')
+      return
+    }
+
+    setIsVerifying(true)
     
     // Combinar fecha y hora
     const dateTimeString = `${format(selectedDate, 'yyyy-MM-dd')}T${selectedTime}:00`
     const startTime = new Date(dateTimeString)
-    const endTime = new Date(startTime.getTime() + selectedService.duration_minutes * 60000)
+    const endTime = new Date(startTime.getTime() + (selectedService?.duration_minutes || 30) * 60000)
+
+    const formData = getValues()
 
     const result = await createAppointment({
       clinicId: clinic.id,
       serviceId: selectedService.id,
-      clientName: data.clientName,
-      clientEmail: data.clientEmail,
-      clientPhone: data.clientPhone,
+      clientName: formData.clientName,
+      clientEmail: formData.clientEmail,
+      clientPhone: formData.clientPhone,
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString()
-    })
+    }, otpCode)
+
+    setIsVerifying(false)
 
     if (result?.error) {
-      setIsSubmitting(false)
-      toast.error('Hubo un error al agendar tu cita')
+      toast.error(result.message || 'Código incorrecto o expirado')
     } else {
       toast.success('¡Cita agendada con éxito! Redirigiendo a WhatsApp...')
-      // Redireccionamiento invisible a WhatsApp
-      window.location.href = generateWhatsAppLink(data.clientName)
+      window.location.href = generateWhatsAppLink(formData.clientName)
     }
   }
 
@@ -292,15 +315,63 @@ export default function BookingClient({ clinic, services }: Props) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full mt-4 bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-opacity"
+                  className="w-full mt-4 bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? 'Confirmando...' : 'Confirmar Reserva'}
+                  {isSubmitting ? 'Enviando código...' : 'Enviar código de verificación'}
                 </button>
               </form>
             </motion.div>
           )}
 
-          {/* Paso 4 (Botón gigante) eliminado para flujo invisible */}
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="space-y-6"
+            >
+              <div className="flex items-center gap-2 mb-2 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => setStep(3)}>
+                <ArrowRight className="w-4 h-4 rotate-180" />
+                Volver a mis datos
+              </div>
+              
+              <div className="text-center">
+                <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                <h2 className="text-xl font-medium mb-2">Verifica tu correo</h2>
+                <p className="text-sm text-gray-500">
+                  Hemos enviado un código de 6 dígitos a <br/>
+                  <strong className="text-black">{getValues().clientEmail}</strong>
+                </p>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="000000"
+                  className="w-full text-center text-3xl tracking-[0.5em] font-mono py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                />
+              </div>
+
+              <button
+                onClick={verifyOtpAndBook}
+                disabled={isVerifying || otpCode.length !== 6}
+                className="w-full bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-opacity"
+              >
+                {isVerifying ? 'Verificando y Reservando...' : 'Confirmar Reserva'}
+              </button>
+              
+              <p className="text-xs text-center text-gray-400 mt-4">
+                Si no encuentras el correo, revisa tu carpeta de Spam.
+              </p>
+            </motion.div>
+          )}
+
+          {/* Paso Invisible */}
 
         </AnimatePresence>
       </div>

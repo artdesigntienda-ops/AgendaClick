@@ -38,6 +38,52 @@ END:VEVENT
 END:VCALENDAR`.replace(/\n/g, '\r\n');
 }
 
+export async function sendOtpCode(email: string, clientName: string) {
+  const supabase = await createClient()
+  
+  // Generar código de 6 dígitos
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+  
+  // Fecha de expiración (10 min)
+  const expiresAt = new Date()
+  expiresAt.setMinutes(expiresAt.getMinutes() + 10)
+
+  // Guardar en base de datos
+  const { error } = await supabase.from('otp_verifications').insert({
+    email: email.trim().toLowerCase(),
+    otp_code: otpCode,
+    expires_at: expiresAt.toISOString()
+  })
+
+  if (error) {
+    console.error('Error saving OTP:', error)
+    return { success: false, error: 'No se pudo generar el código. Intenta nuevamente.' }
+  }
+
+  try {
+    await resend.emails.send({
+      from: 'AgendaClick Seguridad <onboarding@resend.dev>',
+      to: email.trim().toLowerCase(),
+      subject: `Tu código de verificación es ${otpCode}`,
+      html: `
+        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #000;">Hola ${clientName},</h2>
+          <p>Para confirmar tu cita, ingresa el siguiente código de verificación de 6 dígitos:</p>
+          <div style="font-size: 32px; font-weight: bold; tracking: 4px; padding: 20px; text-align: center; background: #f4f4f5; border-radius: 8px; margin: 20px 0;">
+            ${otpCode}
+          </div>
+          <p>Este código expirará en 10 minutos.</p>
+          <p>Si no solicitaste este código, puedes ignorar este correo.</p>
+        </div>
+      `
+    })
+    return { success: true }
+  } catch (e) {
+    console.error('Error sending OTP via Resend:', e)
+    return { success: false, error: 'Error enviando el correo. Revisa que tu dirección sea correcta.' }
+  }
+}
+
 export async function createAppointment(data: {
   clinicId: string
   serviceId: string
@@ -46,10 +92,25 @@ export async function createAppointment(data: {
   clientPhone: string
   startTime: string
   endTime: string
-}) {
+}, otpCode: string) {
   const supabase = await createClient()
 
-  // Guardar en la DB
+  // 1. Validar OTP
+  const normalizedEmail = data.clientEmail.trim().toLowerCase()
+  const { data: verifications, error: otpError } = await supabase
+    .from('otp_verifications')
+    .select('*')
+    .eq('email', normalizedEmail)
+    .eq('otp_code', otpCode.trim())
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  if (otpError || !verifications || verifications.length === 0) {
+    return { error: true, message: 'Código inválido o expirado. Por favor intenta de nuevo.' }
+  }
+
+  // 2. Guardar en la DB
   const { error } = await supabase.from('appointments').insert({
     clinic_id: data.clinicId,
     service_id: data.serviceId,
@@ -63,10 +124,13 @@ export async function createAppointment(data: {
 
   if (error) {
     console.error('Error creating appointment:', error)
-    return { error: true }
+    return { error: true, message: 'Error interno guardando la cita.' }
   }
 
-  // Obtener info adicional (correo del dueño y nombre del servicio) para el email
+  // Borramos el OTP que ya se usó para evitar reusos (fire and forget)
+  supabase.from('otp_verifications').delete().eq('id', verifications[0].id).then()
+
+  // 3. Obtener info adicional (correo del dueño y nombre del servicio) para el email
   const { data: clinicInfo } = await supabase
     .from('clinics')
     .select('name, profiles(email)')
@@ -103,7 +167,7 @@ export async function createAppointment(data: {
   const formattedDate = format(new Date(data.startTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
   
   try {
-    // 1. Enviar correo al Dueño
+    // 4. Enviar correo al Dueño
     if (ownerEmail) {
       await resend.emails.send({
         from: 'AgendaClick Notificaciones <onboarding@resend.dev>',
@@ -126,7 +190,7 @@ export async function createAppointment(data: {
       })
     }
 
-    // 2. Enviar correo a la Clienta
+    // 5. Enviar correo a la Clienta
     await resend.emails.send({
       from: 'AgendaClick <onboarding@resend.dev>',
       to: data.clientEmail,
@@ -146,10 +210,9 @@ export async function createAppointment(data: {
     })
   } catch (e) {
     console.error('Error sending emails via Resend:', e)
-    // No devolvemos error al frontend porque la cita sí se guardó en DB
   }
 
-  revalidatePath('/dashboard') // Refrescar el dashboard del dueño
+  revalidatePath('/dashboard')
   
   return { success: true }
 }
