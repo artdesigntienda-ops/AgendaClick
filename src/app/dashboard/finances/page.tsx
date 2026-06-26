@@ -43,7 +43,7 @@ export default async function FinancesPage() {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      <FinancesDashboard initialAppointments={appointments} />
+      <FinancesDashboard initialAppointments={appointments || []} />
     </div>
   )
 }

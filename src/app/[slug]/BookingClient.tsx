@@ -70,14 +70,14 @@ export default function BookingClient({ clinic, services }: Props) {
     } else {
       toast.success('¡Cita agendada con éxito! Redirigiendo a WhatsApp...')
       // Redireccionamiento invisible a WhatsApp
-      window.location.href = generateWhatsAppLink()
+      window.location.href = generateWhatsAppLink(data.clientName)
     }
   }
 
   // Generar enlace wa.me
-  const generateWhatsAppLink = () => {
+  const generateWhatsAppLink = (clientName: string) => {
     const formattedDate = format(selectedDate, 'dd/MM/yyyy')
-    const message = `Hola, acabo de agendar una cita para ${selectedService?.name} el ${formattedDate} a las ${selectedTime}. Mi nombre es...`
+    const message = `Hola, acabo de agendar una cita para ${selectedService?.name} el ${formattedDate} a las ${selectedTime}. Mi nombre es ${clientName}.`
     const encodedMessage = encodeURIComponent(message)
     // Asegurar que el teléfono no tenga el '+' u otros caracteres raros para la URL
     const phone = clinic.phone?.replace(/[^0-9]/g, '') || ''
