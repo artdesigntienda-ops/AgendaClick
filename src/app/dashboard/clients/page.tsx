@@ -74,6 +74,13 @@ export default async function ClientsCRMPage() {
 
   const clients = Object.values(clientsMap)
 
+  return (
+    <div className="space-y-8 animate-fade-in-up">
+      <div>
+        <h1 className="text-4xl font-black tracking-tighter">Clientes (CRM)</h1>
+        <p className="text-gray-500 mt-2">Retén a tus clientes. Usa el semáforo para saber a quién deberías volver a contactar.</p>
+      </div>
+
       <ClientsTable clients={clients} />
     </div>
   )
