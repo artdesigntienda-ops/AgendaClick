@@ -19,10 +19,11 @@ export function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-2 border rounded-md hover:bg-gray-50 transition-colors bg-white text-gray-700"
+      className="p-3 bg-white text-black hover:bg-gray-200 transition-colors font-medium text-sm flex items-center gap-2"
       title="Copiar enlace"
     >
-      {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
+      {copied ? <Check className="w-5 h-5 text-black" /> : <Copy className="w-5 h-5" />}
+      {copied ? 'Copiado' : 'Copiar'}
     </button>
   )
 }

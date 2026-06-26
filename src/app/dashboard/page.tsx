@@ -1,69 +1,110 @@
-import { createClient } from '@/utils/supabase/server'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+'use client'
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Calendar as CalendarIcon, TrendingUp, Users, Clock } from 'lucide-react'
 
-  // Obtener negocio
-  const { data: clinic } = await supabase
-    .from('clinics')
-    .select('id')
-    .eq('owner_id', user?.id)
-    .single()
+// Simulando datos para el Master Calendar mientras conectamos la DB
+const MOCK_APPOINTMENTS = [
+  { id: 1, client: 'Ana García', service: 'Manicura Acrílica', time: '10:00 AM', staff: 'María', status: 'confirmed', color: 'bg-black text-white' },
+  { id: 2, client: 'Laura Gómez', service: 'Corte y Cepillado', time: '11:30 AM', staff: 'Diana', status: 'pending', color: 'bg-gray-200 text-black' },
+  { id: 3, client: 'Sofia Ruiz', service: 'Masaje Relajante', time: '02:00 PM', staff: 'Carlos', status: 'confirmed', color: 'bg-black text-white' },
+  { id: 4, client: 'Carmen López', service: 'Pedicura Spa', time: '04:00 PM', staff: 'María', status: 'confirmed', color: 'bg-black text-white' },
+]
 
-  let appointments = []
-  
-  if (clinic) {
-    const { data } = await supabase
-      .from('appointments')
-      .select('*, services(name, duration_minutes)')
-      .eq('clinic_id', clinic.id)
-      .order('start_time', { ascending: true })
-      
-    appointments = data || []
+export default function DashboardOverview() {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  if (!mounted) return null // Evitar hidratación mismatch
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-6">Mis Citas</h1>
-      
-      {!clinic ? (
-        <div className="bg-yellow-50 text-yellow-800 p-4 rounded-md">
-          Por favor, completa la configuración de tu negocio en la pestaña de Configuración.
+    <motion.div 
+      variants={containerVariants} 
+      initial="hidden" 
+      animate="show"
+      className="space-y-8"
+    >
+      <motion.div variants={itemVariants} className="flex justify-between items-end">
+        <div>
+          <h1 className="text-4xl font-black tracking-tighter">Torre de Control</h1>
+          <p className="text-gray-500 mt-2">Visión global de tu negocio hoy, 26 de Junio</p>
         </div>
-      ) : appointments.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border border-dashed">
-          <p className="text-gray-500">No tienes citas agendadas aún.</p>
+        <button className="bg-black text-white px-6 py-3 font-medium hover:bg-gray-900 transition-colors shadow-lg shadow-black/10">
+          Nueva Cita Manual
+        </button>
+      </motion.div>
+
+      {/* Métricas Financieras / CRM */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { title: 'Ingresos Proyectados', value: '$1.250.000', icon: TrendingUp },
+          { title: 'Citas Hoy', value: '12', icon: CalendarIcon },
+          { title: 'Nuevos Clientes', value: '+4', icon: Users },
+          { title: 'Horas Ocupadas', value: '85%', icon: Clock },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <stat.icon className="w-24 h-24" />
+            </div>
+            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{stat.title}</p>
+            <h3 className="text-3xl font-black mt-2">{stat.value}</h3>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Master Calendar View */}
+      <motion.div variants={itemVariants} className="bg-white border border-gray-200 shadow-sm">
+        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-xl font-bold tracking-tight">Calendario Maestro (Hoy)</h2>
+          <div className="flex gap-2">
+            <span className="px-3 py-1 bg-black text-white text-xs font-bold rounded-full">María</span>
+            <span className="px-3 py-1 bg-gray-200 text-black text-xs font-bold rounded-full">Diana</span>
+            <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">Carlos</span>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white border rounded-lg overflow-hidden">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-6 py-3 font-medium text-gray-500">Fecha y Hora</th>
-                <th className="px-6 py-3 font-medium text-gray-500">Cliente</th>
-                <th className="px-6 py-3 font-medium text-gray-500">Servicio</th>
-                <th className="px-6 py-3 font-medium text-gray-500">Estado</th>
+        
+        <div className="p-0">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                <th className="p-4 border-b font-semibold">Hora</th>
+                <th className="p-4 border-b font-semibold">Cliente</th>
+                <th className="p-4 border-b font-semibold">Servicio</th>
+                <th className="p-4 border-b font-semibold">Staff</th>
+                <th className="p-4 border-b font-semibold text-right">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
-              {appointments.map((apt) => (
-                <tr key={apt.id}>
-                  <td className="px-6 py-4">
-                    {format(new Date(apt.start_time), "dd MMM yyyy, HH:mm", { locale: es })}
+            <tbody className="divide-y divide-gray-100">
+              {MOCK_APPOINTMENTS.map((apt) => (
+                <tr key={apt.id} className="hover:bg-gray-50 transition-colors group cursor-pointer">
+                  <td className="p-4 font-bold text-gray-900">{apt.time}</td>
+                  <td className="p-4 font-medium">{apt.client}</td>
+                  <td className="p-4 text-gray-500">{apt.service}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 text-xs font-bold ${apt.color}`}>
+                      {apt.staff}
+                    </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{apt.client_name}</div>
-                    <div className="text-gray-500 text-xs">{apt.client_phone}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {apt.services?.name}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {apt.status}
+                  <td className="p-4 text-right">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${apt.status === 'confirmed' ? 'bg-green-500 animate-pulse' : 'bg-yellow-400'}`}></span>
+                      <span className="text-xs font-medium uppercase tracking-wider text-gray-600">
+                        {apt.status === 'confirmed' ? 'Confirmado' : 'Pendiente'}
+                      </span>
                     </span>
                   </td>
                 </tr>
@@ -71,7 +112,7 @@ export default async function DashboardPage() {
             </tbody>
           </table>
         </div>
-      )}
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

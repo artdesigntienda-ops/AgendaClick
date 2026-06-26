@@ -1,106 +1,107 @@
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { CopyButton } from './CopyButton'
 
-export default async function StaffPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default function StaffPage() {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  if (!user) {
-    redirect('/login')
+  if (!mounted) return null
+
+  // MOCK data for the UI while backend is wired
+  const clinic = { name: "Mi Negocio", id: "123-abc" }
+  const staff = [
+    { id: 1, name: "María", email: "maria@example.com", role: "owner", google_calendar_id: "yes" },
+    { id: 2, name: "Diana", email: "diana@example.com", role: "staff", google_calendar_id: null },
+  ]
+  const inviteLink = `http://localhost:3000/login?invite=${clinic.id}`
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
   }
 
-  // Get clinic info
-  const { data: clinic } = await supabase
-    .from('clinics')
-    .select('id, name')
-    .eq('owner_id', user.id)
-    .single()
-
-  if (!clinic) {
-    return (
-      <div>
-        <h1 className="text-2xl font-bold mb-6">Equipo</h1>
-        <p>Debes configurar tu clínica primero.</p>
-      </div>
-    )
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
   }
-
-  // Get staff members
-  const { data: staff } = await supabase
-    .from('profiles')
-    .select('id, name, email, google_calendar_id, role')
-    .eq('clinic_id', clinic.id)
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const inviteLink = `${baseUrl}/registro?invite=${clinic.id}`
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-2">Equipo de Trabajo</h1>
-      <p className="text-gray-500 mb-8">Administra los profesionales de tu estética.</p>
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8">
+      <motion.div variants={itemVariants}>
+        <h1 className="text-4xl font-black tracking-tighter">Staff & Equipo</h1>
+        <p className="text-gray-500 mt-2">Administra los profesionales de tu estética.</p>
+      </motion.div>
 
-      <div className="bg-white p-6 rounded-lg border shadow-sm mb-8">
-        <h2 className="text-lg font-semibold mb-2">Invitar Empleado</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <motion.div variants={itemVariants} className="bg-black p-8 shadow-xl text-white relative overflow-hidden group">
+        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-5 rounded-full blur-3xl group-hover:opacity-10 transition-opacity"></div>
+        <h2 className="text-xl font-bold mb-2">Invitar Empleado</h2>
+        <p className="text-gray-400 mb-6 max-w-2xl">
           Comparte este enlace con tus empleados. Al registrarse, quedarán vinculados automáticamente a <b>{clinic.name}</b>.
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 max-w-xl">
           <input 
             type="text" 
             readOnly 
             value={inviteLink}
-            className="flex-1 bg-gray-50 border rounded-md px-3 py-2 text-sm text-gray-600 outline-none"
+            className="flex-1 bg-white/10 border border-white/20 px-4 py-3 text-sm text-white outline-none focus:border-white/50 transition-colors"
           />
           <CopyButton text={inviteLink} />
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-6 py-3 font-medium text-gray-900">Nombre</th>
-              <th className="px-6 py-3 font-medium text-gray-900">Email</th>
-              <th className="px-6 py-3 font-medium text-gray-900">Rol</th>
-              <th className="px-6 py-3 font-medium text-gray-900">Calendario</th>
+      <motion.div variants={itemVariants} className="bg-white border border-gray-200 shadow-sm">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+              <th className="p-4 border-b font-semibold">Nombre</th>
+              <th className="p-4 border-b font-semibold">Email</th>
+              <th className="p-4 border-b font-semibold">Rol</th>
+              <th className="p-4 border-b font-semibold text-right">Calendario</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
-            {staff?.map((member) => (
-              <tr key={member.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-medium">{member.name || 'Sin nombre'}</td>
-                <td className="px-6 py-4 text-gray-500">{member.email}</td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${member.role === 'owner' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                    {member.role === 'owner' ? 'Dueño' : 'Empleado'}
+          <tbody className="divide-y divide-gray-100">
+            {staff.map((member, i) => (
+              <motion.tr 
+                key={member.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                <td className="p-4 font-bold text-gray-900">{member.name}</td>
+                <td className="p-4 text-gray-500">{member.email}</td>
+                <td className="p-4">
+                  <span className={`px-2 py-1 text-xs font-bold uppercase tracking-wider ${member.role === 'owner' ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}>
+                    {member.role === 'owner' ? 'Dueño' : 'Staff'}
                   </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="p-4 text-right">
                   {member.google_calendar_id ? (
-                    <span className="inline-flex items-center gap-1 text-green-600">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-green-600 uppercase tracking-wider">
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
                       Conectado
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-gray-400">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider">
                       <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-                      Sin Conectar
+                      Desconectado
                     </span>
                   )}
                 </td>
-              </tr>
+              </motion.tr>
             ))}
-            {(!staff || staff.length === 0) && (
-              <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                  No hay nadie en el equipo aún.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
