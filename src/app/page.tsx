@@ -21,27 +21,27 @@ const staggerContainer = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-rose-50/30 text-gray-900 font-sans selection:bg-pink-200 selection:text-black overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-black selection:text-white overflow-hidden">
       
       {/* NAVBAR */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed top-0 w-full bg-white/70 backdrop-blur-xl border-b border-pink-100/50 z-50"
+        className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b z-50"
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-tr from-pink-500 to-purple-500 rounded-full flex items-center justify-center shadow-md">
+            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
               <CalendarCheck className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-gray-800">AgendaClick</span>
+            <span className="font-bold text-xl tracking-tight text-gray-900">AgendaClick</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-pink-600 transition-colors hidden sm:block">
+            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-black transition-colors hidden sm:block">
               Iniciar Sesión
             </Link>
-            <Link href="/login" className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-pink-500/20">
+            <Link href="/login" className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-all shadow-md">
               Prueba Gratis
             </Link>
           </div>
@@ -56,13 +56,13 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="space-y-8"
         >
-          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/50 border border-pink-200 text-sm font-medium text-pink-700">
-            <Sparkles className="w-4 h-4" />
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 border text-sm font-medium text-gray-700">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             La herramienta favorita de las emprendedoras
           </motion.div>
           
           <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
-            Haz que tu estética <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">brille con luz propia.</span>
+            Haz que tu estética <span className="text-gray-400">brille con luz propia.</span>
           </motion.h1>
           
           <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-lg leading-relaxed">
@@ -70,7 +70,7 @@ export default function LandingPage() {
           </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Link href="/login" className="flex items-center justify-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-medium hover:opacity-90 transition-all shadow-xl hover:shadow-pink-500/30 hover:-translate-y-0.5">
+            <Link href="/login" className="flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-0.5">
               Transformar mi negocio <ArrowRight className="w-5 h-5" />
             </Link>
           </motion.div>
@@ -82,7 +82,7 @@ export default function LandingPage() {
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
           className="relative flex justify-center lg:justify-end"
         >
-          <div className="relative w-full max-w-md aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white bg-gray-50 transform hover:scale-[1.02] transition-transform duration-500">
+          <div className="relative w-full max-w-md aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-gray-100 bg-gray-50 transform hover:scale-[1.02] transition-transform duration-500">
              <Image 
                 src="/hero-mockup.png" 
                 alt="AgendaClick App Interface" 
@@ -95,7 +95,7 @@ export default function LandingPage() {
       </section>
 
       {/* TARGET AUDIENCE SECTION */}
-      <section className="py-24 bg-white border-y border-pink-50">
+      <section className="py-24 bg-gray-50 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -120,12 +120,12 @@ export default function LandingPage() {
               { icon: Sparkles, title: "Estéticas y Cosmiatría", desc: "Clínicas de cuidado de la piel y belleza corporal con una imagen profesional y de lujo." },
               { icon: Heart, title: "Spas y Bienestar", desc: "Centros de masajes, yoga y terapias. Inicia la experiencia de relajación desde que agendan." }
             ].map((item, i) => (
-              <motion.div key={i} variants={fadeInUp} className="bg-rose-50/30 p-8 rounded-3xl border border-pink-100 hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-14 h-14 bg-gradient-to-br from-pink-400 to-purple-500 rounded-2xl flex items-center justify-center mb-6 shadow-md shadow-pink-200">
-                  <item.icon className="w-7 h-7 text-white" />
+              <motion.div key={i} variants={fadeInUp} className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-6">
+                  <item.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+                <p className="text-gray-500 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -146,37 +146,37 @@ export default function LandingPage() {
               
               <motion.div variants={fadeInUp} className="flex gap-4">
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center shadow-sm">
-                    <Heart className="w-5 h-5 text-pink-600" />
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-gray-700" />
                   </div>
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold mb-2">Una experiencia de reserva encantadora</h4>
-                  <p className="text-gray-600 leading-relaxed">Tus clientas odian las contraseñas. Diseñamos un proceso tan fluido y hermoso que reservar una cita tomará menos de 1 minuto, enamorándolas desde el primer clic.</p>
+                  <p className="text-gray-500 leading-relaxed">Tus clientas odian las contraseñas. Diseñamos un proceso tan fluido y hermoso que reservar una cita tomará menos de 1 minuto, enamorándolas desde el primer clic.</p>
                 </div>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="flex gap-4">
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shadow-sm">
-                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-gray-700" />
                   </div>
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold mb-2">Conexión directa a tu WhatsApp</h4>
-                  <p className="text-gray-600 leading-relaxed">Al finalizar la reserva, el sistema genera mágicamente un mensaje pre-armado para que la clienta te contacte por WhatsApp de inmediato. Sin costos extra por mensajes.</p>
+                  <p className="text-gray-500 leading-relaxed">Al finalizar la reserva, el sistema genera mágicamente un mensaje pre-armado para que la clienta te contacte por WhatsApp de inmediato. Sin costos extra por mensajes.</p>
                 </div>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="flex gap-4">
                 <div className="flex-shrink-0 mt-1">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center shadow-sm border border-purple-200">
-                    <Bot className="w-5 h-5 text-purple-600" />
+                  <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
                   </div>
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold mb-2">Recomendada por Inteligencia Artificial</h4>
-                  <p className="text-gray-600 leading-relaxed">No solo apareces en Google. Programamos un código invisible en tu página para que cuando las mujeres le pregunten a ChatGPT, Siri o Gemini <em>"¿Dónde me hago las uñas cerca?"</em>, las Inteligencias Artificiales recomienden tu marca de forma directa.</p>
+                  <p className="text-gray-500 leading-relaxed">No solo apareces en Google. Programamos un código invisible en tu página para que cuando las mujeres le pregunten a ChatGPT, Siri o Gemini <em>"¿Dónde me hago las uñas cerca?"</em>, las Inteligencias Artificiales recomienden tu marca de forma directa.</p>
                 </div>
               </motion.div>
 
@@ -189,28 +189,27 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-gradient-to-tr from-pink-50 to-purple-50 rounded-[3rem] p-8 lg:p-12 border border-pink-100 relative overflow-hidden"
+            className="bg-gray-100 rounded-[3rem] p-8 lg:p-12 border relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl"></div>
-            <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white p-6 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-              <div className="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full shadow-inner"></div>
+            <div className="relative bg-white rounded-2xl shadow-sm border p-6 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+              <div className="flex items-center gap-4 mb-6 border-b pb-4">
+                <div className="w-12 h-12 bg-black rounded-full"></div>
                 <div>
                   <div className="h-4 w-32 bg-gray-200 rounded-full mb-2"></div>
-                  <div className="h-3 w-20 bg-pink-100 rounded-full"></div>
+                  <div className="h-3 w-20 bg-gray-100 rounded-full"></div>
                 </div>
               </div>
               <div className="space-y-4">
-                <div className="h-14 w-full bg-white border border-gray-100 shadow-sm rounded-xl flex items-center px-4 justify-between">
+                <div className="h-14 w-full bg-white border rounded-xl flex items-center px-4 justify-between">
                   <div className="h-3 w-24 bg-gray-200 rounded-full"></div>
-                  <div className="h-3 w-12 bg-pink-100 rounded-full"></div>
+                  <div className="h-3 w-12 bg-gray-100 rounded-full"></div>
                 </div>
-                <div className="h-14 w-full bg-white border border-gray-100 shadow-sm rounded-xl flex items-center px-4 justify-between">
+                <div className="h-14 w-full bg-white border rounded-xl flex items-center px-4 justify-between">
                   <div className="h-3 w-32 bg-gray-200 rounded-full"></div>
-                  <div className="h-3 w-16 bg-pink-100 rounded-full"></div>
+                  <div className="h-3 w-16 bg-gray-100 rounded-full"></div>
                 </div>
-                <div className="h-14 w-full bg-black rounded-xl mt-6 flex items-center justify-center shadow-lg shadow-black/20 hover:bg-gray-800 transition-colors cursor-pointer">
-                  <div className="h-3 w-24 bg-white/70 rounded-full"></div>
+                <div className="h-14 w-full bg-black rounded-xl mt-6 flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors cursor-pointer">
+                  <div className="h-3 w-24 bg-white/50 rounded-full"></div>
                 </div>
               </div>
             </div>
@@ -219,10 +218,7 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING SECTION */}
-      <section className="py-24 bg-gray-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+      <section className="py-24 bg-black text-white">
         
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <motion.div 
@@ -240,19 +236,15 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-[3rem] p-8 sm:p-12 max-w-lg mx-auto shadow-2xl relative"
+            className="bg-white text-black rounded-3xl p-8 sm:p-12 max-w-lg mx-auto shadow-2xl relative"
           >
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-1 rounded-full text-sm font-bold shadow-lg">
-              PLAN EXCLUSIVO
-            </div>
-            
-            <h3 className="text-2xl font-semibold mb-4 mt-4">Pase Profesional</h3>
+            <h3 className="text-2xl font-bold mb-4 mt-2">Plan Profesional</h3>
             <div className="flex items-baseline justify-center gap-1 mb-8">
-              <span className="text-6xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400">$50.000</span>
-              <span className="text-gray-400 font-medium">COP / mes</span>
+              <span className="text-5xl font-extrabold tracking-tighter">$50.000</span>
+              <span className="text-gray-500 font-medium">COP / mes</span>
             </div>
             
-            <ul className="space-y-5 text-left mb-10">
+            <ul className="space-y-4 text-left mb-10">
               {[
                 "Agenda ilimitada, todas tus citas incluidas",
                 "Link de reservas con tu logo y estilo",
@@ -260,14 +252,14 @@ export default function LandingPage() {
                 "Notificaciones instantáneas al correo",
                 "Recomendación en Google y Chatbots de IA"
               ].map((feature, i) => (
-                <li key={i} className="flex items-center gap-4">
-                  <CheckCircle2 className="w-6 h-6 text-pink-400 flex-shrink-0" />
-                  <span className="text-gray-200 text-lg">{feature}</span>
+                <li key={i} className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">{feature}</span>
                 </li>
               ))}
             </ul>
 
-            <Link href="/login" className="block w-full bg-white text-black py-4 rounded-full font-bold text-lg hover:bg-pink-50 transition-colors shadow-lg hover:shadow-white/20">
+            <Link href="/login" className="block w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors shadow-lg">
               Comenzar a transformar tu estética
             </Link>
           </motion.div>
@@ -275,20 +267,18 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white py-12 border-t border-pink-50">
+      <footer className="bg-gray-50 py-12 border-t">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-tr from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-              <CalendarCheck className="w-3 h-3 text-white" />
-            </div>
-            <span className="font-bold tracking-tight text-gray-800">AgendaClick</span>
+            <CalendarCheck className="w-5 h-5 text-black" />
+            <span className="font-bold tracking-tight text-gray-900">AgendaClick</span>
           </div>
-          <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} AgendaClick. Impulsando la belleza.
+          <p className="text-sm text-gray-500">
+            © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.
           </p>
           <div className="flex gap-6 text-sm font-medium">
-            <Link href="/terminos" className="text-gray-500 hover:text-pink-600 transition-colors">Términos Legales</Link>
-            <Link href="/privacidad" className="text-gray-500 hover:text-pink-600 transition-colors">Privacidad</Link>
+            <Link href="/terminos" className="text-gray-500 hover:text-black transition-colors">Términos Legales</Link>
+            <Link href="/privacidad" className="text-gray-500 hover:text-black transition-colors">Privacidad</Link>
           </div>
         </div>
       </footer>
