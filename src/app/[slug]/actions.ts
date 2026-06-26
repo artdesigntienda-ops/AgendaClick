@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { google } from 'googleapis'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const supabaseAdmin = createSupabaseClient(
@@ -138,7 +139,7 @@ export async function createAppointment(data: {
   // 3. Obtener info adicional (correo del dueño y nombre del servicio) para el email
   const { data: clinicInfo } = await supabase
     .from('clinics')
-    .select('name, profiles(email)')
+    .select('name, profiles(email, google_refresh_token, google_calendar_id)')
     .eq('id', data.clinicId)
     .single()
 
@@ -148,7 +149,6 @@ export async function createAppointment(data: {
     .eq('id', data.serviceId)
     .single()
 
-  const ownerEmail = (clinicInfo?.profiles as any)?.email || (Array.isArray(clinicInfo?.profiles) ? (clinicInfo?.profiles as any)[0]?.email : null)
   const serviceName = serviceInfo?.name || 'Cita'
   const clinicName = clinicInfo?.name || 'Estética'
   
@@ -171,6 +171,41 @@ export async function createAppointment(data: {
 
   const formattedDate = format(new Date(data.startTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
   
+  // Extraemos tokens de google si existen
+  const ownerProfile = (clinicInfo?.profiles as any)?.[0] || (clinicInfo?.profiles as any)
+  const ownerEmail = ownerProfile?.email || null
+  const googleRefreshToken = ownerProfile?.google_refresh_token || null
+  const googleCalendarId = ownerProfile?.google_calendar_id || null
+
+  try {
+    // 3.5. Crear evento en Google Calendar si el dueño tiene la integración activa
+    if (googleRefreshToken && googleCalendarId) {
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET
+      )
+      oauth2Client.setCredentials({ refresh_token: googleRefreshToken })
+      
+      const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+      
+      await calendar.events.insert({
+        calendarId: googleCalendarId,
+        requestBody: {
+          summary: `${serviceName} - ${data.clientName}`,
+          description: `Teléfono: ${data.clientPhone}\nCorreo: ${data.clientEmail}\nServicio: ${serviceName}`,
+          start: {
+            dateTime: new Date(data.startTime).toISOString(),
+          },
+          end: {
+            dateTime: new Date(data.endTime).toISOString(),
+          },
+        }
+      })
+    }
+  } catch (err) {
+    console.error('Error insertando en Google Calendar:', err)
+  }
+
   try {
     // 4. Enviar correo al Dueño
     if (ownerEmail) {
