@@ -47,6 +47,8 @@ export default async function DashboardOverview() {
       .select(`
         id,
         client_name,
+        client_email,
+        client_phone,
         start_time,
         status,
         services ( name ),
