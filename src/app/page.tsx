@@ -32,7 +32,7 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/full-logo.png" alt="AgendaClick Logo" className="h-10 object-contain" />
+            <img src="/full-logo.png" alt="AgendaClick Logo" className="h-14 md:h-16 object-contain" />
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-black transition-colors hidden sm:block">
@@ -338,7 +338,7 @@ export default function LandingPage() {
       <footer className="bg-gray-50 py-12 border-t">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <img src="/full-logo.png" alt="AgendaClick Logo" className="h-8 object-contain" />
+            <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 object-contain" />
           </div>
           <p className="text-sm text-gray-500">
             © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.

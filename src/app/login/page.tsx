@@ -9,7 +9,7 @@ export default function LoginPage({
   return (
     <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
-        <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 mx-auto mb-6 object-contain" />
+        <img src="/full-logo.png" alt="AgendaClick Logo" className="h-20 mx-auto mb-8 object-contain" />
         
         {/* Hidden field to pass the invite ID if present */}
         {searchParams?.invite && (
