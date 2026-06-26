@@ -1,8 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { HeartHandshake, CircleAlert, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { formatDistanceToNow, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { HeartHandshake } from 'lucide-react'
+import ClientsTable from './ClientsTable'
 
 export default async function ClientsCRMPage() {
   const supabase = await createClient()
@@ -75,94 +74,7 @@ export default async function ClientsCRMPage() {
 
   const clients = Object.values(clientsMap)
 
-  const getRetentionStatus = (lastVisitISO: string) => {
-    const lastVisit = parseISO(lastVisitISO)
-    const diffDays = (new Date().getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24)
-
-    if (diffDays <= 30) {
-      return {
-        color: 'text-green-600',
-        bgColor: 'bg-green-100',
-        text: 'Cliente Frecuente (Activo)',
-        icon: <CheckCircle2 className="w-4 h-4" />
-      }
-    } else if (diffDays <= 60) {
-      return {
-        color: 'text-amber-600',
-        bgColor: 'bg-amber-100',
-        text: 'Riesgo (Hace > 1 Mes)',
-        icon: <AlertTriangle className="w-4 h-4" />
-      }
-    } else {
-      return {
-        color: 'text-red-600',
-        bgColor: 'bg-red-100',
-        text: 'Perdido (Hace > 2 Meses)',
-        icon: <CircleAlert className="w-4 h-4" />
-      }
-    }
-  }
-
-  return (
-    <div className="space-y-8 animate-fade-in-up">
-      <div>
-        <h1 className="text-4xl font-black tracking-tighter">Clientes (CRM)</h1>
-        <p className="text-gray-500 mt-2">Retén a tus clientes. Usa el semáforo para saber a quién deberías volver a contactar.</p>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-          <HeartHandshake className="w-5 h-5 text-gray-500" />
-          <h2 className="text-xl font-bold">Listado de Clientes y Retención</h2>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 border-b">
-                <th className="p-4 font-semibold">Cliente</th>
-                <th className="p-4 font-semibold">Último Servicio</th>
-                <th className="p-4 font-semibold">Atendido por</th>
-                <th className="p-4 font-semibold">Hace Cuánto</th>
-                <th className="p-4 font-semibold">Semáforo de Retención</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {clients.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
-                    Aún no hay clientes registrados en las citas.
-                  </td>
-                </tr>
-              ) : (
-                clients.map((client, i) => {
-                  const status = getRetentionStatus(client.lastVisit)
-                  
-                  return (
-                    <tr key={i} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-4">
-                        <p className="font-bold text-gray-900">{client.name}</p>
-                        <p className="text-xs text-gray-500">{client.phone} • {client.email}</p>
-                      </td>
-                      <td className="p-4 text-gray-900 font-medium">{client.lastService}</td>
-                      <td className="p-4 text-gray-600">{client.lastStaff}</td>
-                      <td className="p-4 text-sm text-gray-500 capitalize">
-                        {formatDistanceToNow(parseISO(client.lastVisit), { addSuffix: true, locale: es })}
-                      </td>
-                      <td className="p-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${status.bgColor} ${status.color}`}>
-                          {status.icon}
-                          {status.text}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ClientsTable clients={clients} />
     </div>
   )
 }

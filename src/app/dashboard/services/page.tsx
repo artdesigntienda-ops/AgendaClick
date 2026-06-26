@@ -38,7 +38,8 @@ export default async function ServicesPage() {
       clinic_id: clinic.id,
       name: formData.get('name'),
       duration_minutes: parseInt(formData.get('duration') as string),
-      price: parseFloat(formData.get('price') as string)
+      price: parseFloat(formData.get('price') as string),
+      description: formData.get('description')
     })
 
     revalidatePath('/dashboard/services')
@@ -66,24 +67,32 @@ export default async function ServicesPage() {
         <h1 className="text-2xl font-semibold">Servicios</h1>
       </div>
 
-      <div className="bg-white border rounded-lg p-6 mb-8">
-        <h2 className="text-lg font-medium mb-4">Añadir Nuevo Servicio</h2>
-        <form action={addService} className="flex gap-4 items-end">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-            <input name="name" required placeholder="Ej. Consulta General" className="w-full border rounded-md px-3 py-2" />
+      <div className="bg-white border rounded-lg p-6 mb-8 shadow-sm">
+        <h2 className="text-lg font-bold mb-4">Añadir Nuevo Servicio</h2>
+        <form action={addService} className="flex flex-col gap-4">
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+              <input name="name" required placeholder="Ej. Consulta General" className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" />
+            </div>
+            <div className="w-32">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Duración (min)</label>
+              <input type="number" name="duration" required defaultValue={30} className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" />
+            </div>
+            <div className="w-32">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+              <input type="number" name="price" required defaultValue={0} className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" />
+            </div>
           </div>
-          <div className="w-32">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Duración (min)</label>
-            <input type="number" name="duration" required defaultValue={30} className="w-full border rounded-md px-3 py-2" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción y Notas</label>
+            <textarea name="description" rows={2} placeholder="Ej. El precio puede variar según el largo del cabello." className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black"></textarea>
           </div>
-          <div className="w-32">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
-            <input type="number" name="price" required defaultValue={0} className="w-full border rounded-md px-3 py-2" />
+          <div className="flex justify-end mt-2">
+            <button type="submit" className="bg-black text-white border-2 border-black px-6 py-2 rounded-lg font-medium hover:bg-white hover:text-black transition-colors duration-300">
+              Añadir Servicio
+            </button>
           </div>
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded-md">
-            Añadir
-          </button>
         </form>
       </div>
 
@@ -99,14 +108,16 @@ export default async function ServicesPage() {
           </thead>
           <tbody className="divide-y">
             {services.map((service) => (
-              <tr key={service.id}>
-                <td className="px-6 py-4 font-medium">{service.name}</td>
+                <td className="px-6 py-4">
+                  <p className="font-medium">{service.name}</p>
+                  {service.description && <p className="text-xs text-gray-500 mt-1 max-w-xs">{service.description}</p>}
+                </td>
                 <td className="px-6 py-4">{service.duration_minutes} min</td>
                 <td className="px-6 py-4">${service.price}</td>
                 <td className="px-6 py-4 text-right">
                   <form action={deleteService}>
                     <input type="hidden" name="id" value={service.id} />
-                    <button type="submit" className="text-red-600 hover:text-red-800">Eliminar</button>
+                    <button type="submit" className="text-red-600 hover:text-red-800 font-bold">Eliminar</button>
                   </form>
                 </td>
               </tr>
