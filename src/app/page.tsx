@@ -66,7 +66,7 @@ export default function LandingPage() {
           </motion.h1>
           
           <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-lg leading-relaxed">
-            Libérate de contestar mensajes todo el día. Permite que tus clientas reserven su cita en segundos con una plataforma elegante, minimalista y diseñada para realzar la belleza de tu negocio.
+            Libérate de contestar mensajes todo el día. Permite que tus clientas reserven su cita en segundos y deja que la <strong>Inteligencia Artificial</strong> consiga nuevas clientas para tu negocio.
           </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -92,6 +92,66 @@ export default function LandingPage() {
              />
           </div>
         </motion.div>
+      </section>
+
+      {/* SECCIÓN ESTRELLA: INTELIGENCIA ARTIFICIAL (GEO) */}
+      <section className="py-24 bg-black text-white border-y border-gray-800 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="flex flex-col lg:flex-row items-center gap-16"
+          >
+            <motion.div variants={fadeInUp} className="lg:w-1/2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sm font-bold text-white mb-8">
+                <Bot className="w-4 h-4" />
+                LA VENTAJA DEFINITIVA
+              </div>
+              <h2 className="text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+                Recomendada por <span className="text-gray-400">Inteligencia Artificial.</span>
+              </h2>
+              <p className="text-xl text-gray-300 leading-relaxed mb-8">
+                No solo apareces en Google. Programamos un código invisible en tu página para que cuando las mujeres le pregunten a <strong>ChatGPT, Siri o Gemini</strong> <em className="text-white">"¿Dónde me hago las uñas cerca?"</em>, las Inteligencias Artificiales recomienden tu marca de forma directa.
+              </p>
+              <div className="flex gap-4">
+                <CheckCircle2 className="w-6 h-6 text-gray-400 flex-shrink-0" />
+                <span className="text-gray-200">Aumenta tu visibilidad sin pagar publicidad tradicional.</span>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              variants={fadeInUp} 
+              className="lg:w-1/2 w-full"
+            >
+              <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-gray-500 flex-shrink-0"></div>
+                    <div className="bg-white/10 p-4 rounded-2xl rounded-tl-none max-w-[80%] text-sm text-gray-200">
+                      ¿Dónde hay un buen spa para relajarme este fin de semana en la ciudad?
+                    </div>
+                  </div>
+                  <div className="flex gap-4 flex-row-reverse">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-5 h-5 text-black" />
+                    </div>
+                    <div className="bg-white p-4 rounded-2xl rounded-tr-none max-w-[80%] text-sm text-black font-medium shadow-lg">
+                      Te recomiendo <strong>tu negocio</strong>. Tienen excelentes valoraciones y puedes agendar tu cita ahora mismo en su perfil oficial.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
       </section>
 
       {/* TARGET AUDIENCE SECTION */}
@@ -132,7 +192,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CORE FEATURES (Focus on AI and Ease) */}
+      {/* CORE FEATURES */}
       <section className="py-24 max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div 
@@ -165,18 +225,6 @@ export default function LandingPage() {
                 <div>
                   <h4 className="text-xl font-semibold mb-2">Conexión directa a tu WhatsApp</h4>
                   <p className="text-gray-500 leading-relaxed">Al finalizar la reserva, el sistema genera mágicamente un mensaje pre-armado para que la clienta te contacte por WhatsApp de inmediato. Sin costos extra por mensajes.</p>
-                </div>
-              </motion.div>
-
-              <motion.div variants={fadeInUp} className="flex gap-4">
-                <div className="flex-shrink-0 mt-1">
-                  <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-xl font-semibold mb-2">Recomendada por Inteligencia Artificial</h4>
-                  <p className="text-gray-500 leading-relaxed">No solo apareces en Google. Programamos un código invisible en tu página para que cuando las mujeres le pregunten a ChatGPT, Siri o Gemini <em>"¿Dónde me hago las uñas cerca?"</em>, las Inteligencias Artificiales recomienden tu marca de forma directa.</p>
                 </div>
               </motion.div>
 
@@ -218,7 +266,7 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING SECTION */}
-      <section className="py-24 bg-black text-white">
+      <section className="py-24 bg-white border-t border-gray-200">
         
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <motion.div 
@@ -227,8 +275,8 @@ export default function LandingPage() {
             viewport={{ once: true }}
             variants={fadeInUp}
           >
-            <h2 className="text-4xl font-bold tracking-tight mb-4">La belleza de lo simple</h2>
-            <p className="text-gray-400 mb-16 text-lg">Un único plan que empodera tu negocio. Sin comisiones por cita ni letras pequeñas.</p>
+            <h2 className="text-4xl font-bold tracking-tight mb-4 text-gray-900">La belleza de lo simple</h2>
+            <p className="text-gray-500 mb-16 text-lg">Un único plan que empodera tu negocio. Sin comisiones por cita ni letras pequeñas.</p>
           </motion.div>
           
           <motion.div 
@@ -236,12 +284,12 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-white text-black rounded-3xl p-8 sm:p-12 max-w-lg mx-auto shadow-2xl relative"
+            className="bg-black text-white rounded-3xl p-8 sm:p-12 max-w-lg mx-auto shadow-2xl relative"
           >
             <h3 className="text-2xl font-bold mb-4 mt-2">Plan Profesional</h3>
             <div className="flex items-baseline justify-center gap-1 mb-8">
               <span className="text-5xl font-extrabold tracking-tighter">$50.000</span>
-              <span className="text-gray-500 font-medium">COP / mes</span>
+              <span className="text-gray-400 font-medium">COP / mes</span>
             </div>
             
             <ul className="space-y-4 text-left mb-10">
@@ -254,12 +302,12 @@ export default function LandingPage() {
               ].map((feature, i) => (
                 <li key={i} className="flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-gray-200">{feature}</span>
                 </li>
               ))}
             </ul>
 
-            <Link href="/login" className="block w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors shadow-lg">
+            <Link href="/login" className="block w-full bg-white text-black py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg">
               Comenzar a transformar tu estética
             </Link>
           </motion.div>
