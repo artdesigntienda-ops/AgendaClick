@@ -6,9 +6,10 @@ import { Metadata } from 'next'
 export const revalidate = 60 // revalidate at most every minute
 
 // 1. SEO Avanzado Dinámico
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   const supabase = await createClient()
-  const { data: clinic } = await supabase.from('clinics').select('name, business_type').eq('slug', params.slug).single()
+  const { data: clinic } = await supabase.from('clinics').select('name, business_type').eq('slug', slug).single()
   
   if (!clinic) return { title: 'No Encontrado | AgendaClick' }
 
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: `${clinic.name} - Reserva Online`,
       description: description,
       type: 'website',
-      url: `https://agendaclick.com/${params.slug}`,
+      url: `https://agendaclick.com/${slug}`,
       siteName: 'AgendaClick',
     },
     twitter: {
@@ -32,14 +33,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function PublicClinicPage({ params }: { params: { slug: string } }) {
+export default async function PublicClinicPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const supabase = await createClient()
 
   // Buscar el negocio por slug
   const { data: clinic, error: clinicError } = await supabase
     .from('clinics')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
 
   if (clinicError || !clinic) {
