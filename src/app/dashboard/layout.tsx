@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Scissors, Settings, LogOut, Users } from 'lucide-react'
+import { AutoLogout } from './AutoLogout'
 
 export default async function DashboardLayout({
   children,
@@ -23,36 +24,38 @@ export default async function DashboardLayout({
     .single()
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar minimalista */}
-      <aside className="w-64 bg-white border-r flex flex-col">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold tracking-tight">AgendaClick</h2>
-          <p className="text-sm text-gray-500 truncate mt-1">
+    <div className="flex h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
+      <AutoLogout />
+      
+      {/* Sidebar Ultra Minimalista */}
+      <aside className="w-64 bg-white border-r border-black/10 flex flex-col">
+        <div className="p-6 border-b border-black/10">
+          <h2 className="text-xl font-bold tracking-tighter uppercase">Prestige</h2>
+          <p className="text-xs text-black/50 truncate mt-1 tracking-wider uppercase">
             {clinic?.name || 'Mi Negocio'}
           </p>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
+        <nav className="flex-1 p-4 space-y-2">
+          <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Calendar className="w-4 h-4" />
-            Citas
+            Agenda Maestra
           </Link>
-          <Link href="/dashboard/services" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
+          <Link href="/dashboard/services" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Scissors className="w-4 h-4" />
             Servicios
           </Link>
-          <Link href="/dashboard/staff" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
+          <Link href="/dashboard/staff" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Users className="w-4 h-4" />
-            Equipo
+            Staff & Equipo
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
+          <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Settings className="w-4 h-4" />
             Configuración
           </Link>
         </nav>
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-black/10">
           <form action="/auth/signout" method="post">
-            <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-red-600">
+            <button className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-none hover:bg-red-600 hover:text-white transition-colors duration-200">
               <LogOut className="w-4 h-4" />
               Cerrar Sesión
             </button>
@@ -61,8 +64,8 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto p-8">
+      <main className="flex-1 overflow-y-auto bg-[#fafafa]">
+        <div className="max-w-6xl mx-auto p-8 lg:p-12">
           {children}
         </div>
       </main>
