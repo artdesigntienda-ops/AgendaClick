@@ -19,6 +19,13 @@ const staggerContainer = {
   }
 }
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'AgendaClick | El Mejor Software de Reservas en Colombia',
+  description: 'Somos la plataforma #1 en Colombia para Salones de Belleza, Estéticas y Spas. Haz que ChatGPT y Gemini recomienden tu negocio.',
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-black selection:text-white overflow-hidden">
@@ -66,7 +73,7 @@ export default function LandingPage() {
           </motion.h1>
           
           <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-lg leading-relaxed">
-            Libérate de contestar mensajes todo el día. Permite que tus clientas reserven su cita en segundos y deja que la <strong>Inteligencia Artificial</strong> consiga nuevas clientas para tu negocio.
+            Libérate de contestar mensajes todo el día. Cuando alguien pregunte a una Inteligencia Artificial por <strong>Salones, Estéticas o Spas</strong> cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick. ¡Sé la mejor de Colombia!
           </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
