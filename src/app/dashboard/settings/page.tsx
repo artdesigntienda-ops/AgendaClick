@@ -1,15 +1,20 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import SettingsForm from './SettingsForm'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  if (!user) {
+    redirect('/login')
+  }
+
   const { data: clinic } = await supabase
     .from('clinics')
     .select('*')
-    .eq('owner_id', user?.id)
+    .eq('owner_id', user.id)
     .single()
 
   async function saveSettings(formData: FormData) {
@@ -17,6 +22,12 @@ export default async function SettingsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+
+    const { data: existingClinic } = await supabase
+      .from('clinics')
+      .select('id, logo_url')
+      .eq('owner_id', user.id)
+      .single()
 
     const name = formData.get('name') as string
     const phone = formData.get('phone') as string
@@ -42,7 +53,7 @@ export default async function SettingsPage() {
     
     // Manejo de la subida del logo
     const logoFile = formData.get('logo') as File
-    let logoUrl = clinic?.logo_url
+    let logoUrl = existingClinic?.logo_url
 
     if (logoFile && logoFile.size > 0) {
       const fileExt = logoFile.name.split('.').pop()
@@ -82,8 +93,8 @@ export default async function SettingsPage() {
       longitude
     }
 
-    if (clinic?.id) {
-      await supabase.from('clinics').update(payload).eq('id', clinic.id)
+    if (existingClinic?.id) {
+      await supabase.from('clinics').update(payload).eq('id', existingClinic.id)
     } else {
       await supabase.from('clinics').insert([payload])
     }
@@ -94,7 +105,9 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Configuración del Negocio</h1>
+      <h1 className="text-2xl font-semibold mb-6">
+        {clinic ? 'Edición de mi Perfil' : 'Creación del Perfil de mi Negocio'}
+      </h1>
 
       <div className="bg-white border rounded-lg p-6 max-w-2xl shadow-sm">
         <SettingsForm clinic={clinic} saveAction={saveSettings} />

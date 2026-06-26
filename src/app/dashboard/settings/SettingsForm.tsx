@@ -249,6 +249,55 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
         </div>
       </div>
 
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Redes Sociales (Firma para Correos)</h2>
+        <p className="text-sm text-gray-500 mb-4">Estos enlaces se incluirán en los correos de confirmación de citas invitando a tus clientes a seguirte.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+            <div className="flex rounded-md shadow-sm">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">@</span>
+              <input 
+                name="instagram" 
+                defaultValue={clinic?.instagram_url || ''}
+                placeholder="usuario" 
+                className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-black focus:border-black" 
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+            <input 
+              name="facebook" 
+              defaultValue={clinic?.facebook_url || ''}
+              placeholder="Enlace o nombre de página" 
+              className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
+            <div className="flex rounded-md shadow-sm">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">@</span>
+              <input 
+                name="tiktok" 
+                defaultValue={clinic?.tiktok_url || ''}
+                placeholder="usuario" 
+                className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-black focus:border-black" 
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">YouTube</label>
+            <input 
+              name="youtube" 
+              defaultValue={clinic?.youtube_url || ''}
+              placeholder="Enlace del canal" 
+              className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" 
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="pt-4 border-t">
         <button type="submit" className="bg-black hover:bg-gray-800 transition-colors text-white px-6 py-2 rounded-lg font-medium w-full sm:w-auto">
           Guardar Configuración
