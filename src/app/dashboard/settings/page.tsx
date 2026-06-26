@@ -23,6 +23,10 @@ export default async function SettingsPage() {
     const slug = formData.get('slug') as string
     const businessType = formData.get('business_type') as string
     const slogan = formData.get('slogan') as string
+    const country = formData.get('country') as string
+    const state = formData.get('state') as string
+    const city = formData.get('city') as string
+    const neighborhood = formData.get('neighborhood') as string
     const instagram = formData.get('instagram') as string
     const facebook = formData.get('facebook') as string
     const tiktok = formData.get('tiktok') as string
@@ -71,6 +75,10 @@ export default async function SettingsPage() {
       youtube_url: youtube,
       logo_url: logoUrl,
       address,
+      country,
+      state,
+      city,
+      neighborhood,
       latitude,
       longitude
     }, { onConflict: 'owner_id' })

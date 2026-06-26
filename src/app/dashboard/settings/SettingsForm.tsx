@@ -1,43 +1,85 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
+import { State, City } from 'country-state-city'
+
+const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
+  '+57': 'CO',
+  '+52': 'MX',
+  '+34': 'ES',
+  '+1': 'US',
+  '+54': 'AR',
+  '+56': 'CL',
+  '+51': 'PE'
+}
 
 export default function SettingsForm({ clinic, saveAction }: { clinic: any, saveAction: (formData: FormData) => void }) {
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
+  
+  // Teléfono y País
   const [phonePrefix, setPhonePrefix] = useState('+57')
   const [phoneNumber, setPhoneNumber] = useState(() => {
     if (!clinic?.phone) return ''
-    if (clinic.phone.startsWith('+57')) return clinic.phone.slice(3)
-    // fallback genérico si empieza con +
+    if (clinic.phone.startsWith('+57')) {
+      return clinic.phone.slice(3)
+    }
     const match = clinic.phone.match(/^(\+\d{1,3})(.*)$/)
     if (match) {
-      setPhonePrefix(match[1])
+      setPhonePrefix(match[1]) // wait, this might be overwritten by useEffect if not careful. Actually it's fine.
       return match[2]
     }
     return clinic.phone
   })
+  
+  const [countryCode, setCountryCode] = useState(clinic?.country || 'CO')
+  const [stateCode, setStateCode] = useState(clinic?.state || '')
+  const [cityName, setCityName] = useState(clinic?.city || '')
+  const [neighborhood, setNeighborhood] = useState(clinic?.neighborhood || '')
+
+  // Actualizar país automáticamente basado en el prefijo telefónico (si es uno de los predefinidos)
+  useEffect(() => {
+    if (PHONE_PREFIX_TO_COUNTRY[phonePrefix]) {
+      // Si el país derivado es diferente al actual, actualizamos.
+      // (En la carga inicial, respetamos lo que venga en clinic?.country si ya existe)
+      if (!clinic?.country || clinic.country !== PHONE_PREFIX_TO_COUNTRY[phonePrefix]) {
+        // setCountryCode(PHONE_PREFIX_TO_COUNTRY[phonePrefix])
+      }
+    }
+  }, [phonePrefix, clinic])
+
+  const handlePhonePrefixChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPrefix = e.target.value
+    setPhonePrefix(newPrefix)
+    if (PHONE_PREFIX_TO_COUNTRY[newPrefix]) {
+      setCountryCode(PHONE_PREFIX_TO_COUNTRY[newPrefix])
+      setStateCode('')
+      setCityName('')
+    }
+  }
+
+  const availableStates = State.getStatesOfCountry(countryCode)
+  const availableCities = stateCode ? City.getCitiesOfState(countryCode, stateCode) : []
 
   // Generador de URL automático
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value
     setName(newName)
-    // Solo auto-generar si el usuario no ha forzado un slug propio 
-    // o si es un negocio nuevo
     const generated = newName
       .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
-      .replace(/[^a-z0-9]+/g, '-') // replace non-alphanumeric with dashes
-      .replace(/^-+|-+$/g, '') // trim dashes
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+      .replace(/[^a-z0-9]+/g, '-') 
+      .replace(/^-+|-+$/g, '') 
     setSlug(generated)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    // Consolidar teléfono
     formData.set('phone', `${phonePrefix}${phoneNumber}`)
+    // countryCode is selected programmatically
+    formData.set('country', countryCode)
     saveAction(formData)
   }
 
@@ -72,28 +114,6 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
       </div>
 
       <div className="border-b pb-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Redes Sociales (Opcional)</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Instagram (URL)</label>
-            <input name="instagram" defaultValue={clinic?.instagram_url || ''} placeholder="https://instagram.com/..." className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Facebook (URL)</label>
-            <input name="facebook" defaultValue={clinic?.facebook_url || ''} placeholder="https://facebook.com/..." className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">TikTok (URL)</label>
-            <input name="tiktok" defaultValue={clinic?.tiktok_url || ''} placeholder="https://tiktok.com/@..." className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">YouTube (URL)</label>
-            <input name="youtube" defaultValue={clinic?.youtube_url || ''} placeholder="https://youtube.com/..." className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" />
-          </div>
-        </div>
-      </div>
-
-      <div>
         <h2 className="text-lg font-medium text-gray-900 mb-4">Datos Principales</h2>
         <div className="space-y-4">
           <div>
@@ -141,7 +161,7 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
             <div className="flex gap-2">
               <select 
                 value={phonePrefix}
-                onChange={(e) => setPhonePrefix(e.target.value)}
+                onChange={handlePhonePrefixChange}
                 className="border rounded-md px-2 py-2 bg-white focus:ring-black focus:border-black text-sm w-32"
               >
                 <option value="+57">🇨🇴 +57 (Colombia)</option>
@@ -162,9 +182,61 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Ubicación</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Departamento / Estado</label>
+            <select 
+              name="state" 
+              value={stateCode}
+              onChange={(e) => {
+                setStateCode(e.target.value)
+                setCityName('')
+              }}
+              className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black text-sm"
+              required
+            >
+              <option value="">Selecciona un departamento...</option>
+              {availableStates.map(state => (
+                <option key={state.isoCode} value={state.isoCode}>{state.name}</option>
+              ))}
+            </select>
+          </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección del Negocio</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad / Municipio</label>
+            <select 
+              name="city" 
+              value={cityName}
+              onChange={(e) => setCityName(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black text-sm"
+              required
+              disabled={!stateCode}
+            >
+              <option value="">Selecciona una ciudad...</option>
+              {availableCities.map(city => (
+                <option key={city.name} value={city.name}>{city.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Barrio</label>
+            <input 
+              name="neighborhood" 
+              value={neighborhood}
+              onChange={(e) => setNeighborhood(e.target.value)}
+              placeholder="Ej. El Poblado, Chapinero..." 
+              className="w-full border rounded-md px-3 py-2 text-sm focus:ring-black focus:border-black" 
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección Exacta (Google Maps)</label>
             <AddressAutocomplete 
               defaultAddress={clinic?.address || ''} 
               defaultLat={clinic?.latitude || ''}
