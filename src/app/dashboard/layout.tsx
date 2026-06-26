@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Scissors, Settings, LogOut } from 'lucide-react'
+import { Calendar, Scissors, Settings, LogOut, Users } from 'lucide-react'
 
 export default async function DashboardLayout({
   children,
@@ -40,6 +40,10 @@ export default async function DashboardLayout({
           <Link href="/dashboard/services" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
             <Scissors className="w-4 h-4" />
             Servicios
+          </Link>
+          <Link href="/dashboard/staff" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
+            <Users className="w-4 h-4" />
+            Equipo
           </Link>
           <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 text-gray-900">
             <Settings className="w-4 h-4" />
