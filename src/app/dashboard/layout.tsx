@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { AutoLogout } from './AutoLogout'
 import Sidebar from './Sidebar'
+import { OnboardingTour } from './OnboardingTour'
 
 export default async function DashboardLayout({
   children,
@@ -17,7 +18,7 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, clinic_id')
+    .select('role, clinic_id, has_seen_tutorial')
     .eq('id', user.id)
     .single()
 
@@ -43,6 +44,12 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
       <AutoLogout />
+      {profile && (
+        <OnboardingTour 
+          hasSeenTutorial={!!profile.has_seen_tutorial} 
+          role={profile.role as 'owner' | 'staff'} 
+        />
+      )}
       
       <Sidebar clinic={clinic} />
 

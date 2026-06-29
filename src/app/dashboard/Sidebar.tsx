@@ -89,38 +89,43 @@ export default function Sidebar({ clinic }: { clinic: any }) {
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <Link onClick={() => setIsOpen(false)} href="/dashboard" className="animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-calendar" onClick={() => setIsOpen(false)} href="/dashboard" className="animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Calendar className="w-4 h-4" />
             Agenda Maestra
           </Link>
-          <Link onClick={() => setIsOpen(false)} href="/dashboard/services" className="animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-services" onClick={() => setIsOpen(false)} href="/dashboard/services" className="animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Scissors className="w-4 h-4" />
             Servicios
           </Link>
-          <Link onClick={() => setIsOpen(false)} href="/dashboard/staff" className="animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-staff" onClick={() => setIsOpen(false)} href="/dashboard/staff" className="animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Users className="w-4 h-4" />
             Profesionales
           </Link>
-          <Link onClick={() => setIsOpen(false)} href="/dashboard/finances" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-clients" onClick={() => setIsOpen(false)} href="/dashboard/clients" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+            <HeartHandshake className="w-4 h-4" />
+            Clientas (CRM)
+          </Link>
+          <Link id="tour-finances" onClick={() => setIsOpen(false)} href="/dashboard/finances" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <DollarSign className="w-4 h-4" />
             Finanzas
           </Link>
-          <Link onClick={() => setIsOpen(false)} href="/dashboard/clients" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-            <HeartHandshake className="w-4 h-4" />
-            Clientes (CRM)
-          </Link>
-          <Link onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <CreditCard className="w-4 h-4" />
-            Planes y Facturación
+            Facturación
           </Link>
-          <Link onClick={() => setIsOpen(false)} href="/dashboard/settings" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-settings" onClick={() => setIsOpen(false)} href="/dashboard/settings" className="animate-fade-in-right anim-delay-700 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Settings className="w-4 h-4" />
             {clinic?.slug ? 'Editar Perfil' : 'Crear Perfil'}
           </Link>
         </nav>
-        <div className="p-4 border-t border-black/10 animate-fade-in-right anim-delay-500">
+        
+        <div className="p-4 border-t border-black/10 flex flex-col gap-2">
+          <button id="tour-help" onClick={() => document.dispatchEvent(new CustomEvent('start-tour'))} className="flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-none hover:bg-gray-100 text-gray-700 transition-colors duration-200 w-full text-left">
+            <span className="w-4 h-4 flex items-center justify-center border border-gray-400 rounded-full text-xs font-serif italic text-gray-500">i</span>
+            Tutorial
+          </button>
           <form action="/auth/signout" method="post">
-            <button className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-none hover:bg-red-600 hover:text-white transition-colors duration-200">
+            <button type="submit" className="flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-none hover:bg-red-50 text-red-600 transition-colors duration-200 w-full text-left">
               <LogOut className="w-4 h-4" />
               Cerrar Sesión
             </button>

@@ -3,6 +3,19 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+export async function markTutorialAsSeen() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    await supabase
+      .from('profiles')
+      .update({ has_seen_tutorial: true })
+      .eq('id', user.id)
+  }
+}
+import { revalidatePath } from 'next/cache'
+
 export async function cancelAppointment(appointmentId: string) {
   const supabase = await createClient()
 
