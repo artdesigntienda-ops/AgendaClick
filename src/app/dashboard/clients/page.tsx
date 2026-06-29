@@ -1,8 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireActiveSubscription } from '@/utils/billingGuard'
 import ClientsTable from './ClientsTable'
 
 export default async function ClientsCRMPage() {
+  await requireActiveSubscription()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

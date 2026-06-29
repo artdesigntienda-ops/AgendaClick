@@ -2,8 +2,10 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { startOfToday } from 'date-fns'
 import DashboardClient from './DashboardClient'
+import { requireActiveSubscription } from '@/utils/billingGuard'
 
 export default async function DashboardOverview() {
+  await requireActiveSubscription()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

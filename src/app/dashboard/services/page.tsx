@@ -1,8 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { requireActiveSubscription } from '@/utils/billingGuard'
 
 export default async function ServicesPage() {
+  await requireActiveSubscription()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

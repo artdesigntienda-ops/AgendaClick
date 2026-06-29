@@ -32,6 +32,32 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string
   const invite = formData.get('invite') as string | null
 
+  if (invite) {
+    // 1. Obtener la clínica y su límite
+    const { data: clinic } = await supabase
+      .from('clinics')
+      .select('id, staff_limit')
+      .eq('id', invite)
+      .single()
+
+    if (clinic) {
+      // 2. Contar cuántos empleados tiene actualmente
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('clinic_id', clinic.id)
+        .neq('role', 'owner')
+
+      const currentStaff = count || 0
+
+      if (currentStaff >= clinic.staff_limit) {
+        redirect(`/login?message=Esta+clínica+ha+alcanzado+su+límite+de+profesionales`)
+      }
+    } else {
+      redirect(`/login?message=Código+de+invitación+inválido`)
+    }
+  }
+
   const data = {
     email,
     password,

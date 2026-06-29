@@ -287,49 +287,83 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING SECTION */}
-      <section className="py-24 bg-white border-t border-gray-200">
-        
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+      <section className="py-24 bg-white border-t border-gray-200" id="precios">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
+            className="text-center"
           >
-            <h2 className="text-4xl font-bold tracking-tight mb-4 text-gray-900">La belleza de lo simple</h2>
-            <p className="text-gray-500 mb-16 text-lg">Un único plan que empodera tu negocio. Sin comisiones por cita ni letras pequeñas.</p>
+            <h2 className="text-4xl font-bold tracking-tight mb-4 text-gray-900">Planes diseñados para tu crecimiento</h2>
+            <p className="text-gray-500 mb-16 text-lg">Desde profesionales independientes hasta grandes franquicias.</p>
           </motion.div>
           
           <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-black text-white rounded-3xl p-8 sm:p-12 max-w-lg mx-auto shadow-2xl relative"
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            <h3 className="text-2xl font-bold mb-4 mt-2">Plan Profesional</h3>
-            <div className="flex items-baseline justify-center gap-1 mb-8">
-              <span className="text-5xl font-extrabold tracking-tighter">$50.000</span>
-              <span className="text-gray-400 font-medium">COP / mes</span>
-            </div>
-            
-            <ul className="space-y-4 text-left mb-10">
-              {[
-                "Agenda ilimitada, todas tus citas incluidas",
-                "Link de reservas con tu logo y estilo",
-                "Notificaciones instantáneas al correo",
-                "Recomendación en Google y Chatbots de IA"
-              ].map((feature, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-200">{feature}</span>
-                </li>
-              ))}
-            </ul>
+            {[
+              {
+                name: 'Independiente',
+                price: '35.000',
+                limit: '1 Profesional',
+                features: ['Agenda online', 'Recordatorios por email', 'Soporte estándar']
+              },
+              {
+                name: 'Boutique',
+                price: '75.000',
+                limit: 'Hasta 4 Profesionales',
+                features: ['Agenda online', 'Recordatorios por email', 'Soporte prioritario']
+              },
+              {
+                name: 'Salón',
+                price: '115.000',
+                limit: 'Hasta 8 Profesionales',
+                features: ['Métricas avanzadas', 'Recordatorios por email', 'Soporte prioritario']
+              },
+              {
+                name: 'Élite',
+                price: '190.000',
+                limit: 'Ilimitados',
+                features: ['Métricas avanzadas', 'Atención 24/7', 'Onboarding personalizado']
+              }
+            ].map((plan, index) => (
+              <motion.div 
+                key={index}
+                variants={fadeInUp}
+                className={`bg-white text-black border-2 ${index === 1 ? 'border-black shadow-xl lg:scale-105 relative z-10' : 'border-gray-100 hover:border-gray-300'} rounded-3xl p-8 flex flex-col transition-all`}
+              >
+                {index === 1 && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">
+                    MÁS POPULAR
+                  </div>
+                )}
+                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                <p className="text-sm font-semibold text-gray-500 mb-4">{plan.limit}</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-4xl font-black">${plan.price}</span>
+                  <span className="text-sm font-medium text-gray-500">/mes</span>
+                </div>
+                
+                <ul className="space-y-4 mb-8 flex-1">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${index === 1 ? 'text-black' : 'text-gray-400'}`} />
+                      <span className="text-sm font-medium text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-            <Link href="/login" className="block w-full bg-white text-black py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg">
-              Comenzar a transformar tu estética
-            </Link>
+                <Link href="/login" className={`block text-center w-full py-3 rounded-xl font-bold transition-colors ${index === 1 ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-black hover:bg-gray-200'}`}>
+                  Comenzar gratis
+                </Link>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>

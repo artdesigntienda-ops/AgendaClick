@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake, Copy } from 'lucide-react'
+import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake, Copy, CreditCard } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function Sidebar({ clinic }: { clinic: any }) {
@@ -108,6 +108,10 @@ export default function Sidebar({ clinic }: { clinic: any }) {
           <Link onClick={() => setIsOpen(false)} href="/dashboard/clients" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <HeartHandshake className="w-4 h-4" />
             Clientes (CRM)
+          </Link>
+          <Link onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+            <CreditCard className="w-4 h-4" />
+            Planes y Facturación
           </Link>
           <Link onClick={() => setIsOpen(false)} href="/dashboard/settings" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Settings className="w-4 h-4" />

@@ -1,8 +1,10 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import FinancesDashboard from './FinancesDashboard'
+import { requireActiveSubscription } from '@/utils/billingGuard'
 
 export default async function FinancesPage() {
+  await requireActiveSubscription()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
