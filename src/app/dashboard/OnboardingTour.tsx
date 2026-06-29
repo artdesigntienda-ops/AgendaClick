@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { driver, DriveStep } from 'driver.js'
 import 'driver.js/dist/driver.css'
+import { toast } from 'sonner'
 import { markTutorialAsSeen } from './actions'
 
 interface Props {
@@ -98,7 +99,15 @@ export function OnboardingTour({ hasSeenTutorial, role }: Props) {
       // Try to start immediately. 
       // If elements are not rendered yet, it will safely ignore or show warning in console.
       setTimeout(() => {
-        driverObj.drive()
+        if (window.innerWidth >= 768) {
+          driverObj.drive()
+        } else {
+          // On mobile, the sidebar is hidden behind a hamburger menu.
+          // driver.js gets confused, so we skip the tutorial and just mark it as seen.
+          if (!hasSeenTutorial) {
+            markTutorialAsSeen()
+          }
+        }
       }, 500)
     }
 
@@ -110,6 +119,10 @@ export function OnboardingTour({ hasSeenTutorial, role }: Props) {
 
     // Listen to manual triggers from the "Help" button
     const handleManualTrigger = () => {
+      if (window.innerWidth < 768) {
+        toast.info('El tutorial interactivo está diseñado para pantallas más grandes. Usa el menú superior (☰) para navegar.')
+        return
+      }
       startTour()
     }
 

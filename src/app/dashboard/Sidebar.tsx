@@ -1,12 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake, Copy, CreditCard } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' | 'staff' }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [domain, setDomain] = useState('agendaclick.com')
+
+  useEffect(() => {
+    setDomain(window.location.host)
+  }, [])
 
   const toggleSidebar = () => setIsOpen(!isOpen)
 
@@ -44,7 +49,7 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
               <p className="text-xs text-blue-900 font-medium leading-tight">Este enlace es para que tus clientes agenden cita:</p>
               <div className="flex items-center gap-1.5 mt-2">
                 <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="flex-1 text-[11px] font-mono text-blue-700 bg-white px-2 py-1.5 border border-blue-200 rounded-lg truncate hover:border-blue-400 transition-colors">
-                  agendaclick.com/{clinic.slug}
+                  {domain}/{clinic.slug}
                 </a>
                 <button 
                   onClick={() => {
@@ -71,7 +76,7 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
               <p className="text-xs text-blue-900 font-medium leading-tight">Este enlace es para que tus clientes agenden cita:</p>
               <div className="flex items-center gap-1.5 mt-2">
                 <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="flex-1 text-[11px] font-mono text-blue-700 bg-white px-2 py-1.5 border border-blue-200 rounded-lg truncate hover:border-blue-400 transition-colors">
-                  agendaclick.com/{clinic.slug}
+                  {domain}/{clinic.slug}
                 </a>
                 <button 
                   onClick={() => {
