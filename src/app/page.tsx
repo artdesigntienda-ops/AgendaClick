@@ -395,9 +395,14 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 object-contain" />
           </div>
-          <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.
-          </p>
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-sm text-gray-500">
+              © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.
+            </p>
+            <p className="text-xs text-gray-400">
+              Una solución desarrollada por <a href="https://tienda-art-design.com" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+            </p>
+          </div>
           <div className="flex gap-6 text-sm font-medium">
             <Link href="/terminos" className="text-gray-500 hover:text-black transition-colors">Términos Legales</Link>
             <Link href="/privacidad" className="text-gray-500 hover:text-black transition-colors">Privacidad</Link>

@@ -158,6 +158,16 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
             </>
           )}
         </nav>
+
+        {/* Branding Sidebar Footer */}
+        <div className="p-4 border-t border-black/10 text-center">
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
+            AgendaClick
+          </p>
+          <p className="text-[10px] text-gray-400 mt-0.5">
+            Una solución de <a href="https://tienda-art-design.com" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+          </p>
+        </div>
       </aside>
     </>
   )

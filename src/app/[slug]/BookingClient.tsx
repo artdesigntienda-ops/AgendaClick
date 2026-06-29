@@ -525,6 +525,13 @@ export default function BookingClient({ clinic, services, professionals }: Props
 
         </AnimatePresence>
       </div>
+      
+      {/* Branding ArtDesign */}
+      <div className="py-4 text-center border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <p className="text-xs text-gray-400">
+          Powered by AgendaClick, una marca de <a href="https://tienda-art-design.com" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+        </p>
+      </div>
     </div>
   )
 }
