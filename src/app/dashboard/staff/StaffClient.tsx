@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { CopyButton } from './CopyButton'
 import { Trash2, Clock } from 'lucide-react'
 import { removeStaffMember } from './actions'
-import { toast } from 'sonner'
 import { StaffScheduleModal } from './StaffScheduleModal'
 import { toast } from 'sonner'
 
