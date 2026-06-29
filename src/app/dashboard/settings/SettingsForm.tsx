@@ -15,7 +15,7 @@ const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
   '+51': 'PE'
 }
 
-export default function SettingsForm({ clinic, saveAction }: { clinic: any, saveAction: (formData: FormData) => void }) {
+export default function SettingsForm({ clinic, saveAction }: { clinic: any, saveAction: (formData: FormData) => Promise<void> }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
@@ -29,12 +29,20 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
     }
     const match = clinic.phone.match(/^(\+\d{1,3})(.*)$/)
     if (match) {
-      setPhonePrefix(match[1]) // wait, this might be overwritten by useEffect if not careful. Actually it's fine.
       return match[2]
     }
     return clinic.phone
   })
   
+  useEffect(() => {
+    if (clinic?.phone) {
+      const match = clinic.phone.match(/^(\+\d{1,3})(.*)$/)
+      if (match && match[1] !== '+57') {
+        setPhonePrefix(match[1])
+      }
+    }
+  }, [clinic?.phone])
+
   const [countryCode, setCountryCode] = useState(clinic?.country || 'CO')
   const [stateCode, setStateCode] = useState(clinic?.state || '')
   const [cityName, setCityName] = useState(clinic?.city || '')

@@ -1,19 +1,20 @@
 import { login, signup, loginWithGoogle } from './actions'
 import { GoogleLoginButton } from './GoogleLoginButton'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { message?: string, invite?: string }
+  searchParams: Promise<{ message?: string, invite?: string }>
 }) {
+  const params = await searchParams
   return (
     <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
         <img src="/full-logo.png" alt="AgendaClick Logo" className="h-20 mx-auto mb-8 object-contain" />
         
         {/* Hidden field to pass the invite ID if present */}
-        {searchParams?.invite && (
-          <input type="hidden" name="invite" value={searchParams.invite} />
+        {params?.invite && (
+          <input type="hidden" name="invite" value={params.invite} />
         )}
         
         <label className="text-md" htmlFor="email">
@@ -61,9 +62,9 @@ export default function LoginPage({
 
         <GoogleLoginButton action={loginWithGoogle} />
 
-        {searchParams?.message && (
+        {params?.message && (
           <p className="mt-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-100 text-center text-sm font-medium">
-            {searchParams.message}
+            {params.message}
           </p>
         )}
       </form>

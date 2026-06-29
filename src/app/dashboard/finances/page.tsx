@@ -35,6 +35,7 @@ export default async function FinancesPage() {
       total_price,
       commission_earned,
       status,
+      start_time,
       staff_id,
       profiles:staff_id ( name, role )
     `)

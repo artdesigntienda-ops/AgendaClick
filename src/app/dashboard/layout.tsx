@@ -15,12 +15,30 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // Buscar si tiene clínica
-  const { data: clinic } = await supabase
-    .from('clinics')
-    .select('name, slug')
-    .eq('owner_id', user.id)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, clinic_id')
+    .eq('id', user.id)
     .single()
+
+  let clinic = null
+  let clinicId = profile?.clinic_id
+
+  if (!clinicId && profile?.role === 'owner') {
+    const { data } = await supabase
+      .from('clinics')
+      .select('name, slug')
+      .eq('owner_id', user.id)
+      .single()
+    clinic = data
+  } else if (clinicId) {
+    const { data } = await supabase
+      .from('clinics')
+      .select('name, slug')
+      .eq('id', clinicId)
+      .single()
+    clinic = data
+  }
 
   return (
     <div className="flex h-screen bg-white text-black font-sans selection:bg-black selection:text-white">

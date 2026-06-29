@@ -8,11 +8,16 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { google } from 'googleapis'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const supabaseAdmin = createSupabaseClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
+
+function getSupabaseAdmin() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 function generateICS(
   uid: string,
@@ -45,7 +50,6 @@ END:VCALENDAR`.replace(/\n/g, '\r\n');
 }
 
 export async function sendOtpCode(email: string, clientName: string) {
-  const supabase = await createClient()
   
   // Generar código de 6 dígitos
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
@@ -55,7 +59,7 @@ export async function sendOtpCode(email: string, clientName: string) {
   expiresAt.setMinutes(expiresAt.getMinutes() + 10)
 
   // Guardar en base de datos
-  const { error } = await supabaseAdmin.from('otp_verifications').insert({
+  const { error } = await getSupabaseAdmin().from('otp_verifications').insert({
     email: email.trim().toLowerCase(),
     otp_code: otpCode,
     expires_at: expiresAt.toISOString()
@@ -67,7 +71,7 @@ export async function sendOtpCode(email: string, clientName: string) {
   }
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'AgendaClick Seguridad <onboarding@resend.dev>',
       to: email.trim().toLowerCase(),
       subject: `Tu código de verificación es ${otpCode}`,
@@ -103,7 +107,7 @@ export async function createAppointment(data: {
 
   // 1. Validar OTP
   const normalizedEmail = data.clientEmail.trim().toLowerCase()
-  const { data: verifications, error: otpError } = await supabaseAdmin
+  const { data: verifications, error: otpError } = await getSupabaseAdmin()
     .from('otp_verifications')
     .select('*')
     .eq('email', normalizedEmail)
@@ -134,7 +138,7 @@ export async function createAppointment(data: {
   }
 
   // Borramos el OTP que ya se usó para evitar reusos (fire and forget)
-  supabaseAdmin.from('otp_verifications').delete().eq('id', verifications[0].id).then()
+  getSupabaseAdmin().from('otp_verifications').delete().eq('id', verifications[0].id).then()
 
   // 3. Obtener info adicional (correo del dueño y nombre del servicio) para el email
   const { data: clinicInfo } = await supabase
@@ -209,7 +213,7 @@ export async function createAppointment(data: {
   try {
     // 4. Enviar correo al Dueño
     if (ownerEmail) {
-      await resend.emails.send({
+      await getResend().emails.send({
         from: 'AgendaClick Notificaciones <onboarding@resend.dev>',
         to: ownerEmail,
         subject: `¡Nueva Cita! ${serviceName} - ${data.clientName}`,
@@ -231,7 +235,7 @@ export async function createAppointment(data: {
     }
 
     // 5. Enviar correo a la Clienta
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'AgendaClick <onboarding@resend.dev>',
       to: data.clientEmail,
       subject: `Reserva Confirmada en ${clinicName}`,

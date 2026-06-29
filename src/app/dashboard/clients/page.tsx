@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { HeartHandshake } from 'lucide-react'
 import ClientsTable from './ClientsTable'
 
 export default async function ClientsCRMPage() {

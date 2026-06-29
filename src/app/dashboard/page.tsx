@@ -42,7 +42,7 @@ export default async function DashboardOverview() {
   let appointments: any[] = []
   if (clinicId) {
     const todayISO = startOfToday().toISOString()
-    const { data: apts, error } = await supabase
+    const { data: apts } = await supabase
       .from('appointments')
       .select(`
         id,
