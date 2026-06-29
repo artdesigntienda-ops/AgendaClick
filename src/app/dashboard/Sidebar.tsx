@@ -126,7 +126,7 @@ export default function Sidebar({ clinic }: { clinic: any }) {
           </button>
           
           <a 
-            href={`https://wa.me/573000000000?text=${encodeURIComponent('¡Hola equipo de AgendaClick! Necesito soporte con mi cuenta.')}`} 
+            href={`https://wa.me/573239306599?text=${encodeURIComponent('¡Hola equipo de AgendaClick! Necesito soporte con mi cuenta.')}`} 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-none hover:bg-green-50 text-green-700 transition-colors duration-200 w-full text-left"
