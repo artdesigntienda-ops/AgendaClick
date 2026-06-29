@@ -50,6 +50,17 @@ export default async function SettingsPage() {
     const tiktok = formData.get('tiktok') as string
     const youtube = formData.get('youtube') as string
     
+    // Parse schedule
+    let schedule = null
+    const scheduleRaw = formData.get('schedule') as string
+    if (scheduleRaw) {
+      try {
+        schedule = JSON.parse(scheduleRaw)
+      } catch (e) {
+        console.error('Error parsing schedule', e)
+      }
+    }
+    
     // Dual Role (Owner as professional)
     const isBookable = formData.get('is_bookable') === 'on'
     const ownerName = formData.get('owner_name') as string
@@ -100,6 +111,7 @@ export default async function SettingsPage() {
       facebook_url: facebook,
       tiktok_url: tiktok,
       youtube_url: youtube,
+      ...(schedule ? { schedule } : {}),
       logo_url: logoUrl,
       address,
       country,

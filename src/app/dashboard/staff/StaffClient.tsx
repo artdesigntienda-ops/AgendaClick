@@ -3,14 +3,17 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { CopyButton } from './CopyButton'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Clock } from 'lucide-react'
 import { removeStaffMember } from './actions'
+import { toast } from 'sonner'
+import { StaffScheduleModal } from './StaffScheduleModal'
 import { toast } from 'sonner'
 
 export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, staff: any[], isOwner: boolean }) {
   const currentStaffCount = staff.filter(s => s.role !== 'owner').length
   const inviteLink = typeof window !== 'undefined' ? `${window.location.origin}/login?invite=${clinic.id}` : ''
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [selectedStaffForSchedule, setSelectedStaffForSchedule] = useState<any | null>(null)
 
   const handleDelete = async (staffId: string) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar a este profesional? Ya no podrá acceder a la estética ni aparecerá en la agenda.')) return
@@ -108,16 +111,25 @@ export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, s
                   </td>
                   {isOwner && (
                     <td className="px-6 py-4 text-right">
-                      {member.role !== 'owner' && (
+                      <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => handleDelete(member.id)}
-                          disabled={isDeleting === member.id}
-                          className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
-                          title="Eliminar profesional"
+                          onClick={() => setSelectedStaffForSchedule(member)}
+                          className="text-blue-500 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                          title="Editar Horario"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Clock className="w-4 h-4" />
                         </button>
-                      )}
+                        {member.role !== 'owner' && (
+                          <button
+                            onClick={() => handleDelete(member.id)}
+                            disabled={isDeleting === member.id}
+                            className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                            title="Eliminar profesional"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -133,6 +145,15 @@ export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, s
           </table>
         </div>
       </motion.div>
+
+      {selectedStaffForSchedule && (
+        <StaffScheduleModal
+          isOpen={!!selectedStaffForSchedule}
+          onClose={() => setSelectedStaffForSchedule(null)}
+          member={selectedStaffForSchedule}
+          clinicName={clinic.name}
+        />
+      )}
     </motion.div>
   )
 }

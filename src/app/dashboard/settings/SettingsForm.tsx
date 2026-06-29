@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { useSearchParams } from 'next/navigation'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
 import { State, City } from 'country-state-city'
+import ScheduleManager from '@/components/ScheduleManager'
 
 const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
   '+57': 'CO',
@@ -139,6 +140,12 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               maxLength={100}
             />
           </div>
+        </div>
+      </div>
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Horario de Atención</h2>
+        <div className="bg-white">
+          <ScheduleManager initialSchedule={clinic?.schedule} />
         </div>
       </div>
 

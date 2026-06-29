@@ -6,9 +6,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { format, addDays, startOfToday, parseISO } from 'date-fns'
+import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle } from 'lucide-react'
 import { createAppointment, sendOtpCode } from './actions'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
@@ -44,11 +44,72 @@ export default function BookingClient({ clinic, services, professionals }: Props
     resolver: zodResolver(bookingSchema)
   })
 
-  // Generar próximos 14 días para MVP
+  // Generar próximos 14 días
   const availableDates = Array.from({ length: 14 }).map((_, i) => addDays(startOfToday(), i))
   
-  // Horarios de ejemplo MVP (9am a 5pm)
-  const availableTimes = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00']
+  // Calcular horarios disponibles
+  const getAvailableTimes = () => {
+    if (!selectedDate || !selectedService) return []
+    
+    // Obtener el día de la semana (0 = Sunday, 1 = Monday, etc.)
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+    const dayName = dayNames[getDay(selectedDate)]
+    
+    // Determinar qué horario usar (profesional o clínica)
+    let activeSchedule = clinic?.schedule
+    if (selectedProfessional && selectedProfessional.schedule && !selectedProfessional.schedule.useClinicSchedule) {
+      activeSchedule = selectedProfessional.schedule
+    }
+    
+    if (!activeSchedule || !activeSchedule[dayName] || !activeSchedule[dayName].isOpen) {
+      return [] // Cerrado ese día
+    }
+    
+    const dayConfig = activeSchedule[dayName]
+    const slots = []
+    const durationMinutes = selectedService.duration_minutes || 30
+    
+    // Parse times
+    let currentTime = parse(dayConfig.openTime, 'HH:mm', selectedDate)
+    const endTime = parse(dayConfig.closeTime, 'HH:mm', selectedDate)
+    
+    let breakStart = null
+    let breakEnd = null
+    if (dayConfig.breakStart && dayConfig.breakEnd) {
+      breakStart = parse(dayConfig.breakStart, 'HH:mm', selectedDate)
+      breakEnd = parse(dayConfig.breakEnd, 'HH:mm', selectedDate)
+    }
+    
+    const now = new Date()
+    
+    while (isBefore(currentTime, endTime)) {
+      const slotEnd = addMinutes(currentTime, durationMinutes)
+      
+      // Si el slot excede la hora de cierre, no lo añadimos
+      if (!isBefore(slotEnd, endTime) && slotEnd.getTime() !== endTime.getTime()) {
+        break
+      }
+      
+      // Si el slot se solapa con el almuerzo, saltamos al final del almuerzo
+      if (breakStart && breakEnd && isBefore(currentTime, breakEnd) && isBefore(breakStart, slotEnd)) {
+        currentTime = breakEnd
+        continue
+      }
+      
+      // Validar que la hora ya no haya pasado si es hoy
+      if (isBefore(now, currentTime)) {
+        slots.push(format(currentTime, 'HH:mm'))
+      }
+      
+      // Incrementamos por la duración del servicio (MVP)
+      currentTime = addMinutes(currentTime, durationMinutes)
+    }
+    
+    return slots
+  }
+
+  const availableTimes = getAvailableTimes()
+
 
   const onSubmit = async (data: BookingFormData) => {
     if (!selectedService || !selectedTime) return
@@ -297,22 +358,29 @@ export default function BookingClient({ clinic, services, professionals }: Props
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                {availableTimes.map(time => (
-                  <button
-                    key={time}
-                    onClick={() => {
-                      setSelectedTime(time)
-                      setStep(4)
-                    }}
-                    className={`py-3 rounded-lg border text-sm font-medium transition-colors ${
-                      selectedTime === time
-                        ? 'bg-black text-white border-black'
-                        : 'hover:border-black'
-                    }`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {availableTimes.length === 0 ? (
+                  <div className="col-span-3 text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-gray-100">
+                    <Clock className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                    No hay horarios disponibles para este día.
+                  </div>
+                ) : (
+                  availableTimes.map(time => (
+                    <button
+                      key={time}
+                      onClick={() => {
+                        setSelectedTime(time)
+                        setStep(4)
+                      }}
+                      className={`py-3 rounded-lg border text-sm font-medium transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 ${
+                        selectedTime === time
+                          ? 'bg-black text-white border-black shadow-lg scale-[1.02]'
+                          : 'hover:border-black hover:bg-gray-50'
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))
+                )}
               </div>
             </motion.div>
           )}
