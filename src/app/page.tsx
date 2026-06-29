@@ -371,48 +371,20 @@ export default function LandingPage() {
       {/* SECURE PAYMENTS */}
       <section className="bg-white py-12 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-sm font-semibold text-gray-400 mb-8 uppercase tracking-wider">Pagos 100% seguros y respaldados por</p>
-          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-75 hover:opacity-100 transition-opacity duration-300">
-            
+          <p className="text-sm font-semibold text-gray-400 mb-8 uppercase tracking-wider">Pagos 100% seguros y respaldados por Wompi</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-75 hover:opacity-100 transition-opacity duration-300">
             {/* Wompi */}
-            <div className="flex items-center">
-              <span className="font-black italic text-3xl tracking-tighter text-[#002E46]">wompi<span className="text-[#E80566]">.</span></span>
-            </div>
-
+            <img src="/payment-logos/wompi.png" alt="Wompi" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Bancolombia */}
-            <div className="flex flex-col items-center justify-center gap-1">
-              <div className="flex">
-                <div className="w-4 h-4 bg-[#F2D13B]"></div>
-                <div className="w-2 h-4 bg-[#004B87]"></div>
-                <div className="w-2 h-4 bg-[#C8102E]"></div>
-              </div>
-              <span className="font-bold text-xs tracking-tight text-[#2B2B2B] leading-none font-sans">Bancolombia</span>
-            </div>
-
+            <img src="/payment-logos/bancolombia.png" alt="Bancolombia" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Nequi */}
-            <div className="flex items-center">
-              <span className="font-bold text-3xl tracking-tight text-[#E80566]" style={{ fontFamily: 'Arial, sans-serif' }}>Nequi</span>
-            </div>
-
+            <img src="/payment-logos/nequi.png" alt="Nequi" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
             {/* PSE */}
-            <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-[#00A2D3]">
-              <span className="text-[#00A2D3] font-black text-sm tracking-tighter">PSE</span>
-            </div>
-
+            <img src="/payment-logos/pse.png" alt="PSE" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Visa */}
-            <div className="flex items-center">
-              <span className="font-black italic text-4xl tracking-tighter text-[#1A1F71]">VISA</span>
-            </div>
-
+            <img src="/payment-logos/visa.png" alt="Visa" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Mastercard */}
-            <div className="flex flex-col items-center justify-center gap-1">
-              <div className="flex items-center -space-x-3">
-                <div className="w-8 h-8 rounded-full bg-[#EB001B] opacity-90 mix-blend-multiply"></div>
-                <div className="w-8 h-8 rounded-full bg-[#F79E1B] opacity-90 mix-blend-multiply"></div>
-              </div>
-              <span className="font-bold text-[10px] tracking-tight text-gray-700 leading-none">mastercard</span>
-            </div>
-
+            <img src="/payment-logos/mastercard.png" alt="Mastercard" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
           </div>
         </div>
       </section>
