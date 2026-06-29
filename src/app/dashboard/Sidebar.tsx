@@ -89,6 +89,10 @@ export default function Sidebar({ clinic }: { clinic: any }) {
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <Link id="tour-settings" onClick={() => setIsOpen(false)} href="/dashboard/settings" className="animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+            <Settings className="w-4 h-4" />
+            {clinic?.slug ? 'Editar Perfil' : 'Crear Perfil'}
+          </Link>
           <Link id="tour-calendar" onClick={() => setIsOpen(false)} href="/dashboard" className="animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <Calendar className="w-4 h-4" />
             Agenda Maestra
@@ -112,10 +116,6 @@ export default function Sidebar({ clinic }: { clinic: any }) {
           <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <CreditCard className="w-4 h-4" />
             Facturación
-          </Link>
-          <Link id="tour-settings" onClick={() => setIsOpen(false)} href="/dashboard/settings" className="animate-fade-in-right anim-delay-700 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-            <Settings className="w-4 h-4" />
-            {clinic?.slug ? 'Editar Perfil' : 'Crear Perfil'}
           </Link>
         </nav>
         

@@ -35,21 +35,21 @@ export function OnboardingTour({ hasSeenTutorial, role }: Props) {
         },
         steps: [
           {
-            element: '#tour-calendar',
-            popover: {
-              title: 'Tu Agenda Maestra',
-              description: 'Aquí es donde verás todas tus citas. Mantén el control total de tu tiempo día a día.',
-              side: 'right',
-              align: 'start'
-            }
-          },
-          {
             element: '#tour-settings',
             popover: {
               title: isOwner ? 'Configura tu Estética' : 'Tu Perfil',
               description: isOwner 
                 ? 'Sube tu logo, establece tus horarios y genera tu link único de reservas.'
                 : 'Completa tu información personal y verifica tus horarios.',
+              side: 'right',
+              align: 'start'
+            }
+          },
+          {
+            element: '#tour-calendar',
+            popover: {
+              title: 'Tu Agenda Maestra',
+              description: 'Aquí es donde verás todas tus citas. Mantén el control total de tu tiempo día a día.',
               side: 'right',
               align: 'start'
             }
