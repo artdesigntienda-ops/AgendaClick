@@ -14,7 +14,6 @@ export async function markTutorialAsSeen() {
       .eq('id', user.id)
   }
 }
-import { revalidatePath } from 'next/cache'
 
 export async function cancelAppointment(appointmentId: string) {
   const supabase = await createClient()
