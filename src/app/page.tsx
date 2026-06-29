@@ -368,6 +368,27 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* SECURE PAYMENTS */}
+      <section className="bg-white py-12 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-sm font-semibold text-gray-400 mb-6 uppercase tracking-wider">Pagos 100% seguros y respaldados por Wompi</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-70 hover:opacity-100 transition-opacity duration-300">
+            {/* Wompi Logo */}
+            <img src="https://cdn.icon-icons.com/icons2/2699/PNG/512/wompi_logo_icon_170729.png" alt="Wompi" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+            {/* Bancolombia */}
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_Bancolombia.svg" alt="Bancolombia" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
+            {/* Nequi */}
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Nequi_logo.svg/1024px-Nequi_logo.svg.png" alt="Nequi" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
+            {/* PSE */}
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PSE_logo.svg" alt="PSE" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+            {/* Visa */}
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
+            {/* Mastercard */}
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer className="bg-gray-50 py-12 border-t">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
