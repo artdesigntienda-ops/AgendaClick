@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { driver, Config } from 'driver.js'
+import { driver, DriveStep } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { markTutorialAsSeen } from './actions'
 
@@ -82,7 +82,7 @@ export function OnboardingTour({ hasSeenTutorial, role }: Props) {
                 align: 'start'
               }
             }
-          ] : []),
+          ] as DriveStep[] : []),
           {
             element: '#tour-help',
             popover: {
