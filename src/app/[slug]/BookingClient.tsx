@@ -23,15 +23,17 @@ const bookingSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingSchema>
 
-type Props = {
+interface Props {
   clinic: any
   services: any[]
+  professionals: any[]
 }
 
-export default function BookingClient({ clinic, services }: Props) {
+export default function BookingClient({ clinic, services, professionals }: Props) {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState<any>(null)
+  const [selectedProfessional, setSelectedProfessional] = useState<any>(null)
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday())
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -181,7 +183,13 @@ export default function BookingClient({ clinic, services }: Props) {
                     key={service.id}
                     onClick={() => {
                       setSelectedService(service)
-                      setStep(2)
+                      // Si hay un solo profesional (o ninguno registrado), saltamos al paso 3 (Fecha)
+                      if (professionals.length <= 1) {
+                        setSelectedProfessional(professionals[0] || null)
+                        setStep(3)
+                      } else {
+                        setStep(2)
+                      }
                     }}
                     className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors group flex justify-between items-center"
                   >
@@ -203,13 +211,71 @@ export default function BookingClient({ clinic, services }: Props) {
               initial="enter"
               animate="center"
               exit="exit"
+              className="space-y-4"
             >
               <div className="flex items-center gap-2 mb-6 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => setStep(1)}>
                 <ArrowRight className="w-4 h-4 rotate-180" />
                 Volver a servicios
               </div>
               
-              <h2 className="text-lg font-medium mb-6">2. Fecha y Hora</h2>
+              <h2 className="text-lg font-medium mb-6">2. ¿Con quién te gustaría agendar?</h2>
+              
+              <button
+                onClick={() => {
+                  setSelectedProfessional(null) // Cualquiera
+                  setStep(3)
+                }}
+                className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors flex items-center gap-4"
+              >
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                  <User className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Cualquier profesional disponible</h3>
+                  <p className="text-sm text-gray-500">Ver horarios de todos</p>
+                </div>
+              </button>
+
+              {professionals.map(prof => (
+                <button
+                  key={prof.id}
+                  onClick={() => {
+                    setSelectedProfessional(prof)
+                    setStep(3)
+                  }}
+                  className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors flex items-center gap-4"
+                >
+                  <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-lg">
+                    {prof.name ? prof.name.charAt(0).toUpperCase() : 'P'}
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{prof.name || 'Profesional'}</h3>
+                    <p className="text-sm text-gray-500 capitalize">{prof.role === 'owner' ? 'Especialista' : 'Staff'}</p>
+                  </div>
+                </button>
+              ))}
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
+              <div className="flex items-center gap-2 mb-6 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => {
+                if (professionals.length <= 1) setStep(1)
+                else setStep(2)
+              }}>
+                <ArrowRight className="w-4 h-4 rotate-180" />
+                Volver
+              </div>
+              
+              <h2 className="text-lg font-medium mb-6">
+                {professionals.length <= 1 ? '2. Fecha y Hora' : '3. Fecha y Hora'}
+              </h2>
               
               <div className="mb-6">
                 <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
@@ -236,7 +302,7 @@ export default function BookingClient({ clinic, services }: Props) {
                     key={time}
                     onClick={() => {
                       setSelectedTime(time)
-                      setStep(3)
+                      setStep(4)
                     }}
                     className={`py-3 rounded-lg border text-sm font-medium transition-colors ${
                       selectedTime === time
@@ -251,23 +317,28 @@ export default function BookingClient({ clinic, services }: Props) {
             </motion.div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <motion.div
-              key="step3"
+              key="step4"
               variants={slideVariants}
               initial="enter"
               animate="center"
               exit="exit"
             >
-              <div className="flex items-center gap-2 mb-6 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => setStep(2)}>
+              <div className="flex items-center gap-2 mb-6 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => setStep(3)}>
                 <ArrowRight className="w-4 h-4 rotate-180" />
                 Volver a horarios
               </div>
 
-              <h2 className="text-lg font-medium mb-6">3. Tus Datos</h2>
+              <h2 className="text-lg font-medium mb-6">
+                {professionals.length <= 1 ? '3. Tus Datos' : '4. Tus Datos'}
+              </h2>
 
               <div className="bg-gray-50 p-4 rounded-xl mb-6 text-sm">
                 <p className="font-medium">{selectedService?.name}</p>
+                {selectedProfessional && (
+                  <p className="text-xs text-gray-600 mt-1">Con: {selectedProfessional.name}</p>
+                )}
                 <p className="text-gray-500 mt-1">
                   {format(selectedDate, "dd 'de' MMMM", { locale: es })} a las {selectedTime}
                 </p>
