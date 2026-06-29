@@ -1,11 +1,30 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { CopyButton } from './CopyButton'
+import { Trash2 } from 'lucide-react'
+import { removeStaffMember } from './actions'
+import { toast } from 'sonner'
 
 export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, staff: any[], isOwner: boolean }) {
   const currentStaffCount = staff.filter(s => s.role !== 'owner').length
   const inviteLink = typeof window !== 'undefined' ? `${window.location.origin}/login?invite=${clinic.id}` : ''
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+
+  const handleDelete = async (staffId: string) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar a este profesional? Ya no podrá acceder a la estética ni aparecerá en la agenda.')) return
+    
+    try {
+      setIsDeleting(staffId)
+      await removeStaffMember(staffId)
+      toast.success('Profesional eliminado correctamente.')
+    } catch (error: any) {
+      toast.error(error.message || 'Error al eliminar al profesional.')
+    } finally {
+      setIsDeleting(null)
+    }
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -62,6 +81,7 @@ export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, s
                 <th className="px-6 py-4">Correo</th>
                 <th className="px-6 py-4">Rol</th>
                 <th className="px-6 py-4">Google Calendar</th>
+                {isOwner && <th className="px-6 py-4 text-right">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -86,6 +106,20 @@ export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, s
                       {member.google_calendar_id ? 'Conectado' : 'Pendiente'}
                     </span>
                   </td>
+                  {isOwner && (
+                    <td className="px-6 py-4 text-right">
+                      {member.role !== 'owner' && (
+                        <button
+                          onClick={() => handleDelete(member.id)}
+                          disabled={isDeleting === member.id}
+                          className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                          title="Eliminar profesional"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
               {staff.length === 0 && (

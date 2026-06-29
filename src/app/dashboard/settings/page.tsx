@@ -18,6 +18,12 @@ export default async function SettingsPage() {
     .eq('owner_id', user.id)
     .single()
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
   async function saveSettings(formData: FormData) {
     'use server'
     const supabase = await createClient()
@@ -43,6 +49,16 @@ export default async function SettingsPage() {
     const facebook = formData.get('facebook') as string
     const tiktok = formData.get('tiktok') as string
     const youtube = formData.get('youtube') as string
+    
+    // Dual Role (Owner as professional)
+    const isBookable = formData.get('is_bookable') === 'on'
+    const ownerName = formData.get('owner_name') as string
+    
+    // Update owner profile
+    await supabase.from('profiles').update({
+      is_bookable: isBookable,
+      name: ownerName || (user.email ? user.email.split('@')[0] : 'Admin')
+    }).eq('id', user.id)
     
     // Maps
     const address = formData.get('address') as string
@@ -119,7 +135,7 @@ export default async function SettingsPage() {
 
       <div className="bg-white border rounded-lg p-6 max-w-2xl shadow-sm">
         <Suspense fallback={<div>Cargando...</div>}>
-          <SettingsForm clinic={clinic} saveAction={saveSettings} />
+          <SettingsForm clinic={clinic} profile={profile} saveAction={saveSettings} />
         </Suspense>
       </div>
     </div>

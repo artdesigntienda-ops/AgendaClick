@@ -374,17 +374,17 @@ export default function LandingPage() {
           <p className="text-sm font-semibold text-gray-400 mb-8 uppercase tracking-wider">Pagos 100% seguros y respaldados por Wompi</p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-75 hover:opacity-100 transition-opacity duration-300">
             {/* Wompi */}
-            <img src="/payment-logos/wompi.png" alt="Wompi" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+            <img src="/payment-logos/wompi.png" alt="Wompi" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Bancolombia */}
-            <img src="/payment-logos/bancolombia.png" alt="Bancolombia" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
+            <img src="/payment-logos/bancolombia.png" alt="Bancolombia" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Nequi */}
-            <img src="/payment-logos/nequi.png" alt="Nequi" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
+            <img src="/payment-logos/nequi.png" alt="Nequi" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
             {/* PSE */}
-            <img src="/payment-logos/pse.png" alt="PSE" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+            <img src="/payment-logos/pse.png" alt="PSE" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Visa */}
-            <img src="/payment-logos/visa.png" alt="Visa" className="h-6 md:h-8 object-contain grayscale hover:grayscale-0 transition-all" />
+            <img src="/payment-logos/visa.png" alt="Visa" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
             {/* Mastercard */}
-            <img src="/payment-logos/mastercard.png" alt="Mastercard" className="h-8 md:h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+            <img src="/payment-logos/mastercard.png" alt="Mastercard" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
           </div>
         </div>
       </section>

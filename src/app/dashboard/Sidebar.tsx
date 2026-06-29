@@ -39,14 +39,30 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:relative md:translate-x-0
       `}>
-        <div className="p-6 border-b border-black/10 hidden md:block">
-          <img src="/full-logo.png" alt="AgendaClick Logo" className="h-16 w-full object-contain mb-6 object-left" />
-          <p className="text-xs text-black/50 truncate tracking-wider uppercase font-bold">
-            {clinic?.name || 'Mi Negocio'}
-          </p>
+        <div className="p-6 border-b border-black/10 hidden md:block text-center">
+          <img src="/full-logo.png" alt="AgendaClick Logo" className="h-10 w-full object-contain mb-8 opacity-50" />
+          
+          <div className="flex flex-col items-center justify-center mb-6">
+            {clinic?.logo_url ? (
+              <img src={clinic.logo_url} alt={clinic.name} className="w-20 h-20 rounded-full object-cover border-2 border-gray-100 shadow-sm mb-3" />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-2xl font-bold mb-3">
+                {clinic?.name?.charAt(0) || 'N'}
+              </div>
+            )}
+            <p className="text-sm text-black font-black uppercase tracking-wide">
+              {clinic?.name || 'Mi Negocio'}
+            </p>
+            {clinic?.slogan && (
+              <p className="text-xs text-gray-500 mt-1 italic">
+                {clinic.slogan}
+              </p>
+            )}
+          </div>
+
           {clinic?.slug && (
-            <div className="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl shadow-sm">
-              <p className="text-xs text-blue-900 font-medium leading-tight">Este enlace es para que tus clientes agenden cita:</p>
+            <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl shadow-sm text-left">
+              <p className="text-xs text-blue-900 font-medium leading-tight">Enlace para clientes:</p>
               <div className="flex items-center gap-1.5 mt-2">
                 <a href={`/${clinic.slug}`} target="_blank" rel="noreferrer" className="flex-1 text-[11px] font-mono text-blue-700 bg-white px-2 py-1.5 border border-blue-200 rounded-lg truncate hover:border-blue-400 transition-colors">
                   {domain}/{clinic.slug}
@@ -67,10 +83,25 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
         </div>
         
         {/* Mobile Info */}
-        <div className="p-6 border-b border-black/10 md:hidden mt-16">
-          <p className="text-xs text-black/50 truncate tracking-wider uppercase font-bold">
-            {clinic?.name || 'Mi Negocio'}
-          </p>
+        <div className="p-6 border-b border-black/10 md:hidden mt-16 text-center">
+          <div className="flex flex-col items-center justify-center mb-6">
+            {clinic?.logo_url ? (
+              <img src={clinic.logo_url} alt={clinic.name} className="w-16 h-16 rounded-full object-cover border-2 border-gray-100 shadow-sm mb-3" />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold mb-3">
+                {clinic?.name?.charAt(0) || 'N'}
+              </div>
+            )}
+            <p className="text-sm text-black font-black uppercase tracking-wide">
+              {clinic?.name || 'Mi Negocio'}
+            </p>
+            {clinic?.slogan && (
+              <p className="text-xs text-gray-500 mt-1 italic">
+                {clinic.slogan}
+              </p>
+            )}
+          </div>
+
           {clinic?.slug && (
             <div className="mt-3 bg-blue-50 border border-blue-100 p-3 rounded-xl shadow-sm">
               <p className="text-xs text-blue-900 font-medium leading-tight">Este enlace es para que tus clientes agenden cita:</p>

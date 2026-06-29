@@ -111,10 +111,25 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <ReCaptchaWrapper siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}>
-          <BookingClient clinic={clinic} services={services || []} />
-        </ReCaptchaWrapper>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
+        <div className="w-full max-w-lg">
+          <ReCaptchaWrapper siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}>
+            <BookingClient clinic={clinic} services={services || []} />
+          </ReCaptchaWrapper>
+          
+          <div className="mt-8 text-center">
+            <a 
+              href="https://agendaclick.com" 
+              target="_blank" 
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-black transition-colors"
+            >
+              <span>⚡ Potenciado por</span>
+              <span className="font-bold text-black tracking-tight">AgendaClick</span>
+              <span>— Crea tu agenda gratis aquí</span>
+            </a>
+          </div>
+        </div>
       </div>
     </>
   )

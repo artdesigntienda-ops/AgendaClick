@@ -16,10 +16,11 @@ const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
   '+51': 'PE'
 }
 
-export default function SettingsForm({ clinic, saveAction }: { clinic: any, saveAction: (formData: FormData) => Promise<void> }) {
+export default function SettingsForm({ clinic, profile, saveAction }: { clinic: any, profile?: any, saveAction: (formData: FormData) => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
+  const [isBookable, setIsBookable] = useState(profile?.is_bookable || false)
   const searchParams = useSearchParams()
   
   useEffect(() => {
@@ -138,6 +139,38 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
               maxLength={100}
             />
           </div>
+        </div>
+      </div>
+
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Tu Perfil como Profesional</h2>
+        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl space-y-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input 
+              type="checkbox" 
+              name="is_bookable" 
+              className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black"
+              checked={isBookable}
+              onChange={(e) => setIsBookable(e.target.checked)}
+            />
+            <span className="text-sm font-semibold text-blue-900">
+              Yo también ofrezco servicios (Quiero aparecer en la lista de profesionales para recibir reservas)
+            </span>
+          </label>
+          
+          {isBookable && (
+            <div className="pl-8 animate-fade-in-up">
+              <label className="block text-sm font-medium text-blue-900 mb-1">Tu Nombre Público</label>
+              <input 
+                name="owner_name" 
+                defaultValue={profile?.name || ''} 
+                placeholder="Ej. Dra. María o Estilista Juan" 
+                required={isBookable}
+                className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" 
+              />
+              <p className="text-xs text-blue-700 mt-1">Así te verán los clientes al agendar.</p>
+            </div>
+          )}
         </div>
       </div>
 
