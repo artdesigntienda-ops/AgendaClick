@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Check, AlertCircle, CreditCard } from 'lucide-react'
+import { Check, AlertCircle, CreditCard, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { generateWompiSignature } from './actions'
 
 const PLANS = [
   {
@@ -37,6 +38,7 @@ const PLANS = [
 
 export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }: { clinic: any, currentStaffCount: number, wompiPubKey: string }) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState<string | null>(null)
 
   useEffect(() => {
     // Cargar script de Wompi
@@ -50,32 +52,56 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
     }
   }, [])
 
-  const handleSubscribe = (plan: typeof PLANS[0]) => {
+  const handleSubscribe = async (plan: typeof PLANS[0]) => {
     if (currentStaffCount > plan.limit) {
       toast.error(`No puedes elegir este plan porque tienes ${currentStaffCount} profesionales activos. Debes eliminar algunos primero.`)
       return
     }
 
-    const reference = `SUB_${clinic.id}_${plan.id}_${Date.now()}`
+    if (typeof window === 'undefined' || !(window as any).WidgetCheckout) {
+      toast.error('El sistema de pagos aún se está cargando. Por favor, intenta de nuevo en unos segundos.')
+      return
+    }
 
-    // @ts-ignore
-    const checkout = new WidgetCheckout({
-      currency: 'COP',
-      amountInCents: plan.priceCOP * 100,
-      reference: reference,
-      publicKey: wompiPubKey,
-      redirectUrl: `${window.location.origin}/dashboard/billing/success`
-    })
+    setIsProcessing(plan.id)
 
-    checkout.open(function (result: any) {
-      const transaction = result.transaction
-      if (transaction.status === 'APPROVED') {
-        toast.success('¡Suscripción aprobada! Tu plan se actualizará en unos segundos.')
-        setTimeout(() => window.location.reload(), 3000)
-      } else {
-        toast.error('El pago no fue aprobado. Estado: ' + transaction.status)
+    try {
+      const reference = `SUB_${clinic.id}_${plan.id}_${Date.now()}`
+      const amountInCents = plan.priceCOP * 100
+
+      // Generar firma de integridad en el servidor
+      const signature = await generateWompiSignature(reference, amountInCents, 'COP')
+
+      const config: any = {
+        currency: 'COP',
+        amountInCents: amountInCents,
+        reference: reference,
+        publicKey: wompiPubKey,
+        redirectUrl: `${window.location.origin}/dashboard/billing/success`
       }
-    })
+
+      if (signature) {
+        config.signature = { integrity: signature }
+      }
+
+      // @ts-ignore
+      const checkout = new WidgetCheckout(config)
+
+      checkout.open(function (result: any) {
+        setIsProcessing(null)
+        const transaction = result.transaction
+        if (transaction.status === 'APPROVED') {
+          toast.success('¡Suscripción aprobada! Tu plan se actualizará en unos segundos.')
+          setTimeout(() => window.location.reload(), 3000)
+        } else {
+          toast.error('El pago no fue aprobado. Estado: ' + transaction.status)
+        }
+      })
+    } catch (error: any) {
+      setIsProcessing(null)
+      console.error('Wompi Error:', error)
+      toast.error(`Error: ${error.message || 'Hubo un problema al iniciar el pago.'}`)
+    }
   }
 
   const currentPlanObj = PLANS.find(p => p.id === clinic.plan_type) || PLANS[0]
@@ -100,14 +126,14 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
       {/* Current Status Card */}
       <div className="bg-black text-white rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl">
         <div>
-          <h2 className="text-xl font-bold mb-1">Tu Plan Actual: {currentPlanObj.name}</h2>
-          <div className="flex items-center gap-2 text-white/70 text-sm">
+          <h2 className="text-xl font-bold mb-1 break-words">Tu Plan Actual: {currentPlanObj.name}</h2>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/70 text-sm">
             <span>Estado: 
               <strong className={`ml-1 ${clinic.subscription_status === 'active' ? 'text-green-400' : clinic.subscription_status === 'trial' ? 'text-yellow-400' : 'text-red-400'}`}>
                 {clinic.subscription_status.toUpperCase()}
               </strong>
             </span>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>{daysLeftText}</span>
           </div>
           <p className="text-white/50 text-xs mt-3">
@@ -124,7 +150,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
       </div>
 
       {/* Pricing Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
         {PLANS.map((plan) => {
           const isCurrent = clinic.plan_type === plan.id
           return (
@@ -161,17 +187,23 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
 
               <button
                 onClick={() => handleSubscribe(plan)}
-                disabled={isCurrent && clinic.subscription_status === 'active'}
-                className={`w-full py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-200 ${
+                disabled={(isCurrent && clinic.subscription_status === 'active') || isProcessing !== null}
+                className={`w-full py-3 px-2 sm:px-4 rounded-xl font-bold flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 transition-all duration-200 text-sm sm:text-base ${
                   isCurrent && clinic.subscription_status === 'active'
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : isCurrent
                     ? 'bg-black text-white hover:bg-gray-800 hover:shadow-md'
                     : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
-                }`}
+                } ${isProcessing === plan.id ? 'opacity-75 cursor-wait' : ''}`}
               >
-                <CreditCard className="w-4 h-4" />
-                {isCurrent && clinic.subscription_status === 'active' 
+                {isProcessing === plan.id ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CreditCard className="w-4 h-4" />
+                )}
+                {isProcessing === plan.id
+                  ? 'Iniciando pago...'
+                  : isCurrent && clinic.subscription_status === 'active' 
                   ? 'Suscrito' 
                   : isCurrent 
                   ? 'Activar Suscripción' 

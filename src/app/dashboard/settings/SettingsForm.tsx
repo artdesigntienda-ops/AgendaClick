@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { useSearchParams } from 'next/navigation'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
 import { State, City } from 'country-state-city'
 
@@ -19,6 +20,13 @@ export default function SettingsForm({ clinic, saveAction }: { clinic: any, save
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
+  const searchParams = useSearchParams()
+  
+  useEffect(() => {
+    if (searchParams.get('tutorial') === 'true' && !clinic) {
+      toast.error('Primero debes crear el perfil de tu estética para poder acceder a Facturación.', { duration: 6000 })
+    }
+  }, [searchParams, clinic])
   
   // Teléfono y País
   const [phonePrefix, setPhonePrefix] = useState('+57')

@@ -28,7 +28,8 @@ export default async function DashboardOverview() {
       .from('clinics')
       .select('id, slug')
       .eq('owner_id', user.id)
-      .single()
+      .limit(1)
+      .maybeSingle()
     clinicId = clinic?.id
     clinicSlug = clinic?.slug || ''
   } else if (clinicId) {
@@ -44,7 +45,7 @@ export default async function DashboardOverview() {
   let appointments: any[] = []
   if (clinicId) {
     const todayISO = startOfToday().toISOString()
-    const { data: apts } = await supabase
+    let aptsQuery = supabase
       .from('appointments')
       .select(`
         id,
@@ -59,6 +60,12 @@ export default async function DashboardOverview() {
       .eq('clinic_id', clinicId)
       .gte('start_time', todayISO)
       .order('start_time', { ascending: true })
+
+    if (profile?.role !== 'owner') {
+      aptsQuery = aptsQuery.eq('staff_id', user.id)
+    }
+
+    const { data: apts } = await aptsQuery
       
     if (apts) {
       appointments = apts

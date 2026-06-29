@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import BookingClient from './BookingClient'
+import ReCaptchaWrapper from './ReCaptchaWrapper'
 import { Metadata } from 'next'
 
 export const revalidate = 60 // revalidate at most every minute
@@ -111,7 +112,9 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <BookingClient clinic={clinic} services={services || []} />
+        <ReCaptchaWrapper siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}>
+          <BookingClient clinic={clinic} services={services || []} />
+        </ReCaptchaWrapper>
       </div>
     </>
   )

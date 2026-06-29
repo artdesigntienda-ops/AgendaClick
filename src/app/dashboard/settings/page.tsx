@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import SettingsForm from './SettingsForm'
 
 export default async function SettingsPage() {
@@ -117,7 +118,9 @@ export default async function SettingsPage() {
       </h1>
 
       <div className="bg-white border rounded-lg p-6 max-w-2xl shadow-sm">
-        <SettingsForm clinic={clinic} saveAction={saveSettings} />
+        <Suspense fallback={<div>Cargando...</div>}>
+          <SettingsForm clinic={clinic} saveAction={saveSettings} />
+        </Suspense>
       </div>
     </div>
   )

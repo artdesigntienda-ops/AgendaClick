@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake, Copy, CreditCard } from 'lucide-react'
 import { toast } from 'sonner'
 
-export default function Sidebar({ clinic }: { clinic: any }) {
+export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' | 'staff' }) {
   const [isOpen, setIsOpen] = useState(false)
 
   const toggleSidebar = () => setIsOpen(!isOpen)
@@ -97,14 +97,6 @@ export default function Sidebar({ clinic }: { clinic: any }) {
             <Calendar className="w-4 h-4" />
             Agenda Maestra
           </Link>
-          <Link id="tour-services" onClick={() => setIsOpen(false)} href="/dashboard/services" className="animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-            <Scissors className="w-4 h-4" />
-            Servicios
-          </Link>
-          <Link id="tour-staff" onClick={() => setIsOpen(false)} href="/dashboard/staff" className="animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-            <Users className="w-4 h-4" />
-            Profesionales
-          </Link>
           <Link id="tour-clients" onClick={() => setIsOpen(false)} href="/dashboard/clients" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <HeartHandshake className="w-4 h-4" />
             Clientas (CRM)
@@ -113,10 +105,23 @@ export default function Sidebar({ clinic }: { clinic: any }) {
             <DollarSign className="w-4 h-4" />
             Finanzas
           </Link>
-          <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-            <CreditCard className="w-4 h-4" />
-            Facturación
-          </Link>
+
+          {role === 'owner' && (
+            <>
+              <Link id="tour-services" onClick={() => setIsOpen(false)} href="/dashboard/services" className="animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+                <Scissors className="w-4 h-4" />
+                Servicios
+              </Link>
+              <Link id="tour-staff" onClick={() => setIsOpen(false)} href="/dashboard/staff" className="animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+                <Users className="w-4 h-4" />
+                Profesionales
+              </Link>
+              <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+                <CreditCard className="w-4 h-4" />
+                Facturación
+              </Link>
+            </>
+          )}
         </nav>
         
         <div className="p-4 border-t border-black/10 flex flex-col gap-2">

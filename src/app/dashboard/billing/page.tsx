@@ -15,11 +15,12 @@ export default async function BillingPage() {
     .from('clinics')
     .select('*')
     .eq('owner_id', user.id)
-    .single()
+    .limit(1)
+    .maybeSingle()
 
   if (!clinic) {
-    // Si no es dueño o no tiene clínica, redirigimos
-    redirect('/dashboard')
+    // Si no tiene clínica, debe crear una primero
+    redirect('/dashboard/settings?tutorial=true')
   }
 
   // Obtener cuántos profesionales hay actualmente para mostrar validaciones si quieren bajar de plan

@@ -10,6 +10,7 @@ import { format, addDays, startOfToday, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon } from 'lucide-react'
 import { createAppointment, sendOtpCode } from './actions'
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 const bookingSchema = z.object({
   clientName: z.string().min(2, 'El nombre es muy corto'),
@@ -28,6 +29,7 @@ type Props = {
 }
 
 export default function BookingClient({ clinic, services }: Props) {
+  const { executeRecaptcha } = useGoogleReCaptcha()
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState<any>(null)
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday())
@@ -50,8 +52,17 @@ export default function BookingClient({ clinic, services }: Props) {
     if (!selectedService || !selectedTime) return
     setIsSubmitting(true)
     
+    let token = ''
+    try {
+      if (executeRecaptcha) {
+        token = await executeRecaptcha('booking_otp')
+      }
+    } catch (err) {
+      console.error('Error executing reCAPTCHA', err)
+    }
+
     // Solicitamos OTP
-    const result = await sendOtpCode(data.clientEmail, data.clientName)
+    const result = await sendOtpCode(data.clientEmail, data.clientName, token)
     setIsSubmitting(false)
 
     if (result?.error) {

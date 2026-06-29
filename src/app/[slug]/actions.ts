@@ -49,7 +49,26 @@ END:VEVENT
 END:VCALENDAR`.replace(/\n/g, '\r\n');
 }
 
-export async function sendOtpCode(email: string, clientName: string) {
+export async function sendOtpCode(email: string, clientName: string, recaptchaToken: string) {
+  // 1. Verificar reCAPTCHA
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY
+  if (secretKey && recaptchaToken) {
+    try {
+      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`
+      const response = await fetch(verifyUrl, { method: 'POST' })
+      const data = await response.json()
+      
+      if (!data.success || data.score < 0.5) {
+        console.error('reCAPTCHA failed:', data)
+        return { success: false, error: 'Detectamos actividad inusual. Por favor, intenta más tarde.' }
+      }
+    } catch (e) {
+      console.error('Error verifying reCAPTCHA:', e)
+      // Continuamos si el servicio de Google falla temporalmente para no bloquear al usuario legítimo
+    }
+  } else if (!recaptchaToken) {
+    return { success: false, error: 'La validación de seguridad (reCAPTCHA) falló. Por favor recarga la página e intenta nuevamente.' }
+  }
   
   // Generar código de 6 dígitos
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString()

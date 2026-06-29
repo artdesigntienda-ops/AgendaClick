@@ -51,11 +51,11 @@ export default async function DashboardLayout({
         />
       )}
       
-      <Sidebar clinic={clinic} />
+      <Sidebar clinic={clinic} role={profile?.role as 'owner' | 'staff'} />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-[#fafafa]">
-        <div className="max-w-6xl mx-auto p-8 lg:p-12">
+        <div className="max-w-6xl mx-auto p-4 md:p-8 lg:p-12 overflow-hidden">
           {children}
         </div>
       </main>
