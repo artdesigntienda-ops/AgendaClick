@@ -96,7 +96,14 @@ export default async function SettingsPage() {
     if (existingClinic?.id) {
       await supabase.from('clinics').update(payload).eq('id', existingClinic.id)
     } else {
-      await supabase.from('clinics').insert([payload])
+      // Al crear la clínica, dar 14 días de prueba
+      const trialEndsAt = new Date()
+      trialEndsAt.setDate(trialEndsAt.getDate() + 14)
+      await supabase.from('clinics').insert([{
+        ...payload,
+        subscription_status: 'trial',
+        subscription_ends_at: trialEndsAt.toISOString()
+      }])
     }
 
     revalidatePath('/dashboard/settings')
