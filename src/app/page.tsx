@@ -400,7 +400,7 @@ export default function LandingPage() {
               © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.
             </p>
             <p className="text-xs text-gray-400">
-              Una solución desarrollada por <a href="https://tienda-art-design.com" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+              Una solución desarrollada por <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
             </p>
           </div>
           <div className="flex gap-6 text-sm font-medium">

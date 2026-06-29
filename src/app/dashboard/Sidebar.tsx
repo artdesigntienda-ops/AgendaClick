@@ -165,7 +165,7 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
             AgendaClick
           </p>
           <p className="text-[10px] text-gray-400 mt-0.5">
-            Una solución de <a href="https://tienda-art-design.com" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+            Una solución de <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
           </p>
         </div>
       </aside>
