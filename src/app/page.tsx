@@ -45,7 +45,9 @@ export default function LandingPage() {
         </div>
       </motion.nav>
 
-      {/* HERO SECTION */}
+      {/* MAIN CONTENT LANDMARK */}
+      <main>
+        {/* HERO SECTION */}
       <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div 
           initial="hidden"
@@ -59,7 +61,7 @@ export default function LandingPage() {
           </motion.div>
           
           <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
-            Haz que tu estética <span className="text-gray-400">brille con luz propia.</span>
+            Haz que tu estética <span className="text-gray-500">brille con luz propia.</span>
           </motion.h1>
           
           <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-lg leading-relaxed">
@@ -161,8 +163,8 @@ export default function LandingPage() {
             variants={fadeInUp}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">Creado para creadoras de belleza y bienestar</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">Entendemos que la estética lo es todo. Tu sistema de reservas debe ser tan hermoso como los resultados que ofreces a tus clientas.</p>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">Creado para Profesionales y Negocios de Servicios</h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">Entendemos que tu tiempo es valioso. Tu sistema de reservas debe ser tan eficiente y profesional como el servicio que ofreces a tus clientes.</p>
           </motion.div>
           
           <motion.div 
@@ -173,9 +175,9 @@ export default function LandingPage() {
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {[
-              { icon: Scissors, title: "Salones y Estudios", desc: "Peluquerías, Lashistas y estudios de uñas. Mantén tu agenda llena sin estrés." },
-              { icon: Sparkles, title: "Estéticas y Cosmiatría", desc: "Clínicas de cuidado de la piel y belleza corporal con una imagen profesional y de lujo." },
-              { icon: Heart, title: "Spas y Bienestar", desc: "Centros de masajes, yoga y terapias. Inicia la experiencia de relajación desde que agendan." }
+              { icon: Sparkles, title: "Belleza y Cuidado", desc: "Barberías, spas, salones de uñas y centros de estética. Mantén tu agenda llena sin estrés." },
+              { icon: Heart, title: "Salud y Bienestar", desc: "Consultorios médicos, psicología, fisioterapia y clínicas. Gestiona a tus pacientes con seguridad." },
+              { icon: User, title: "Servicios Profesionales", desc: "Asesorías, consultorías, despachos y entrenadores. Profesionaliza la forma en que te contactan." }
             ].map((item, i) => (
               <motion.div key={i} variants={fadeInUp} className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-6">
@@ -208,7 +210,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Experiencia de reserva encantadora</h4>
+                  <h3 className="text-xl font-semibold mb-2">Experiencia de reserva encantadora</h3>
                   <p className="text-gray-500 leading-relaxed">Las mujeres odian tener que crear "usuarios y contraseñas" para un corte de cabello. Diseñamos un proceso fluido que toma menos de 1 minuto, enamorando a tus clientas desde el primer clic.</p>
                 </div>
               </motion.div>
@@ -220,7 +222,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Escudo Anti-Citas Falsas</h4>
+                  <h3 className="text-xl font-semibold mb-2">Escudo Anti-Citas Falsas</h3>
                   <p className="text-gray-500 leading-relaxed">En lugar de contraseñas, usamos un código único temporal (OTP) enviado a su celular o correo. Así nos aseguramos de que la persona es real, bloqueando agendamientos falsos de la competencia.</p>
                 </div>
               </motion.div>
@@ -232,7 +234,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Historial de Clientas Invisible (CRM)</h4>
+                  <h3 className="text-xl font-semibold mb-2">Historial de Clientas Invisible (CRM)</h3>
                   <p className="text-gray-500 leading-relaxed">Aunque tus clientas no creen una cuenta formal, nuestro sistema las reconoce mágicamente por su número de teléfono. Podrás ver cuántas veces ha venido "María" sin que ella tenga que recordar una clave.</p>
                 </div>
               </motion.div>
@@ -244,7 +246,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold mb-2">Conexión invisible a WhatsApp</h4>
+                  <h3 className="text-xl font-semibold mb-2">Conexión invisible a WhatsApp</h3>
                   <p className="text-gray-500 leading-relaxed">Al finalizar la reserva, el navegador dirige automáticamente a la clienta a su WhatsApp con un mensaje pre-armado hacia ti. Ella no hace esfuerzos extra y a ti no te cuesta dinero en recargas de mensajes.</p>
                 </div>
               </motion.div>
@@ -281,6 +283,118 @@ export default function LandingPage() {
                   <div className="h-3 w-24 bg-white/50 rounded-full"></div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* TODAS LAS FUNCIONES BENTO BOX */}
+      <section className="py-24 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold tracking-tight mb-4 text-gray-900">Todo lo que necesitas para escalar tu negocio</h2>
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg">Reemplaza 5 herramientas diferentes con una sola plataforma integral diseñada para la productividad.</p>
+          </motion.div>
+
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {/* Box 1 */}
+            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm lg:col-span-2 hover:shadow-md transition-shadow">
+              <CalendarCheck className="w-10 h-10 text-black mb-6" />
+              <h3 className="text-2xl font-bold mb-3">Agenda 24/7 Inteligente</h3>
+              <p className="text-gray-500 leading-relaxed max-w-md">Tus clientes pueden ver tu disponibilidad real y agendar citas incluso cuando estás durmiendo o atendiendo. El calendario se sincroniza al instante y bloquea horarios ocupados automáticamente.</p>
+            </motion.div>
+
+            {/* Box 2 */}
+            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <User className="w-10 h-10 text-black mb-6" />
+              <h3 className="text-xl font-bold mb-3">CRM y Base de Datos</h3>
+              <p className="text-gray-500 leading-relaxed">Conoce el historial de cada cliente, cuántas veces te visitan, y qué servicios prefieren. Fideliza a los mejores.</p>
+            </motion.div>
+
+            {/* Box 3 */}
+            <motion.div variants={fadeInUp} className="bg-black text-white p-8 rounded-[2rem] shadow-sm hover:shadow-lg transition-shadow relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10"><Sparkles className="w-32 h-32" /></div>
+              <Shield className="w-10 h-10 text-white mb-6 relative z-10" />
+              <h3 className="text-xl font-bold mb-3 relative z-10">Control de Empleados</h3>
+              <p className="text-gray-400 leading-relaxed relative z-10">Gestiona múltiples profesionales. Cada uno con su propio horario, tiempos de descanso y cálculo automático de comisiones a fin de mes.</p>
+            </motion.div>
+
+            {/* Box 4 */}
+            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm lg:col-span-2 hover:shadow-md transition-shadow">
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                <div className="flex-1">
+                  <MessageCircle className="w-10 h-10 text-black mb-6" />
+                  <h3 className="text-2xl font-bold mb-3">Notificaciones a WhatsApp</h3>
+                  <p className="text-gray-500 leading-relaxed">Olvídate de confirmar citas manualmente. El sistema envía al cliente directamente a tu WhatsApp con todos los detalles de su reserva confirmada. Ahorras tiempo y dinero en mensajes SMS.</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* COMPARISON TABLE */}
+      <section className="py-24 bg-white border-t border-gray-200">
+        <div className="max-w-4xl mx-auto px-6">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">La diferencia es clara</h2>
+          </motion.div>
+
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm"
+          >
+            <div className="grid grid-cols-2 bg-gray-50 border-b border-gray-200">
+              <div className="p-6 text-center border-r border-gray-200">
+                <h3 className="font-bold text-gray-500 uppercase tracking-wider text-sm">La Forma Antigua</h3>
+                <p className="text-xs text-gray-400 mt-1">(Agendar por WhatsApp)</p>
+              </div>
+              <div className="p-6 text-center bg-black text-white">
+                <h3 className="font-bold uppercase tracking-wider text-sm">Con AgendaClick</h3>
+                <p className="text-xs text-gray-300 mt-1">(Automático y Profesional)</p>
+              </div>
+            </div>
+
+            <div className="divide-y divide-gray-100">
+              {[
+                ["Pierdes clientes si no respondes rápido", "Los clientes reservan solos al instante"],
+                ["Cruce de horarios y errores manuales", "El calendario bloquea horas ocupadas"],
+                ["Citas falsas o cancelaciones de última hora", "Filtro OTP de seguridad en cada reserva"],
+                ["Cálculo manual de comisiones de empleados", "Reportes automáticos en tiempo real"],
+                ["Dependes 100% de que te busquen a ti", "Las IAs te recomiendan automáticamente"]
+              ].map((row, i) => (
+                <div key={i} className="grid grid-cols-2 hover:bg-gray-50 transition-colors">
+                  <div className="p-6 text-sm text-gray-500 border-r border-gray-200 flex items-start gap-3">
+                    <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <span>{row[0]}</span>
+                  </div>
+                  <div className="p-6 text-sm font-medium text-gray-900 flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span>{row[1]}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -368,39 +482,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* SECURE PAYMENTS */}
-      <section className="bg-white py-12 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-sm font-semibold text-gray-400 mb-8 uppercase tracking-wider">Pagos 100% seguros y respaldados por Wompi</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-75 hover:opacity-100 transition-opacity duration-300">
-            {/* Wompi */}
-            <img src="/payment-logos/wompi.png" alt="Wompi" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
-            {/* Bancolombia */}
-            <img src="/payment-logos/bancolombia.png" alt="Bancolombia" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
-            {/* Nequi */}
-            <img src="/payment-logos/nequi.png" alt="Nequi" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
-            {/* PSE */}
-            <img src="/payment-logos/pse.png" alt="PSE" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
-            {/* Visa */}
-            <img src="/payment-logos/visa.png" alt="Visa" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
-            {/* Mastercard */}
-            <img src="/payment-logos/mastercard.png" alt="Mastercard" className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all" />
-          </div>
-        </div>
-      </section>
+
+
+      </main>
 
       {/* FOOTER */}
       <footer className="bg-gray-50 py-12 border-t">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <img src="/full-logo.png" alt="AgendaClick Logo" className="h-12 object-contain" />
+            <img src="/full-logo.png" alt="AgendaClick Logo" width={180} height={48} className="h-12 w-auto object-contain" />
           </div>
           <div className="flex flex-col items-center gap-1">
             <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.
             </p>
-            <p className="text-xs text-gray-400">
-              Una solución desarrollada por <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+            <p className="text-xs text-gray-500">
+              Una solución desarrollada por <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold text-gray-700 hover:text-black transition-colors">ArtDesign</a>
             </p>
           </div>
           <div className="flex gap-6 text-sm font-medium">
