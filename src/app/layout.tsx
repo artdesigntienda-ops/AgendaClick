@@ -13,16 +13,22 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
+const siteUrl = "https://agendaclick.vercel.app";
+
 // 1. SEO Base Fuerte
 export const metadata: Metadata = {
-  title: "AgendaClick | El mejor software de agendamiento en Colombia",
-  description: "AgendaClick es el mejor software SaaS de agendamiento para centros de estética, clínicas y bienestar en Colombia y Latinoamérica. Reservas rápidas, integración con Wompi y sin comisiones por cita.",
-  keywords: ["software de citas", "agendamiento de turnos", "gestión de clínicas", "software estética", "agendamiento colombia", "wompi", "SaaS citas"],
+  title: "AgendaClick | Software de Agendamiento para Negocios de Servicios",
+  description: "Automatiza tus reservas 24/7. Agenda inteligente, control de empleados, CRM de clientes y recordatorios automáticos. Ideal para salones, clínicas y profesionales en Colombia.",
+  keywords: ["software de citas", "agendamiento de turnos", "gestión de clínicas", "software estética", "agendamiento colombia", "SaaS citas", "reservas online"],
   authors: [{ name: "AgendaClick" }],
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: siteUrl,
+  },
   openGraph: {
     title: "AgendaClick | Software de Agendamiento",
-    description: "La plataforma de agendamiento ultra-minimalista para negocios que quieren crecer sin fricciones.",
-    url: "https://agendaclick.com",
+    description: "Automatiza tus reservas 24/7 con agenda inteligente, control de empleados y CRM para negocios de servicios en Colombia.",
+    url: siteUrl,
     siteName: "AgendaClick",
     locale: "es_CO",
     type: "website",
@@ -49,10 +55,10 @@ const jsonLd = {
   applicationCategory: 'BusinessApplication',
   offers: {
     '@type': 'Offer',
-    price: '50000.00',
+    price: '35000.00',
     priceCurrency: 'COP',
   },
-  description: "AgendaClick es una plataforma SaaS B2B que permite a clínicas, estéticas y profesionales de la salud gestionar sus citas y reservas en línea en Colombia.",
+  description: "AgendaClick es una plataforma SaaS B2B de agendamiento para negocios de servicios: salones, clínicas, spas, consultorías y profesionales independientes en Colombia.",
 };
 
 export default function RootLayout({
@@ -66,11 +72,10 @@ export default function RootLayout({
       className={`${playfair.variable} ${montserrat.variable} h-full antialiased`}
     >
       <head>
-        <script 
-          async 
-          defer 
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`} 
-        />
+        {/* Preconnect para mejorar LCP - ahorra ~60ms en la carga de fondo */}
+        <link rel="preconnect" href="https://www.transparenttextures.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

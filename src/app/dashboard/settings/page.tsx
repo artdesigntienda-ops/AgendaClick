@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import Script from 'next/script'
 import SettingsForm from './SettingsForm'
 
 export default async function SettingsPage() {
@@ -141,6 +142,11 @@ export default async function SettingsPage() {
 
   return (
     <div>
+      {/* Google Maps cargado solo donde se necesita (autocompletado de dirección) */}
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="afterInteractive"
+      />
       <h1 className="text-2xl font-semibold mb-6">
         {clinic ? 'Edición de mi Perfil' : 'Creación del Perfil de mi Negocio'}
       </h1>
