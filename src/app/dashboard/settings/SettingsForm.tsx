@@ -216,10 +216,14 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Categoría de tu Negocio</label>
-            <select name="business_type" defaultValue={clinic?.business_type || 'belleza'} className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black">
-              <option value="belleza">Estética y Belleza (Peluquerías, Barberías, Uñas, Cejas)</option>
-              <option value="salud">Salud y Clínicas (Odontología, Fisioterapia, Nutrición)</option>
-              <option value="bienestar">Spas y Bienestar (Masajes, Yoga, Terapias Alternativas)</option>
+            <select name="business_type" defaultValue={clinic?.business_type || 'belleza'} className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black text-sm">
+              <option value="belleza">💅 Estética y Belleza (Peluquerías, Barberías, Cejas, Uñas)</option>
+              <option value="bienestar">🧘 Spas y Bienestar (Masajes, Terapias, Yoga, Relajación)</option>
+              <option value="salud">🏥 Clínicas y Centros de Salud (Fisioterapia, Nutrición)</option>
+              <option value="psicologia">🧠 Psicología y Terapia (Consultas, Terapia de Pareja, Coaching)</option>
+              <option value="odontologia">🦷 Odontología y Ortodoncia (Limpiezas, Estética Dental)</option>
+              <option value="quiropractica">🦴 Quiropráctica y Masajes Terapéuticos</option>
+              <option value="medicina_general">🩺 Consulta Médica y Especialistas</option>
             </select>
           </div>
 

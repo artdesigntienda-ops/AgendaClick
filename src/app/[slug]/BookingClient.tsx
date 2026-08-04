@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, Brain, Smile, Activity, Stethoscope, Heart, Leaf, Sparkles, Scissors } from 'lucide-react'
 import { createAppointment, sendOtpCode } from './actions'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
@@ -192,12 +192,32 @@ export default function BookingClient({ clinic, services, professionals }: Props
       <div className="bg-black text-white p-8 text-center flex flex-col items-center">
         {clinic.logo_url ? (
           <img src={clinic.logo_url} alt={clinic.name} className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-white/20 shadow-lg" />
-        ) : null}
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/20 shadow-lg text-white">
+            {clinic.business_type === 'psicologia' && <Brain className="w-10 h-10" />}
+            {clinic.business_type === 'odontologia' && <Smile className="w-10 h-10" />}
+            {clinic.business_type === 'quiropractica' && <Activity className="w-10 h-10" />}
+            {clinic.business_type === 'medicina_general' && <Stethoscope className="w-10 h-10" />}
+            {clinic.business_type === 'salud' && <Heart className="w-10 h-10" />}
+            {clinic.business_type === 'bienestar' && <Leaf className="w-10 h-10" />}
+            {clinic.business_type === 'belleza' && <Sparkles className="w-10 h-10" />}
+            {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && <Sparkles className="w-10 h-10" />}
+          </div>
+        )}
         <h1 className="text-2xl font-light tracking-tight">{clinic.name}</h1>
         {clinic.slogan ? (
           <p className="text-gray-300 mt-2 text-sm italic">{clinic.slogan}</p>
         ) : (
-          <p className="text-gray-400 mt-2 text-sm uppercase tracking-widest">{clinic.business_type}</p>
+          <p className="text-gray-400 mt-2 text-xs uppercase tracking-widest font-semibold">
+            {clinic.business_type === 'belleza' && '💅 Estética y Belleza'}
+            {clinic.business_type === 'bienestar' && '🧘 Spas y Bienestar'}
+            {clinic.business_type === 'salud' && '🏥 Clínica y Salud'}
+            {clinic.business_type === 'psicologia' && '🧠 Psicología y Terapia'}
+            {clinic.business_type === 'odontologia' && '🦷 Odontología y Ortodoncia'}
+            {clinic.business_type === 'quiropractica' && '🦴 Quiropráctica y Masajes'}
+            {clinic.business_type === 'medicina_general' && '🩺 Consulta Médica y Especialistas'}
+            {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && clinic.business_type}
+          </p>
         )}
         
         {clinic.address && (
@@ -254,9 +274,21 @@ export default function BookingClient({ clinic, services, professionals }: Props
                     }}
                     className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors group flex justify-between items-center"
                   >
-                    <div>
-                      <h3 className="font-medium group-hover:text-black">{service.name}</h3>
-                      <p className="text-sm text-gray-500">{service.duration_minutes} min • ${service.price}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-black group-hover:text-white transition-colors">
+                        {clinic.business_type === 'psicologia' && <Brain className="w-5 h-5" />}
+                        {clinic.business_type === 'odontologia' && <Smile className="w-5 h-5" />}
+                        {clinic.business_type === 'quiropractica' && <Activity className="w-5 h-5" />}
+                        {clinic.business_type === 'medicina_general' && <Stethoscope className="w-5 h-5" />}
+                        {clinic.business_type === 'salud' && <Heart className="w-5 h-5" />}
+                        {clinic.business_type === 'bienestar' && <Leaf className="w-5 h-5" />}
+                        {clinic.business_type === 'belleza' && <Scissors className="w-5 h-5" />}
+                        {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && <Sparkles className="w-5 h-5" />}
+                      </div>
+                      <div>
+                        <h3 className="font-medium group-hover:text-black">{service.name}</h3>
+                        <p className="text-sm text-gray-500">{service.duration_minutes} min • ${service.price}</p>
+                      </div>
                     </div>
                     <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-black transition-colors" />
                   </button>
@@ -529,7 +561,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
       {/* Branding ArtDesign */}
       <div className="py-4 text-center border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
         <p className="text-xs text-gray-400">
-          Powered by AgendaClick, una marca de <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+          Powered by AgendaClick, una solución de <a href="https://jaisonrodriguez.github.io/nexora-digital-portal/" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">Nexora Digital</a>
         </p>
       </div>
     </div>

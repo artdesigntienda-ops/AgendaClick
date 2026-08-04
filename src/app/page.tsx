@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot, Shield, User, XCircle } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot, Shield, User, XCircle, Stethoscope } from 'lucide-react'
 
 // Variantes de animación para hacer la página fluida y elegante
 const fadeInUp = {
@@ -28,17 +28,27 @@ export default function LandingPage() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b z-50"
+        className="fixed top-0 w-full bg-white/70 backdrop-blur-lg border-b border-black/5 z-50 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]"
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/full-logo.png" alt="AgendaClick Logo" className="h-14 md:h-16 object-contain" />
+            <Link href="#inicio" className="flex items-center">
+              <img src="/full-logo.png" alt="AgendaClick Logo" className="h-14 md:h-16 object-contain hover:opacity-90 transition-opacity" />
+            </Link>
           </div>
+          
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#inicio" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Inicio</a>
+            <a href="#segmentos" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Segmentos</a>
+            <a href="#funciones" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Características</a>
+            <a href="#precios" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Planes</a>
+          </div>
+
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-black transition-colors hidden sm:block">
+            <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors hidden sm:block">
               Iniciar Sesión
             </Link>
-            <Link href="/login" className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-all shadow-md">
+            <Link href="/login" className="text-sm font-bold bg-black text-white px-6 py-2.5 rounded-full hover:bg-neutral-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-md">
               Prueba Gratis
             </Link>
           </div>
@@ -154,7 +164,7 @@ export default function LandingPage() {
       </section>
 
       {/* TARGET AUDIENCE SECTION */}
-      <section className="py-24 bg-gray-50 border-y border-gray-200">
+      <section id="segmentos" className="py-24 bg-gray-50 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -172,12 +182,13 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {[
               { icon: Sparkles, title: "Belleza y Cuidado", desc: "Barberías, spas, salones de uñas y centros de estética. Mantén tu agenda llena sin estrés." },
-              { icon: Heart, title: "Salud y Bienestar", desc: "Consultorios médicos, psicología, fisioterapia y clínicas. Gestiona a tus pacientes con seguridad." },
-              { icon: User, title: "Servicios Profesionales", desc: "Asesorías, consultorías, despachos y entrenadores. Profesionaliza la forma en que te contactan." }
+              { icon: Heart, title: "Salud y Bienestar", desc: "Fisioterapeutas, centros de yoga, nutricionistas y terapias alternativas. Gestiona citas sin fricciones." },
+              { icon: Stethoscope, title: "Medicina y Consulta", desc: "Consultorios de odontología, psicología, quiropráctica, medicina general y especialistas. Privacidad y confianza." },
+              { icon: User, title: "Servicios Profesionales", desc: "Asesorías, abogados, consultorías, entrenadores personales y clases privadas. Profesionaliza tu marca." }
             ].map((item, i) => (
               <motion.div key={i} variants={fadeInUp} className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-6">
@@ -192,7 +203,7 @@ export default function LandingPage() {
       </section>
 
       {/* CORE FEATURES */}
-      <section className="py-24 max-w-7xl mx-auto px-6">
+      <section id="funciones" className="py-24 max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div 
             initial="hidden"
@@ -497,7 +508,7 @@ export default function LandingPage() {
               © {new Date().getFullYear()} AgendaClick. Todos los derechos reservados.
             </p>
             <p className="text-xs text-gray-500">
-              Una solución desarrollada por <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold text-gray-700 hover:text-black transition-colors">ArtDesign</a>
+              Una solución desarrollada por <a href="https://jaisonrodriguez.github.io/nexora-digital-portal/" target="_blank" rel="noreferrer" className="font-bold text-gray-700 hover:text-black transition-colors">Nexora Digital</a>
             </p>
           </div>
           <div className="flex gap-6 text-sm font-medium">
