@@ -114,9 +114,9 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
       `
     })
     return { success: true }
-  } catch (e) {
+  } catch (e: any) {
     console.error('Error sending OTP via SMTP:', e)
-    return { success: false, error: 'Error enviando el correo. Revisa que tu dirección sea correcta.' }
+    return { success: false, error: `Error enviando correo: ${e?.message || 'Error desconocido'}` }
   }
 }
 
