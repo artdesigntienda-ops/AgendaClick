@@ -318,6 +318,31 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
       </div>
 
       <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">💳 Cobro de Citas en Línea (Pasarela de Pagos)</h2>
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-2xl space-y-4">
+          <p className="text-sm text-gray-600 leading-relaxed">
+            ¿Quieres recibir pagos online de tus clientes al momento de agendar sus citas? Activamos la integración de pasarelas de pago colombianas como **Wompi, ePayco o MercadoPago** de forma 100% segura para tu portal.
+          </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <a 
+              href="https://wa.me/573239306599?text=Hola%20Nexora%20Digital,%20me%20gustar%C3%ADa%20solicitar%20la%20integraci%C3%B3n%20segura%20de%20la%20pasarela%20de%20pagos%20de%20citas%20para%20mi%20portal%20de%20AgendaClick."
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-md text-sm"
+            >
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.588 1.977 14.128 1.95 12.012 1.95c-5.44 0-9.866 4.372-9.87 9.802 0 1.714.47 3.393 1.357 4.881L2.456 21.12l4.19-1.966z"/>
+              </svg>
+              Contactar Soporte para Integrar Pagos
+            </a>
+            <span className="text-xs text-gray-400 leading-normal max-w-xs">
+              La integración es realizada directamente por nuestro equipo de Nexora Digital para garantizar la seguridad de tus credenciales bancarias.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-b pb-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">Redes Sociales (Firma para Correos)</h2>
         <p className="text-sm text-gray-500 mb-4">Estos enlaces se incluirán en los correos de confirmación de citas invitando a tus clientes a seguirte.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

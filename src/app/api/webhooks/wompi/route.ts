@@ -17,13 +17,25 @@ export async function POST(req: Request) {
       if (reference.startsWith('SUB_')) {
         const parts = reference.split('_')
         const clinicId = parts[1]
+        const planId = parts[2]
+        const billingPeriod = parts[3] || 'monthly'
 
         if (clinicId) {
-          // Actualizar estado de la suscripción a 'active'
+          // Calcular fecha de expiración
+          const endsAt = new Date()
+          if (billingPeriod === 'annual') {
+            endsAt.setFullYear(endsAt.getFullYear() + 1)
+          } else {
+            endsAt.setMonth(endsAt.getMonth() + 1)
+          }
+
+          // Actualizar estado, plan, fecha de vencimiento y ID de transacción
           await supabase
             .from('clinics')
             .update({ 
               subscription_status: 'active',
+              plan_type: planId,
+              subscription_ends_at: endsAt.toISOString(),
               wompi_subscription_id: data.transaction.id
             })
             .eq('id', clinicId)
