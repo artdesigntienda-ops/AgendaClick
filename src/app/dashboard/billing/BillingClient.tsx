@@ -186,7 +186,9 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
             const currentDailyRate = currentPlanIsAnnual 
               ? (currentPlanObj.priceCOP * 12 * 0.9) / 365 
               : currentPlanObj.priceCOP / 30
-            unusedCredit = Math.floor(daysLeft * currentDailyRate)
+            const maxDays = currentPlanIsAnnual ? 365 : 30
+            const creditDays = Math.min(daysLeft, maxDays)
+            unusedCredit = Math.floor(creditDays * currentDailyRate)
             finalPrice = Math.max(1000, basePrice - unusedCredit) // Mínimo de 1,000 COP para Wompi
           }
 
@@ -233,7 +235,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
               {/* Desglose de Prorrateo Premium */}
               {isUpgrade && unusedCredit > 0 && (
                 <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-800 rounded-2xl p-4 border-2 border-emerald-500/20 shadow-md space-y-2 mb-5">
-                  <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl uppercase tracking-wider animate-pulse">
+                  <div className="absolute top-0 right-0 bg-emerald-800 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl uppercase tracking-wider">
                     Oferta
                   </div>
                   
@@ -253,7 +255,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
                       <span className="font-semibold">${basePrice.toLocaleString('es-CO')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Saldo a favor ({daysLeft} días):</span>
+                      <span>Saldo a favor ({Math.min(daysLeft, currentPlanIsAnnual ? 365 : 30)} días):</span>
                       <span className="font-semibold">-${unusedCredit.toLocaleString('es-CO')}</span>
                     </div>
                   </div>
