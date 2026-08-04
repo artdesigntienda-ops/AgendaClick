@@ -44,19 +44,19 @@ El sistema cuenta con sincronización en tiempo real para agendar y cancelar cit
 
 ## 💳 Pasarela de Pagos (Wompi)
 *   **Suscripciones del Negocio (Dashboard):** 
-    *   Integrado mediante **Wompi** en [`BillingClient.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/dashboard/billing/BillingClient.tsx) para que el dueño compre o actualice su plan (Independiente, Boutique, Salón, Élite).
+    *   Integrado mediante **Wompi** en [`BillingClient.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/dashboard/billing/BillingClient.tsx) para que el dueño compre o actualice su plan (Independiente, Boutique, Salón, Élite) de forma mensual o anual (con 10% de descuento).
+    *   Soporta **Upgrades Prorrateados:** Al mejorar el plan mid-ciclo, se calcula su saldo a favor por los días restantes y se resta del total a pagar hoy, reiniciando su ciclo a 30 o 365 días a partir del pago.
 *   **Pago de Citas por el Cliente Final:**
-    *   **Estado actual:** **NO IMPLEMENTADO**. Actualmente el cliente final no realiza ningún pago al reservar. La cita se agenda directamente con el estado `'pending'`.
-    *   **Cómo implementarlo a futuro:**
-        1.  Añadir en el formulario de configuración del administrador (ajustes) campos para que el dueño del negocio guarde sus propias llaves públicas/privadas de Wompi, MercadoPago o ePayco.
-        2.  Añadir un paso adicional de pago en la pasarela de reservas del cliente final ([`BookingClient.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/[slug]/BookingClient.tsx)), de manera que tras verificar el OTP del correo, el cliente deba completar la transacción para que el estado de la cita pase de `'pending'` a `'confirmed'` o `'paid'`.
+    *   **Estado actual:** Para garantizar la seguridad de las credenciales de los negocios, **no se permite que el cliente agregue llaves API directamente**.
+    *   En su lugar, en [`SettingsForm.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/dashboard/settings/SettingsForm.tsx) se añadió una tarjeta de cobros online con un botón de **Contacto con Soporte** vía WhatsApp que redirige a Nexora Digital (`+57 323 9306599`) para que Jaison gestione la integración directamente de forma 100% segura.
 
 ---
 
 ## 🔄 Cambios Recientes Importantes (4 de Agosto de 2026)
-1.  **Migración SMTP:** Se removió la librería Resend y se integró **Nodemailer** parametrizado con variables de entorno genéricas. Se configuró Brevo SMTP con remitente verificado para asegurar la entrega de correos a cualquier destinatario de forma gratuita.
-2.  **Responsividad de Facturación:** Se amplió la envoltura en [`page.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/dashboard/billing/page.tsx) a `max-w-7xl` y se ajustó el grid en [`BillingClient.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/dashboard/billing/BillingClient.tsx) a `md:grid-cols-2 lg:grid-cols-4` para optimizar la visualización de los planes de suscripción.
-3.  **Cancelación Autónoma de Citas:**
-    *   Se añadió un enlace de cancelación personalizado en el correo de confirmación de los clientes: `/cancelar/[appointmentId]`.
-    *   Se creó la página de cancelación [`src/app/cancelar/[appointmentId]/page.tsx`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/cancelar/%5BappointmentId%5D/page.tsx) que permite confirmar la cancelación de forma autónoma.
-    *   Se programó la Server Action `cancelAppointmentFromClient` en [`actions.ts`](file:///E:/Proyectos%20progrmacion/AgendaClick/src/app/%5Bslug%5D/actions.ts) que marca la cita como cancelada en Supabase, envía correos de notificación al cliente y al dueño, y busca/elimina automáticamente el evento del Google Calendar del dueño si tiene la integración activa.
+1.  **Migración SMTP:** Se integró Brevo SMTP para los correos transaccionales y de verificación OTP.
+2.  **Responsividad de Facturación:** Se cambió el contenedor a `max-w-7xl` y la cuadrícula a `md:grid-cols-2 lg:grid-cols-4`.
+3.  **Cancelación Autónoma de Citas:** Se creó la ruta `/cancelar/[appointmentId]`, el enlace en el correo de confirmación, la lógica en Supabase y la auto-limpieza del evento de Google Calendar.
+4.  **Actualización de Llaves Wompi:** Se integraron las nuevas credenciales de producción provistas en el archivo `.env.local`.
+5.  **Facturación Anual y Prorrateo:** Se agregó toggle selector de facturación mensual/anual con un 10% de descuento, junto al recálculo y desglose detallado de saldo a favor de plan anterior.
+6.  **Actualizaciones de Webhook:** El endpoint `/api/webhooks/wompi` ahora procesa referencias del tipo `SUB_[clinicId]_[planId]_[billingPeriod]_[timestamp]` para calcular y establecer correctamente `plan_type` y `subscription_ends_at` (sumando 30 días para mensual y 365 días para anual).
+
