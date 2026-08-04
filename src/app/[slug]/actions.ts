@@ -3,13 +3,19 @@
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { google } from 'googleapis'
 
-function getResend() {
-  return new Resend(process.env.RESEND_API_KEY)
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
+    }
+  })
 }
 
 function getSupabaseAdmin() {
@@ -90,8 +96,9 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
   }
 
   try {
-    await getResend().emails.send({
-      from: 'AgendaClick Seguridad <onboarding@resend.dev>',
+    const transporter = getTransporter()
+    await transporter.sendMail({
+      from: `"AgendaClick Seguridad" <${process.env.SMTP_USER}>`,
       to: email.trim().toLowerCase(),
       subject: `Tu código de verificación es ${otpCode}`,
       html: `
@@ -101,14 +108,14 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
           <div style="font-size: 32px; font-weight: bold; tracking: 4px; padding: 20px; text-align: center; background: #f4f4f5; border-radius: 8px; margin: 20px 0;">
             ${otpCode}
           </div>
-          <p>Este código expirará en 10 minutos.</p>
+          <p>Este código expirará en 5 minutos.</p>
           <p>Si no solicitaste este código, puedes ignorar este correo.</p>
         </div>
       `
     })
     return { success: true }
   } catch (e) {
-    console.error('Error sending OTP via Resend:', e)
+    console.error('Error sending OTP via SMTP:', e)
     return { success: false, error: 'Error enviando el correo. Revisa que tu dirección sea correcta.' }
   }
 }
@@ -188,7 +195,7 @@ export async function createAppointment(data: {
 
   const attachment = {
     filename: 'cita.ics',
-    content: Buffer.from(icsContent).toString('base64'),
+    content: Buffer.from(icsContent),
     contentType: 'text/calendar'
   }
 
@@ -230,10 +237,12 @@ export async function createAppointment(data: {
   }
 
   try {
+    const transporter = getTransporter()
+    
     // 4. Enviar correo al Dueño
     if (ownerEmail) {
-      await getResend().emails.send({
-        from: 'AgendaClick Notificaciones <onboarding@resend.dev>',
+      await transporter.sendMail({
+        from: `"AgendaClick Notificaciones" <${process.env.SMTP_USER}>`,
         to: ownerEmail,
         subject: `¡Nueva Cita! ${serviceName} - ${data.clientName}`,
         html: `
@@ -254,8 +263,8 @@ export async function createAppointment(data: {
     }
 
     // 5. Enviar correo a la Clienta
-    await getResend().emails.send({
-      from: 'AgendaClick <onboarding@resend.dev>',
+    await transporter.sendMail({
+      from: `"AgendaClick" <${process.env.SMTP_USER}>`,
       to: data.clientEmail,
       subject: `Reserva Confirmada en ${clinicName}`,
       html: `
@@ -272,7 +281,7 @@ export async function createAppointment(data: {
       attachments: [attachment]
     })
   } catch (e) {
-    console.error('Error sending emails via Resend:', e)
+    console.error('Error sending emails via SMTP:', e)
   }
 
   revalidatePath('/dashboard')
