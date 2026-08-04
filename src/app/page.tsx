@@ -437,33 +437,33 @@ export default function LandingPage() {
                 name: 'Independiente',
                 price: '35.000',
                 limit: '1 Profesional',
-                features: ['Agenda online', 'Recordatorios por email', 'Soporte estándar']
+                features: ['Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte estándar']
               },
               {
-                name: 'Boutique',
+                name: 'Profesional',
                 price: '75.000',
                 limit: 'Hasta 4 Profesionales',
-                features: ['Agenda online', 'Recordatorios por email', 'Soporte prioritario']
+                features: ['Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario']
               },
               {
-                name: 'Salón',
+                name: 'Negocio',
                 price: '115.000',
                 limit: 'Hasta 8 Profesionales',
-                features: ['Métricas avanzadas', 'Recordatorios por email', 'Soporte prioritario']
+                features: ['Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario', 'Control total de tus finanzas']
               },
               {
                 name: 'Élite',
                 price: '190.000',
-                limit: 'Ilimitados',
-                features: ['Métricas avanzadas', 'Atención 24/7', 'Onboarding personalizado']
+                limit: 'Crecimiento sin límites (Staff infinito)',
+                features: ['Todo lo del plan Negocio', 'Soporte VIP inmediato 24/7', 'Te ayudamos a configurar todo paso a paso']
               }
             ].map((plan, index) => (
               <motion.div 
                 key={index}
                 variants={fadeInUp}
-                className={`bg-white text-black border-2 ${index === 1 ? 'border-black shadow-xl lg:scale-105 relative z-10' : 'border-gray-100 hover:border-gray-300'} rounded-3xl p-8 flex flex-col transition-all`}
+                className={`bg-white text-black border-2 ${index === 2 ? 'border-black shadow-xl lg:scale-105 relative z-10' : 'border-gray-100 hover:border-gray-300'} rounded-3xl p-8 flex flex-col transition-all`}
               >
-                {index === 1 && (
+                {index === 2 && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">
                     MÁS POPULAR
                   </div>
@@ -478,13 +478,13 @@ export default function LandingPage() {
                 <ul className="space-y-4 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${index === 1 ? 'text-black' : 'text-gray-400'}`} />
+                      <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${index === 2 ? 'text-black' : 'text-gray-400'}`} />
                       <span className="text-sm font-medium text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                <Link href="/login" className={`block text-center w-full py-3 rounded-xl font-bold transition-colors ${index === 1 ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-black hover:bg-gray-200'}`}>
+                <Link href="/login" className={`block text-center w-full py-3 rounded-xl font-bold transition-colors ${index === 2 ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-black hover:bg-gray-200'}`}>
                   Comenzar gratis
                 </Link>
               </motion.div>

@@ -11,28 +11,28 @@ const PLANS = [
     name: 'Independiente',
     priceCOP: 35000,
     limit: 1,
-    features: ['1 Profesional', 'Agenda online', 'Recordatorios por email', 'Soporte estándar']
+    features: ['1 Profesional', 'Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte estándar']
   },
   {
     id: 'boutique',
-    name: 'Boutique',
+    name: 'Profesional',
     priceCOP: 75000,
     limit: 4,
-    features: ['Hasta 4 Profesionales', 'Agenda online', 'Recordatorios por email', 'Soporte prioritario']
+    features: ['Hasta 4 Profesionales', 'Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario']
   },
   {
     id: 'salon',
-    name: 'Salón',
+    name: 'Negocio',
     priceCOP: 115000,
     limit: 8,
-    features: ['Hasta 8 Profesionales', 'Agenda online', 'Recordatorios por email', 'Soporte prioritario', 'Métricas avanzadas']
+    features: ['Hasta 8 Profesionales', 'Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario', 'Control total de tus finanzas']
   },
   {
     id: 'elite',
     name: 'Élite',
     priceCOP: 190000,
     limit: 999, // ilimitado
-    features: ['Profesionales ilimitados', 'Todo lo del plan Salón', 'Atención 24/7', 'Onboarding personalizado']
+    features: ['Crecimiento sin límites (Staff infinito)', 'Todo lo del plan Negocio', 'Soporte VIP inmediato 24/7', 'Te ayudamos a configurar todo paso a paso']
   }
 ]
 
@@ -41,15 +41,14 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
 
   useEffect(() => {
-    // Cargar script de Wompi
+    // Cargar script de Wompi si no está ya presente
+    if (document.querySelector('script[src="https://checkout.wompi.co/widget.js"]')) {
+      return
+    }
     const script = document.createElement('script')
     script.src = 'https://checkout.wompi.co/widget.js'
     script.async = true
     document.body.appendChild(script)
-
-    return () => {
-      document.body.removeChild(script)
-    }
   }, [])
 
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
@@ -193,18 +192,28 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
 
           const showSuscrito = isCurrent && clinic.subscription_status === 'active' && billingPeriod === (currentPlanIsAnnual ? 'annual' : 'monthly')
 
+          const isFeatured = plan.id === 'salon'
+
           return (
             <div 
               key={plan.id}
-              className={`relative flex flex-col bg-white border-2 rounded-2xl p-6 transition-all duration-200 ${
-                showSuscrito ? 'border-black shadow-lg scale-[1.02]' : 'border-gray-100 hover:border-gray-300'
+              className={`relative flex flex-col bg-white rounded-2xl p-6 transition-all duration-200 ${
+                showSuscrito 
+                  ? 'border-2 border-black shadow-lg scale-[1.02] z-10' 
+                  : isFeatured 
+                  ? 'border-[3px] border-emerald-500 shadow-xl lg:scale-[1.04] z-10' 
+                  : 'border-2 border-gray-100 hover:border-gray-300'
               }`}
             >
-              {showSuscrito && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">
+              {showSuscrito ? (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-black px-4 py-1.5 rounded-full tracking-wider shadow-md uppercase">
                   PLAN ACTUAL
                 </div>
-              )}
+              ) : isFeatured ? (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full tracking-wider shadow-md uppercase">
+                  🚀 MEJOR VALOR
+                </div>
+              ) : null}
 
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
@@ -221,22 +230,35 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
                 )}
               </div>
 
-              {/* Desglose de Prorrateo */}
+              {/* Desglose de Prorrateo Premium */}
               {isUpgrade && unusedCredit > 0 && (
-                <div className="text-xs bg-green-50 text-green-700 rounded-xl p-3 mb-5 border border-green-100 space-y-1.5">
-                  <div className="flex justify-between">
-                    <span>Precio del plan nuevo:</span>
-                    <span className="font-bold">${basePrice.toLocaleString('es-CO')}</span>
+                <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-800 rounded-2xl p-4 border-2 border-emerald-500/20 shadow-md space-y-2 mb-5">
+                  <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl uppercase tracking-wider animate-pulse">
+                    Oferta
                   </div>
-                  <div className="flex justify-between text-green-600">
-                    <span>Saldo a favor ({daysLeft} días):</span>
-                    <span className="font-bold">-${unusedCredit.toLocaleString('es-CO')}</span>
+                  
+                  <p className="text-xs font-black text-emerald-950 leading-snug">
+                    Si mejoras hoy tu plan, pagas solo:
+                  </p>
+                  
+                  <div className="text-2xl font-black text-emerald-600 tracking-tight">
+                    ${finalPrice.toLocaleString('es-CO')} COP
                   </div>
-                  <div className="flex justify-between border-t border-green-200/60 pt-1.5 mt-1.5 font-extrabold text-sm text-green-800">
-                    <span>Total a pagar hoy:</span>
-                    <span>${finalPrice.toLocaleString('es-CO')}</span>
+
+                  <hr className="border-emerald-500/10 my-1" />
+
+                  <div className="space-y-1 text-[11px] text-emerald-700">
+                    <div className="flex justify-between">
+                      <span>Precio regular:</span>
+                      <span className="font-semibold">${basePrice.toLocaleString('es-CO')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Saldo a favor ({daysLeft} días):</span>
+                      <span className="font-semibold">-${unusedCredit.toLocaleString('es-CO')}</span>
+                    </div>
                   </div>
-                  <p className="text-[10px] text-green-600 leading-normal pt-1 text-center">
+                  
+                  <p className="text-[9px] text-emerald-600 font-medium leading-normal pt-1.5 border-t border-emerald-500/10 text-center">
                     Tu ciclo se renovará por {billingPeriod === 'annual' ? '365' : '30'} días a partir de hoy.
                   </p>
                 </div>
@@ -254,28 +276,25 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
               <button
                 onClick={() => handleSubscribe(plan, finalPrice)}
                 disabled={showSuscrito || isProcessing !== null}
-                className={`w-full py-3 px-2 sm:px-4 rounded-xl font-bold flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 transition-all duration-200 text-sm sm:text-base ${
+                className={`w-full py-3.5 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-200 text-sm sm:text-base ${
                   showSuscrito
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : isCurrent
-                    ? 'bg-black text-white hover:bg-gray-800 hover:shadow-md'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-100'
+                    : isFeatured
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/20'
                     : 'bg-white text-black border-2 border-black hover:bg-black hover:text-white'
                 } ${isProcessing === plan.id ? 'opacity-75 cursor-wait' : ''}`}
               >
                 {isProcessing === plan.id ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                    <span>Iniciando pago...</span>
+                  </>
                 ) : (
-                  <CreditCard className="w-4 h-4" />
+                  <>
+                    <CreditCard className="w-4 h-4 shrink-0" />
+                    <span>{showSuscrito ? 'Suscrito' : 'Quiero este plan'}</span>
+                  </>
                 )}
-                {isProcessing === plan.id
-                  ? 'Iniciando pago...'
-                  : showSuscrito
-                  ? 'Suscrito' 
-                  : isCurrent 
-                  ? 'Activar Suscripción' 
-                  : isUpgrade
-                  ? 'Mejorar Plan (Prorrateado)'
-                  : 'Elegir Plan'}
               </button>
             </div>
           )
