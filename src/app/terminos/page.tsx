@@ -24,9 +24,11 @@ export default function TerminosPage() {
           <h2 className="text-xl font-semibold text-black">2. Exención Técnica y Operativa</h2>
           <p>
             AgendaClick se proporciona "tal cual" y "según disponibilidad". No garantizamos que el servicio será ininterrumpido 
-            o libre de errores. No nos hacemos responsables por la pérdida de ingresos, citas perdidas, fallas de comunicación, 
-            o errores en la sincronización de horarios. AgendaClick se reserva el derecho de suspender temporal o definitivamente 
-            el acceso a la plataforma por mantenimiento, incumplimiento de pagos o violación de estas políticas.
+            o libre de errores. No nos hacemos responsables por caídas de servidores, cortes de energía, problemas del hosting, fallas de red, 
+            pérdida de ingresos, citas perdidas, fallas de comunicación o errores en la sincronización de horarios. En caso de fallas técnicas, 
+            interrupción del servicio o caídas temporales de los servidores, no se realizarán devoluciones ni compensaciones económicas de ningún tipo. 
+            AgendaClick se reserva el derecho de suspender temporal o definitivamente el acceso a la plataforma por mantenimiento, 
+            incumplimiento de pagos o violación de estas políticas.
           </p>
         </section>
 
@@ -41,11 +43,16 @@ export default function TerminosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-black">4. Pagos y Suscripciones (Wompi)</h2>
+          <h2 className="text-xl font-semibold text-black">4. Pagos, Suscripciones y Política de No Reembolso</h2>
           <p>
-            El uso del panel de control por parte de los dueños de negocios está sujeto al pago de una suscripción recurrente a través 
+            El uso del panel de control por parte de los dueños de negocios está sujeto al pago de una suscripción recurrente (mensual o anual) a través 
             de la pasarela de pagos Wompi. No procesamos ni almacenamos datos de tarjetas de crédito. En caso de rechazo del pago, la 
             cuenta será pausada hasta la regularización de la deuda. AgendaClick no cobra comisiones directas sobre los servicios prestados al cliente final.
+          </p>
+          <p className="font-semibold text-red-700">
+            Política de No Reembolso: Todos los pagos realizados por concepto de suscripción (ya sean mensuales o anuales) son definitivos y no reembolsables. 
+            No se realizarán devoluciones de dinero bajo ninguna circunstancia, incluyendo si el cliente argumenta haber realizado la compra o renovación por error, 
+            por desuso de la plataforma, por caídas técnicas de los servidores, o si decide cancelar su cuenta de manera anticipada.
           </p>
         </section>
 
