@@ -23,6 +23,11 @@ function getTransporter() {
   })
 }
 
+function getFromAddress() {
+  return process.env.SMTP_FROM || process.env.SMTP_USER || 'agendaclickcolombia@gmail.com'
+}
+
+
 function getSupabaseAdmin() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -103,7 +108,7 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
   try {
     const transporter = getTransporter()
     await transporter.sendMail({
-      from: `"AgendaClick Seguridad" <${process.env.SMTP_USER}>`,
+      from: `"AgendaClick Seguridad" <${getFromAddress()}>`,
       to: email.trim().toLowerCase(),
       subject: `Tu código de verificación es ${otpCode}`,
       html: `
@@ -247,7 +252,7 @@ export async function createAppointment(data: {
     // 4. Enviar correo al Dueño
     if (ownerEmail) {
       await transporter.sendMail({
-        from: `"AgendaClick Notificaciones" <${process.env.SMTP_USER}>`,
+        from: `"AgendaClick Notificaciones" <${getFromAddress()}>`,
         to: ownerEmail,
         subject: `¡Nueva Cita! ${serviceName} - ${data.clientName}`,
         html: `
@@ -269,7 +274,7 @@ export async function createAppointment(data: {
 
     // 5. Enviar correo a la Clienta
     await transporter.sendMail({
-      from: `"AgendaClick" <${process.env.SMTP_USER}>`,
+      from: `"AgendaClick" <${getFromAddress()}>`,
       to: data.clientEmail,
       subject: `Reserva Confirmada en ${clinicName}`,
       html: `
