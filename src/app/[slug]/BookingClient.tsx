@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -39,6 +39,39 @@ export default function BookingClient({ clinic, services, professionals }: Props
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [otpCode, setOtpCode] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
+  const [countdown, setCountdown] = useState(0)
+  const [canResend, setCanResend] = useState(true)
+  const [resendCooldown, setResendCooldown] = useState(0)
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}:${s < 10 ? '0' : ''}${s}`
+  }
+
+  useEffect(() => {
+    if (step !== 5) return
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          return 0
+        }
+        return prev - 1
+      })
+
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          setCanResend(true)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [step])
 
   const { register, handleSubmit, getValues, formState: { errors } } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema)
@@ -131,7 +164,10 @@ export default function BookingClient({ clinic, services, professionals }: Props
     if (result?.error) {
       toast.error(result.error)
     } else {
-      setStep(4) // Move to OTP step
+      setStep(5) // Move to OTP step
+      setCountdown(300) // 5 minutes countdown
+      setResendCooldown(60) // 60 seconds cooldown for resending
+      setCanResend(false)
       toast.success('Código enviado a tu correo')
     }
   }
@@ -505,16 +541,16 @@ export default function BookingClient({ clinic, services, professionals }: Props
             </motion.div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <motion.div
-              key="step4"
+              key="step5"
               variants={slideVariants}
               initial="enter"
               animate="center"
               exit="exit"
               className="space-y-6"
             >
-              <div className="flex items-center gap-2 mb-2 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => setStep(3)}>
+              <div className="flex items-center gap-2 mb-2 text-sm text-gray-500 cursor-pointer hover:text-black" onClick={() => setStep(4)}>
                 <ArrowRight className="w-4 h-4 rotate-180" />
                 Volver a mis datos
               </div>
@@ -526,6 +562,15 @@ export default function BookingClient({ clinic, services, professionals }: Props
                   Hemos enviado un código de 6 dígitos a <br/>
                   <strong className="text-black">{getValues().clientEmail}</strong>
                 </p>
+                {countdown > 0 ? (
+                  <p className="text-xs text-amber-600 mt-2 font-medium">
+                    El código expira en {formatTime(countdown)}
+                  </p>
+                ) : (
+                  <p className="text-xs text-red-500 mt-2 font-semibold">
+                    El código ha expirado. Por favor, solicita uno nuevo.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -535,19 +580,40 @@ export default function BookingClient({ clinic, services, professionals }: Props
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="000000"
-                  className="w-full text-center text-3xl tracking-[0.5em] font-mono py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                  disabled={countdown === 0}
+                  className="w-full text-center text-3xl tracking-[0.5em] font-mono py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all disabled:opacity-50"
                 />
               </div>
 
               <button
                 onClick={verifyOtpAndBook}
-                disabled={isVerifying || otpCode.length !== 6}
+                disabled={isVerifying || otpCode.length !== 6 || countdown === 0}
                 className="w-full bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-opacity"
               >
                 {isVerifying ? 'Verificando y Reservando...' : 'Confirmar Reserva'}
               </button>
               
-              <p className="text-xs text-center text-gray-400 mt-4">
+              <div className="text-center text-sm mt-4 border-t pt-4">
+                {canResend ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsSubmitting(true)
+                      await onSubmit(getValues())
+                      setIsSubmitting(false)
+                    }}
+                    className="text-black font-semibold underline hover:text-gray-700 transition-colors"
+                  >
+                    Reenviar código de verificación
+                  </button>
+                ) : (
+                  <p className="text-gray-400">
+                    Puedes reenviar el código en {resendCooldown}s
+                  </p>
+                )}
+              </div>
+
+              <p className="text-xs text-center text-gray-400 mt-2">
                 Si no encuentras el correo, revisa tu carpeta de Spam.
               </p>
             </motion.div>

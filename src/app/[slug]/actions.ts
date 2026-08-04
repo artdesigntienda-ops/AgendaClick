@@ -73,9 +73,9 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
   // Generar código de 6 dígitos
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
   
-  // Fecha de expiración (10 min)
+  // Fecha de expiración (5 min)
   const expiresAt = new Date()
-  expiresAt.setMinutes(expiresAt.getMinutes() + 10)
+  expiresAt.setMinutes(expiresAt.getMinutes() + 5)
 
   // Guardar en base de datos
   const { error } = await getSupabaseAdmin().from('otp_verifications').insert({
