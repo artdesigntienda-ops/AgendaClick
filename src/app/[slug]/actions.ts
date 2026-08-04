@@ -157,21 +157,27 @@ export async function createAppointment(data: {
   }
 
   // 2. Guardar en la DB
-  const { error } = await supabase.from('appointments').insert({
-    clinic_id: data.clinicId,
-    service_id: data.serviceId,
-    client_name: data.clientName,
-    client_email: data.clientEmail,
-    client_phone: data.clientPhone,
-    start_time: data.startTime,
-    end_time: data.endTime,
-    status: 'pending' // En MVP todas inician como pending
-  })
+  const { data: newApp, error } = await supabase
+    .from('appointments')
+    .insert({
+      clinic_id: data.clinicId,
+      service_id: data.serviceId,
+      client_name: data.clientName,
+      client_email: data.clientEmail,
+      client_phone: data.clientPhone,
+      start_time: data.startTime,
+      end_time: data.endTime,
+      status: 'pending' // En MVP todas inician como pending
+    })
+    .select('id')
+    .single()
 
-  if (error) {
+  if (error || !newApp) {
     console.error('Error creating appointment:', error)
     return { error: true, message: 'Error interno guardando la cita.' }
   }
+
+  const appointmentId = newApp.id
 
   // Borramos el OTP que ya se usó para evitar reusos (fire and forget)
   getSupabaseAdmin().from('otp_verifications').delete().eq('id', verifications[0].id).then()
@@ -272,20 +278,27 @@ export async function createAppointment(data: {
       })
     }
 
+    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.vercel.app'}/cancelar/${appointmentId}`
+
     // 5. Enviar correo a la Clienta
     await transporter.sendMail({
       from: `"AgendaClick" <${getFromAddress()}>`,
       to: data.clientEmail,
       subject: `Reserva Confirmada en ${clinicName}`,
       html: `
-        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #000;">¡Hola ${data.clientName}, tu reserva está confirmada!</h2>
+        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+          <h2 style="color: #000; margin-top: 0;">¡Hola ${data.clientName}, tu reserva está confirmada!</h2>
           <p>Has agendado exitosamente tu cita en <strong>${clinicName}</strong>.</p>
+          <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
           <p><strong>Servicio:</strong> ${serviceName}</p>
           <p><strong>Fecha y Hora:</strong> ${formattedDate}</p>
           <br/>
-          <p>Abre el archivo adjunto (cita.ics) para guardarlo en tu calendario.</p>
-          <p>¡Gracias por usar AgendaClick!</p>
+          <p style="font-size: 14px; color: #71717a;">Abre el archivo adjunto (cita.ics) para guardarlo en tu calendario.</p>
+          <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
+          <p style="font-size: 13px; color: #71717a; text-align: center; margin-bottom: 0;">
+            ¿Necesitas cancelar o reprogramar tu cita? 
+            <a href="${cancelUrl}" style="color: #ef4444; font-weight: bold; text-decoration: underline; margin-left: 5px;">Cancela tu cita aquí</a>
+          </p>
         </div>
       `,
       attachments: [attachment]
@@ -297,4 +310,146 @@ export async function createAppointment(data: {
   revalidatePath('/dashboard')
   
   return { success: true }
+}
+
+export async function cancelAppointmentFromClient(appointmentId: string) {
+  const supabase = getSupabaseAdmin()
+
+  // 1. Obtener la cita y los datos de la clínica
+  const { data: appointment, error: getError } = await supabase
+    .from('appointments')
+    .select('*, services(name), clinics(name, owner_id)')
+    .eq('id', appointmentId)
+    .single()
+
+  if (getError || !appointment) {
+    console.error('Error fetching appointment for cancellation:', getError)
+    return { success: false, error: 'No se encontró la cita especificada.' }
+  }
+
+  // Si ya está cancelada, no volvemos a enviar correos
+  if (appointment.status === 'cancelled') {
+    return { success: true, alreadyCancelled: true, appointment }
+  }
+
+  // 2. Cancelar en la base de datos
+  const { error: updateError } = await supabase
+    .from('appointments')
+    .update({ status: 'cancelled' })
+    .eq('id', appointmentId)
+
+  if (updateError) {
+    console.error('Error updating appointment to cancelled:', updateError)
+    return { success: false, error: 'Hubo un error al cancelar la cita en el sistema.' }
+  }
+
+  // 3. Obtener el perfil del dueño
+  const { data: ownerProfile } = await supabase
+    .from('profiles')
+    .select('email, google_refresh_token, google_calendar_id')
+    .eq('id', appointment.clinics.owner_id)
+    .single()
+
+  const formattedDate = format(new Date(appointment.start_time), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
+  const serviceName = appointment.services?.name || 'Cita'
+  const clinicName = appointment.clinics?.name || 'Estética'
+
+  try {
+    const transporter = getTransporter()
+
+    // 4. Enviar correo al Cliente
+    await transporter.sendMail({
+      from: `"AgendaClick" <${getFromAddress()}>`,
+      to: appointment.client_email,
+      subject: `Cancelación de Cita: ${serviceName} en ${clinicName}`,
+      html: `
+        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+          <h2 style="color: #ef4444; margin-top: 0;">Tu cita ha sido cancelada</h2>
+          <p>Te confirmamos que tu cita para <strong>${serviceName}</strong> en <strong>${clinicName}</strong> ha sido cancelada con éxito.</p>
+          <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
+          <p><strong>Fecha y Hora original:</strong> ${formattedDate}</p>
+          <br/>
+          <p style="font-size: 14px; color: #71717a;">Si necesitas programar un nuevo espacio, puedes volver a visitar la página de reservas del negocio.</p>
+          <p style="font-size: 12px; color: #a1a1aa; text-align: center; margin-top: 20px;">Gracias por usar AgendaClick.</p>
+        </div>
+      `
+    })
+
+    // 5. Enviar correo al Dueño
+    if (ownerProfile?.email) {
+      await transporter.sendMail({
+        from: `"AgendaClick Notificaciones" <${getFromAddress()}>`,
+        to: ownerProfile.email,
+        subject: `Cita Cancelada por Cliente: ${serviceName} - ${appointment.client_name}`,
+        html: `
+          <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+            <h2 style="color: #ef4444; margin-top: 0;">Un cliente ha cancelado su cita</h2>
+            <p>El cliente <strong>${appointment.client_name}</strong> ha cancelado su cita de <strong>${serviceName}</strong> de forma autónoma.</p>
+            <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
+            <p><strong>Fecha y Hora original:</strong> ${formattedDate}</p>
+            <p><strong>Datos del cliente:</strong></p>
+            <ul style="list-style: none; padding-left: 0;">
+              <li><strong>Nombre:</strong> ${appointment.client_name}</li>
+              <li><strong>Teléfono:</strong> ${appointment.client_phone}</li>
+              <li><strong>Correo:</strong> ${appointment.client_email}</li>
+            </ul>
+            <br/>
+            <p style="font-size: 14px; color: #71717a;">El espacio de esta cita ha sido liberado automáticamente en tu agenda y ya está disponible para nuevas reservas.</p>
+          </div>
+        `
+      })
+    }
+  } catch (mailError) {
+    console.error('Error sending cancellation emails:', mailError)
+  }
+
+  // 6. Eliminar el evento en Google Calendar si la integración está activa
+  if (ownerProfile?.google_refresh_token && ownerProfile?.google_calendar_id) {
+    try {
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET
+      )
+      oauth2Client.setCredentials({ refresh_token: ownerProfile.google_refresh_token })
+      const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+
+      // Buscar el evento en ese rango de fecha/hora
+      const timeMin = new Date(appointment.start_time)
+      timeMin.setMinutes(timeMin.getMinutes() - 5) // margen de 5 minutos antes
+      const timeMax = new Date(appointment.end_time)
+      timeMax.setMinutes(timeMax.getMinutes() + 5) // margen de 5 minutos después
+
+      const res = await calendar.events.list({
+        calendarId: ownerProfile.google_calendar_id,
+        timeMin: timeMin.toISOString(),
+        timeMax: timeMax.toISOString(),
+        singleEvents: true
+      })
+
+      const events = res.data.items || []
+      const clientNameLower = appointment.client_name.toLowerCase()
+      const clientEmailLower = appointment.client_email.toLowerCase()
+
+      // Buscar el evento correcto en Google Calendar
+      const matchedEvent = events.find(event => {
+        const summaryMatch = event.summary?.toLowerCase().includes(clientNameLower)
+        const descMatch = event.description?.toLowerCase().includes(clientEmailLower) ||
+                           event.description?.includes(appointment.client_phone)
+        return summaryMatch || descMatch
+      })
+
+      if (matchedEvent && matchedEvent.id) {
+        await calendar.events.delete({
+          calendarId: ownerProfile.google_calendar_id,
+          eventId: matchedEvent.id
+        })
+        console.log('Google Calendar event deleted successfully:', matchedEvent.id)
+      }
+    } catch (calError) {
+      console.error('Error removing event from Google Calendar on client cancel:', calError)
+    }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true, appointment }
 }
