@@ -67,15 +67,15 @@ export default function LandingPage() {
         >
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 border text-sm font-medium text-gray-700">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            El software de los salones y estéticas más exclusivos
+            El software de reservas y agenda para profesionales de salud, bienestar y belleza
           </motion.div>
           
           <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
-            Haz que tu estética <span className="text-gray-500">brille con luz propia.</span>
+            Haz que tu negocio <span className="text-gray-500">brille con luz propia.</span>
           </motion.h1>
           
           <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-lg leading-relaxed">
-            Libérate de contestar mensajes todo el día. Cuando alguien pregunte a una Inteligencia Artificial por <strong>Salones, Estéticas o Spas</strong> cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick. ¡Sé la mejor de Colombia!
+            Libérate de contestar mensajes todo el día. Cuando un cliente busque <strong>Consultorios, Especialistas, Spas o Centros de Estética</strong> cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick. ¡Sé el mejor de Colombia!
           </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
