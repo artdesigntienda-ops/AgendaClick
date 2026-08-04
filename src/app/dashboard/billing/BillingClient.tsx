@@ -88,7 +88,15 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
       const amountInCents = finalPrice * 100
 
       // Generar firma de integridad en el servidor
-      const signature = await generateWompiSignature(reference, amountInCents, 'COP')
+      const res = await generateWompiSignature(reference, amountInCents, 'COP')
+      
+      if (res.error) {
+        toast.error(res.message || 'Error al generar la firma de Wompi.')
+        setIsProcessing(null)
+        return
+      }
+
+      const signature = res.hash
 
       const config: any = {
         currency: 'COP',
