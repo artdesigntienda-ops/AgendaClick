@@ -114,11 +114,30 @@ BEGIN
         VALUES (v_staff_2_id, 'andres.paz@nexora.co', v_encrypted_password, now(), '{"provider":"email"}'::jsonb, '{"name":"Dr. Andrés Paz"}'::jsonb, 'authenticated', 'authenticated', now(), now());
     END IF;
 
-    -- Insertar perfiles de empleados vinculados a la clínica
+    -- Insertar perfiles de empleados vinculados a la clínica (usando ON CONFLICT por si el trigger de auth.users ya los creó)
     INSERT INTO public.profiles (id, name, email, role, clinic_id, is_bookable, is_on_break, has_seen_tutorial, schedule)
-    VALUES 
-    (v_staff_1_id, 'Dra. Carolina Gómez', 'carolina.gomez@nexora.co', 'staff', v_clinic_id, true, false, true, v_staff_schedule_json),
-    (v_staff_2_id, 'Dr. Andrés Paz', 'andres.paz@nexora.co', 'staff', v_clinic_id, true, false, true, v_staff_schedule_json);
+    VALUES (v_staff_1_id, 'Dra. Carolina Gómez', 'carolina.gomez@nexora.co', 'staff', v_clinic_id, true, false, true, v_staff_schedule_json)
+    ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        email = EXCLUDED.email,
+        role = EXCLUDED.role,
+        clinic_id = EXCLUDED.clinic_id,
+        is_bookable = EXCLUDED.is_bookable,
+        is_on_break = EXCLUDED.is_on_break,
+        has_seen_tutorial = EXCLUDED.has_seen_tutorial,
+        schedule = EXCLUDED.schedule;
+
+    INSERT INTO public.profiles (id, name, email, role, clinic_id, is_bookable, is_on_break, has_seen_tutorial, schedule)
+    VALUES (v_staff_2_id, 'Dr. Andrés Paz', 'andres.paz@nexora.co', 'staff', v_clinic_id, true, false, true, v_staff_schedule_json)
+    ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        email = EXCLUDED.email,
+        role = EXCLUDED.role,
+        clinic_id = EXCLUDED.clinic_id,
+        is_bookable = EXCLUDED.is_bookable,
+        is_on_break = EXCLUDED.is_on_break,
+        has_seen_tutorial = EXCLUDED.has_seen_tutorial,
+        schedule = EXCLUDED.schedule;
 
     -- 6. CREAR SERVICIOS MÉDICOS
     INSERT INTO public.services (id, clinic_id, name, duration_minutes, price, created_at)
