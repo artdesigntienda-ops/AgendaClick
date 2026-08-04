@@ -33,7 +33,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.supabase.co https://maps.gstatic.com https://maps.googleapis.com https://www.transparenttextures.com",
-      "connect-src 'self' https://*.supabase.co https://maps.googleapis.com https://api.resend.com https://production.wompi.co",
+      "connect-src 'self' https://*.supabase.co https://maps.googleapis.com https://api.resend.com https://production.wompi.co https://www.google.com https://www.recaptcha.net",
       "frame-src https://www.google.com https://www.recaptcha.net",
     ].join('; ')
   }
