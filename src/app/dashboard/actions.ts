@@ -136,3 +136,50 @@ export async function updateAppointmentStatus(appointmentId: string, status: str
   return { success: true }
 }
 
+export async function blockTime(data: {
+  clinicId: string
+  staffId: string | null
+  startTime: string
+  endTime: string
+}) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('appointments')
+    .insert({
+      clinic_id: data.clinicId,
+      staff_id: data.staffId || null,
+      client_name: 'BLOQUEADO (Horario Reservado)',
+      client_email: 'blocked@agendaclick.com.co',
+      client_phone: '0000000000',
+      start_time: data.startTime,
+      end_time: data.endTime,
+      status: 'confirmed'
+    })
+
+  if (error) {
+    console.error('Error blocking time:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function saveAppointmentNotes(appointmentId: string, notes: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('appointments')
+    .update({ notes: notes })
+    .eq('id', appointmentId)
+
+  if (error) {
+    console.error('Error saving notes:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+

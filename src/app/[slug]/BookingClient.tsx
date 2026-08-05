@@ -27,9 +27,10 @@ interface Props {
   clinic: any
   services: any[]
   professionals: any[]
+  appointments: any[]
 }
 
-export default function BookingClient({ clinic, services, professionals }: Props) {
+export default function BookingClient({ clinic, services, professionals, appointments = [] }: Props) {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [step, setStep] = useState(1)
   const [selectedService, setSelectedService] = useState<any>(null)
@@ -84,7 +85,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
   const getAvailableTimes = () => {
     if (!selectedDate || !selectedService) return []
     
-    // Obtener el día de la semana (0 = Sunday, 1 = Monday, etc.)
+    // Obtener el día de la semana
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     const dayName = dayNames[getDay(selectedDate)]
     
@@ -129,12 +130,34 @@ export default function BookingClient({ clinic, services, professionals }: Props
         continue
       }
       
+      const timeStr = format(currentTime, 'HH:mm')
+      const slotStartISOString = `${format(selectedDate, 'yyyy-MM-dd')}T${timeStr}:00`
+      const slotStartISO = new Date(slotStartISOString)
+      const slotEndISO = new Date(slotStartISO.getTime() + durationMinutes * 60000)
+
+      // Verificar si hay alguna cita que se solape con este slot para el profesional seleccionado
+      const isReserved = appointments.some((apt: any) => {
+        const aptStart = new Date(apt.start_time)
+        const aptEnd = new Date(apt.end_time)
+
+        const overlaps = (slotStartISO < aptEnd && slotEndISO > aptStart)
+        if (!overlaps) return false
+
+        if (selectedProfessional) {
+          // Si tiene profesional seleccionado, se bloquea si la cita es para él o para toda la clínica (null)
+          return apt.staff_id === selectedProfessional.id || apt.staff_id === null
+        } else {
+          // Si es "Cualquier profesional", se bloquea si hay un bloqueo general (null)
+          return apt.staff_id === null
+        }
+      })
+      
       // Validar que la hora ya no haya pasado si es hoy
-      if (isBefore(now, currentTime)) {
-        slots.push(format(currentTime, 'HH:mm'))
+      if (!isReserved && isBefore(now, currentTime)) {
+        slots.push(timeStr)
       }
       
-      // Incrementamos por la duración del servicio (MVP)
+      // Incrementamos por la duración del servicio
       currentTime = addMinutes(currentTime, durationMinutes)
     }
     

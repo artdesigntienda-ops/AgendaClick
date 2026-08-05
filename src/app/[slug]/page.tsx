@@ -63,6 +63,13 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
     .eq('clinic_id', clinic.id)
     .order('name', { ascending: true })
 
+  // Buscar todas las citas activas de la clínica para filtrar disponibilidad y prevenir double bookings
+  const { data: appointments } = await supabase
+    .from('appointments')
+    .select('start_time, end_time, staff_id')
+    .eq('clinic_id', clinic.id)
+    .neq('status', 'cancelled')
+
   // 2. AEO (Answer Engine Optimization) - Schema Markup Dinámico
   // Dependiendo del business_type, inyectamos un esquema distinto para los asistentes de IA
   const schemaType = clinic.business_type === 'belleza' ? 'HealthAndBeautyBusiness' 
@@ -121,7 +128,12 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
         <div className="w-full max-w-lg">
           <ReCaptchaWrapper siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}>
-            <BookingClient clinic={clinic} services={services || []} professionals={professionals || []} />
+            <BookingClient 
+              clinic={clinic} 
+              services={services || []} 
+              professionals={professionals || []} 
+              appointments={appointments || []} 
+            />
           </ReCaptchaWrapper>
           
           <div className="mt-8 text-center">

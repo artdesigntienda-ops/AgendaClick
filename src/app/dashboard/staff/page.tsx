@@ -37,7 +37,7 @@ export default async function StaffPage() {
 
   const { data: clinic } = await supabase
     .from('clinics')
-    .select('id, staff_limit')
+    .select('id, name, staff_limit')
     .eq('id', clinicId)
     .single()
 
@@ -48,12 +48,20 @@ export default async function StaffPage() {
     .eq('clinic_id', clinicId)
     .order('created_at', { ascending: true })
 
+  // Fetch appointments for commission calculation
+  const { data: appointments } = await supabase
+    .from('appointments')
+    .select('id, staff_id, total_price, commission_earned, status, start_time')
+    .eq('clinic_id', clinicId)
+    .neq('status', 'cancelled')
+
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <StaffClient 
         clinic={clinic} 
         staff={staff || []} 
         isOwner={profile?.role === 'owner'}
+        appointments={appointments || []}
       />
     </div>
   )

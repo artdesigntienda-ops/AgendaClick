@@ -8,11 +8,31 @@ import { removeStaffMember } from './actions'
 import { StaffScheduleModal } from './StaffScheduleModal'
 import { toast } from 'sonner'
 
-export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, staff: any[], isOwner: boolean }) {
+export default function StaffClient({ clinic, staff, isOwner, appointments = [] }: { clinic: any, staff: any[], isOwner: boolean, appointments?: any[] }) {
   const currentStaffCount = staff.filter(s => s.role !== 'owner').length
   const inviteLink = typeof window !== 'undefined' ? `${window.location.origin}/login?invite=${clinic.id}` : ''
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [selectedStaffForSchedule, setSelectedStaffForSchedule] = useState<any | null>(null)
+  const [commissionPeriod, setCommissionPeriod] = useState<'month' | 'last_month' | 'year'>('month')
+
+  const getFilteredAppointmentsForCommissions = () => {
+    const now = new Date()
+    return appointments.filter((apt: any) => {
+      if (!apt.start_time) return false
+      const aptDate = new Date(apt.start_time)
+      if (commissionPeriod === 'month') {
+        return aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear()
+      } else if (commissionPeriod === 'last_month') {
+        const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1
+        const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear()
+        return aptDate.getMonth() === lastMonth && aptDate.getFullYear() === year
+      } else {
+        return aptDate.getFullYear() === now.getFullYear()
+      }
+    })
+  }
+
+  const filteredApts = getFilteredAppointmentsForCommissions()
 
   const handleDelete = async (staffId: string) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar a este profesional? Ya no podrá acceder a la estética ni aparecerá en la agenda.')) return
@@ -144,6 +164,67 @@ export default function StaffClient({ clinic, staff, isOwner }: { clinic: any, s
           </table>
         </div>
       </motion.div>
+
+      {/* Reporte de Comisiones */}
+      {isOwner && (
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Liquidación & Comisiones de Staff</h2>
+              <p className="text-sm text-gray-500 mt-1">Calcula los pagos y comisiones acumuladas de tu equipo en el período seleccionado.</p>
+            </div>
+            
+            <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
+              {(['month', 'last_month', 'year'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setCommissionPeriod(period)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    commissionPeriod === period 
+                      ? 'bg-black text-white shadow-sm' 
+                      : 'text-gray-500 hover:text-black'
+                  }`}
+                >
+                  {period === 'month' ? 'Este Mes' : period === 'last_month' ? 'Mes Pasado' : 'Todo el Año'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {staff.map((member) => {
+              const memberApts = filteredApts.filter((a: any) => a.staff_id === member.id && a.status === 'completed')
+              const totalSales = memberApts.reduce((sum: number, a: any) => sum + (a.total_price || 0), 0)
+              const totalCommissions = memberApts.reduce((sum: number, a: any) => sum + (a.commission_earned || 0), 0)
+              
+              return (
+                <div key={member.id} className="p-5 border border-gray-200 rounded-2xl space-y-3 bg-gray-50/50 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-gray-900">{member.name || member.email.split('@')[0]}</h3>
+                      <p className="text-xs text-gray-500 capitalize">{member.role === 'owner' ? 'Dueño' : 'Staff'}</p>
+                    </div>
+                    <span className="bg-black text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                      {memberApts.length} servicios completados
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-3 border-t text-xs">
+                    <div>
+                      <span className="text-gray-500 block mb-0.5">Total Recaudado</span>
+                      <strong className="text-sm font-black text-gray-900">${totalSales.toLocaleString('es-CO')} COP</strong>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 block mb-0.5">Comisión a Pagar</span>
+                      <strong className="text-sm font-black text-green-700">${totalCommissions.toLocaleString('es-CO')} COP</strong>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {selectedStaffForSchedule && (
         <StaffScheduleModal

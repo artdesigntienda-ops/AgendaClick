@@ -57,7 +57,8 @@ export default async function ClientsCRMPage() {
       service_id,
       services:service_id ( name ),
       staff_id,
-      profiles:staff_id ( name )
+      profiles:staff_id ( name ),
+      notes
     `)
     .eq('clinic_id', clinicId)
     .neq('status', 'cancelled')
@@ -69,12 +70,11 @@ export default async function ClientsCRMPage() {
 
   const { data: appointments } = await appointmentsQuery
 
-  // Procesar para obtener el "último contacto" de cada cliente
+  // Procesar para obtener el "último contacto" y el historial de cada cliente
   const clientsMap: Record<string, any> = {}
 
   if (appointments) {
     appointments.forEach(app => {
-      // Usamos el email como identificador único de cliente por ahora
       const key = app.client_email?.toLowerCase().trim()
       if (!key) return
 
@@ -87,12 +87,20 @@ export default async function ClientsCRMPage() {
           // @ts-ignore
           lastService: app.services?.name || 'Desconocido',
           // @ts-ignore
-          lastStaff: app.profiles?.name || 'Desconocido'
+          lastStaff: app.profiles?.name || 'Desconocido',
+          history: []
         }
-      } else {
-        // Como están ordenadas descendente, la primera que encontramos es la más reciente,
-        // no necesitamos sobreescribir.
       }
+      
+      clientsMap[key].history.push({
+        id: app.id,
+        date: app.start_time,
+        // @ts-ignore
+        service: app.services?.name || 'Desconocido',
+        // @ts-ignore
+        staff: app.profiles?.name || 'Desconocido',
+        notes: app.notes
+      })
     })
   }
 

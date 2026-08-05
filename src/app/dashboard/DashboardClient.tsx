@@ -24,7 +24,7 @@ import {
   subYears 
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cancelAppointment, cancelAppointmentsForStaff, assignStaffToAppointment, updateAppointmentStatus } from './actions'
+import { cancelAppointment, cancelAppointmentsForStaff, assignStaffToAppointment, updateAppointmentStatus, saveAppointmentNotes, blockTime } from './actions'
 import { toast } from 'sonner'
 
 type Appointment = {
@@ -37,6 +37,7 @@ type Appointment = {
   services: { name: string } | null
   profiles: { id: string; name: string } | null
   staff_id?: string | null
+  notes?: string | null
 }
 
 type StaffMember = {
@@ -55,11 +56,13 @@ const COLORS = [
 export default function DashboardClient({ 
   appointments, 
   clinicSlug, 
-  staff = [] 
+  staff = [],
+  clinicId
 }: { 
   appointments: Appointment[]
   clinicSlug?: string
   staff?: StaffMember[] 
+  clinicId?: string
 }) {
   const [mounted, setMounted] = useState(false)
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null)
@@ -71,6 +74,14 @@ export default function DashboardClient({
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isAssigningStaff, setIsAssigningStaff] = useState(false)
+
+  // Block time States
+  const [isBlockTimeModalOpen, setIsBlockTimeModalOpen] = useState(false)
+  const [blockStaffId, setBlockStaffId] = useState('')
+  const [blockDate, setBlockDate] = useState(() => format(new Date(), 'yyyy-MM-dd'))
+  const [blockTimeVal, setBlockTimeVal] = useState('08:00')
+  const [blockDuration, setBlockDuration] = useState(60)
+  const [isSavingBlock, setIsSavingBlock] = useState(false)
 
   // Sincronizar el estado cuando cambie la prop
   useEffect(() => {
@@ -243,14 +254,22 @@ export default function DashboardClient({
     return 'N/A'
   }
 
-  const handleWhatsApp = (phone: string, name: string, service: string, time: string, isCancellation = false) => {
-    const formattedTime = format(parseISO(time), 'hh:mm a')
-    const msg = isCancellation 
-      ? `Hola ${name}, te escribimos para informarte que por un motivo de fuerza mayor tuvimos que cancelar tu cita de ${service} de hoy a las ${formattedTime}. Te pedimos disculpas y te invitamos a reagendar en agendaclick.com/${clinicSlug}`
-      : `Hola ${name}, te escribimos de la estética para confirmar tu cita de ${service} a las ${formattedTime}.`
+  const handleWhatsApp = (phone: string, name: string, service: string, time: string, mode: 'cancellation' | 'confirmation' | 'reminder' = 'confirmation') => {
+    const formattedTime = format(parseISO(time), "d 'de' MMMM 'a las' hh:mm a", { locale: es })
+    let msg = ''
+    if (mode === 'cancellation') {
+      msg = `Hola ${name}, te escribimos para informarte que por un motivo de fuerza mayor tuvimos que cancelar tu cita de ${service} el ${formattedTime}. Te pedimos disculpas y te invitamos a reagendar en https://agendaclick.com.co/${clinicSlug}`
+    } else if (mode === 'reminder') {
+      msg = `Hola ${name}, queremos recordarte tu cita de ${service} programada para el ${formattedTime}. ¡Te esperamos!`
+    } else {
+      msg = `Hola ${name}, te escribimos de la estética para confirmar tu cita de ${service} el ${formattedTime}.`
+    }
     const encoded = encodeURIComponent(msg)
-    const cleanPhone = phone?.replace(/[^0-9]/g, '') || ''
-    window.open(`https://wa.me/57${cleanPhone}?text=${encoded}`, '_blank')
+    let cleanPhone = phone?.replace(/[^0-9]/g, '') || ''
+    if (cleanPhone.length === 10) {
+      cleanPhone = `57${cleanPhone}`
+    }
+    window.open(`https://wa.me/${cleanPhone}?text=${encoded}`, '_blank')
   }
 
   const handleCancelAppointment = async (id: string) => {
@@ -304,6 +323,53 @@ export default function DashboardClient({
     else if (viewMode === 'week') setCurrentDate(prev => addWeeks(prev, 1))
     else if (viewMode === 'month') setCurrentDate(prev => addMonths(prev, 1))
     else if (viewMode === 'year') setCurrentDate(prev => addYears(prev, 1))
+  }
+
+  const handleBlockTimeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!clinicId) {
+      toast.error('No se pudo identificar tu clínica')
+      return
+    }
+    
+    setIsSavingBlock(true)
+    
+    const startStr = `${blockDate}T${blockTimeVal}:00`
+    const startTimeObj = new Date(startStr)
+    const endTimeObj = new Date(startTimeObj.getTime() + blockDuration * 60000)
+    
+    const res = await blockTime({
+      clinicId,
+      staffId: blockStaffId || null,
+      startTime: startTimeObj.toISOString(),
+      endTime: endTimeObj.toISOString()
+    })
+    
+    setIsSavingBlock(false)
+    
+    if (res.success) {
+      toast.success('Horario bloqueado con éxito')
+      setIsBlockTimeModalOpen(false)
+      
+      // Actualizar estado local agregando el bloqueo
+      const assignedStaff = staff.find(s => s.id === blockStaffId)
+      const newBlockApp: Appointment = {
+        id: Math.random().toString(), // id temporal
+        client_name: 'BLOQUEADO (Horario Reservado)',
+        client_phone: '0000000000',
+        client_email: 'blocked@agendaclick.com.co',
+        start_time: startTimeObj.toISOString(),
+        status: 'confirmed',
+        services: { name: 'Horario Bloqueado' },
+        profiles: assignedStaff ? { id: assignedStaff.id, name: assignedStaff.name } : null,
+        staff_id: blockStaffId || null,
+        notes: 'Horario reservado manualmente por administración'
+      }
+      
+      setLocalAppointments(prev => [...prev, newBlockApp])
+    } else {
+      toast.error(res.error || 'Error al bloquear horario')
+    }
   }
 
   const getPeriodLabel = () => {
@@ -438,12 +504,20 @@ export default function DashboardClient({
               )}
             </div>
 
-            <button 
-              onClick={() => setIsEmergencyMode(true)}
-              className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
-            >
-              <AlertTriangle className="w-3 h-3" /> Calamidad / Emergencia
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setIsBlockTimeModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-black text-white hover:bg-gray-800 rounded-full transition-colors"
+              >
+                <Clock className="w-3 h-3 text-white" /> Bloquear Horario
+              </button>
+              <button 
+                onClick={() => setIsEmergencyMode(true)}
+                className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
+              >
+                <AlertTriangle className="w-3 h-3" /> Calamidad / Emergencia
+              </button>
+            </div>
           </div>
         </div>
         
@@ -654,28 +728,63 @@ export default function DashboardClient({
                   <p className="text-sm"><span className="text-gray-500 w-20 inline-block font-bold">Teléfono:</span> <span className="font-medium">{selectedAppointment.client_phone || 'No registrado'}</span></p>
                   <p className="text-sm"><span className="text-gray-500 w-20 inline-block font-bold">Correo:</span> <span className="font-medium text-gray-600">{selectedAppointment.client_email || 'No registrado'}</span></p>
                 </div>
+
+                {/* Notas Clínicas / Ficha Técnica */}
+                <div className="pt-4 border-t space-y-2">
+                  <label className="text-xs font-black text-gray-400 uppercase block mb-1">Notas de Sesión / Ficha Técnica</label>
+                  <textarea
+                    key={selectedAppointment.id}
+                    defaultValue={selectedAppointment.notes || ''}
+                    placeholder="Escribe aquí observaciones técnicas (ej. fórmulas, evolución del tratamiento, notas clínicas)..."
+                    rows={3}
+                    className="w-full text-sm border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-black bg-gray-50/50 resize-none font-medium"
+                    onBlur={async (e) => {
+                      const notesVal = e.target.value
+                      const res = await saveAppointmentNotes(selectedAppointment.id, notesVal)
+                      if (res.success) {
+                        toast.success('Notas guardadas automáticamente')
+                        setLocalAppointments(prev => prev.map(apt => {
+                          if (apt.id === selectedAppointment.id) {
+                            return { ...apt, notes: notesVal }
+                          }
+                          return apt
+                        }))
+                        setSelectedAppointment(prev => prev ? { ...prev, notes: notesVal } : null)
+                      } else {
+                        toast.error('Error al guardar las notas')
+                      }
+                    }}
+                  />
+                  <p className="text-[10px] text-gray-400">Las notas se guardan automáticamente al hacer clic fuera del cuadro.</p>
+                </div>
               </div>
               
-              <div className="p-6 pt-0 space-y-3">
+              <div className="p-6 pt-0 space-y-2.5">
                 {selectedAppointment.status === 'cancelled' ? (
                   <button 
-                    onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, true)}
-                    className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
+                    onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'cancellation')}
+                    className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors text-sm"
                   >
                     <MessageCircle className="w-5 h-5" /> Avisar Cancelación por WhatsApp
                   </button>
                 ) : (
                   <>
                     <button 
-                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time)}
-                      className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
+                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'confirmation')}
+                      className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors text-sm"
                     >
-                      <MessageCircle className="w-5 h-5" /> Contactar por WhatsApp
+                      <MessageCircle className="w-5 h-5" /> Confirmar por WhatsApp
+                    </button>
+                    <button 
+                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'reminder')}
+                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
+                    >
+                      <MessageCircle className="w-5 h-5" /> Enviar Recordatorio (WhatsApp)
                     </button>
                     <button 
                       disabled={isCancelling}
                       onClick={() => handleCancelAppointment(selectedAppointment.id)}
-                      className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50 text-sm"
                     >
                       {isCancelling ? 'Cancelando...' : 'Cancelar Cita'}
                     </button>
@@ -737,7 +846,7 @@ export default function DashboardClient({
                             <p className="text-xs text-gray-500">{client.services?.name} - {format(parseISO(client.start_time), 'hh:mm a')}</p>
                           </div>
                           <button 
-                            onClick={() => handleWhatsApp(client.client_phone, client.client_name, client.services?.name || 'Cita', client.start_time, true)}
+                            onClick={() => handleWhatsApp(client.client_phone, client.client_name, client.services?.name || 'Cita', client.start_time, 'cancellation')}
                             className="p-2 bg-[#25D366] text-white rounded-full hover:bg-[#20bd5a] transition-colors"
                           >
                             <MessageCircle className="w-4 h-4" />
@@ -757,6 +866,105 @@ export default function DashboardClient({
                   </div>
                 )}
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Block Time Modal */}
+      <AnimatePresence>
+        {isBlockTimeModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100"
+            >
+              <div className="p-6 border-b flex justify-between items-start bg-gray-50">
+                <div>
+                  <h3 className="text-xl font-black text-gray-900">Bloquear Horario</h3>
+                  <p className="text-sm text-gray-500 mt-1">Evita reservas en este rango de tiempo</p>
+                </div>
+                <button onClick={() => setIsBlockTimeModalOpen(false)} className="p-2 text-gray-400 hover:text-black hover:bg-gray-200 rounded-full transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleBlockTimeSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-black text-gray-400 uppercase block mb-1">Profesional a Bloquear</label>
+                  <select
+                    value={blockStaffId}
+                    onChange={(e) => setBlockStaffId(e.target.value)}
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+                  >
+                    <option value="">👤 Todos los Profesionales (Clínica Completa)</option>
+                    {staff.map(s => (
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({s.role === 'owner' ? 'Dueño' : 'Staff'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase block mb-1">Fecha</label>
+                    <input 
+                      type="date" 
+                      required
+                      value={blockDate}
+                      onChange={(e) => setBlockDate(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase block mb-1">Hora de Inicio</label>
+                    <select
+                      value={blockTimeVal}
+                      onChange={(e) => setBlockTimeVal(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      {businessHours.map(hour => (
+                        <option key={hour} value={hour}>{hour}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-black text-gray-400 uppercase block mb-1">Duración del Bloqueo</label>
+                  <select
+                    value={blockDuration}
+                    onChange={(e) => setBlockDuration(parseInt(e.target.value))}
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+                  >
+                    <option value={30}>30 Minutos</option>
+                    <option value={60}>1 Hora</option>
+                    <option value={120}>2 Horas</option>
+                    <option value={240}>4 Horas (Medio día)</option>
+                    <option value={480}>8 Horas (Todo el día)</option>
+                  </select>
+                </div>
+
+                <div className="pt-4 flex gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setIsBlockTimeModalOpen(false)}
+                    className="flex-1 py-3 bg-gray-100 text-black font-bold rounded-xl hover:bg-gray-200 transition-colors text-sm"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={isSavingBlock}
+                    className="flex-1 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-900 transition-colors disabled:opacity-50 text-sm"
+                  >
+                    {isSavingBlock ? 'Bloqueando...' : 'Confirmar Bloqueo'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}
