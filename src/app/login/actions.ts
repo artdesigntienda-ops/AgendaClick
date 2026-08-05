@@ -80,7 +80,9 @@ export async function signup(formData: FormData) {
 
 export async function loginWithGoogle() {
   const supabase = await createClient()
-  const origin = (await headers()).get('origin')
+  const host = (await headers()).get('host') || 'agendaclick.com.co'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const origin = `${protocol}://${host}`
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
