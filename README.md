@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚡ AgendaClick | El Software de Agendamiento Online en Piloto Automático 24/7
 
-## Getting Started
+¡Bienvenido al repositorio oficial de **AgendaClick**! La plataforma SaaS B2B definitiva para automatizar y hacer crecer negocios de servicios en Colombia. 
 
-First, run the development server:
+AgendaClick permite a centros de estética, consultorios médicos, spas, salones de belleza, psicólogos, odontólogos y profesionales independientes recibir reservas, organizar empleados y controlar sus finanzas sin esfuerzo.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+👉 **Visita nuestra web oficial:** [agendaclick.com.co](https://agendaclick.com.co)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🎯 ¿Por qué AgendaClick es diferente? (Neuromarketing y Resultados)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+La mayoría de los softwares de citas obligan a las clientas a descargar aplicaciones pesadas, recordar contraseñas o registrarse durante 5 minutos para un simple corte de cabello o consulta. **En AgendaClick eliminamos la fricción:**
 
-## Learn More
+*   🚀 **Agendamiento en 1 Minuto:** Tus clientes reservan de forma fluida desde cualquier dispositivo en segundos.
+*   🛡️ **Escudo Anti-Citas Falsas:** Usamos códigos de verificación OTP temporales para asegurar que los clientes son reales, bloqueando reservas falsas de la competencia.
+*   📅 **Tu Negocio Abierto 24/7:** Permite que tus clientes agenden a altas horas de la noche o fines de semana mientras estás descansando.
+*   📈 **Control Total de tus Finanzas:** Panel integrado para ver ingresos por empleado, por servicio y facturación general sin saber contabilidad.
+*   🤖 **Recomendado por Inteligencia Artificial:** Estructura web optimizada para que cuando alguien pregunte a **ChatGPT, Siri o Gemini** *"¿Dónde hay un buen consultorio o spa cerca?"*, tu negocio aparezca en las recomendaciones principales de forma orgánica.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 💼 ¿Quieres contratar AgendaClick o necesitas una función a medida?
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Si eres dueño de un negocio y quieres digitalizar tus reservas hoy mismo:
+1.  **Regístrate gratis** en [agendaclick.com.co](https://agendaclick.com.co).
+2.  **Soporte Técnico Especializado:** Si deseas implementar pasarelas de pago adicionales, integraciones personalizadas o desarrollos a medida en tu portal de reservas, contamos con soporte dedicado para hacerlo de forma segura:
+    *   💬 **Contacto Directo:** Escríbenos a soporte vía WhatsApp al **+57 323 9306599** (Nexora Digital) para recibir asesoría inmediata.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Tecnologías Utilizadas (Stack de Desarrollo)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Este proyecto está construido con herramientas modernas de alto rendimiento:
+
+*   **Frontend/Backend:** Next.js (App Router, versión 16+ con Turbopack) para carga instantánea y optimización SEO.
+*   **Estilos:** Tailwind CSS con diseño responsivo premium enfocado en usabilidad móvil.
+*   **Base de Datos y Auth:** Supabase (PostgreSQL) con políticas RLS de máxima seguridad.
+*   **Pasarela de Suscripciones:** Wompi (Bancolombia) con firmas de integridad SHA-256 en el servidor.
+*   **Correos Transaccionales:** Brevo SMTP para garantizar que tus OTP y confirmaciones lleguen a la bandeja de entrada (Inbox).
+*   **Calendarios:** Google Calendar API para sincronización automática en tiempo real.
+
+---
+
+*Desarrollado con ❤️ en Colombia para impulsar los negocios locales.*

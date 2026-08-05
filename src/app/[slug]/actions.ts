@@ -278,7 +278,7 @@ export async function createAppointment(data: {
       })
     }
 
-    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.vercel.app'}/cancelar/${appointmentId}`
+    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}`
 
     // 5. Enviar correo a la Clienta
     await transporter.sendMail({

@@ -13,7 +13,7 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://agendaclick.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://agendaclick.com.co";
 
 // 1. SEO Base Fuerte
 export const metadata: Metadata = {

@@ -55,7 +55,7 @@ export async function GET(req: Request) {
               <p>Te recordamos que tu suscripción a AgendaClick se renovará automáticamente en <strong>3 días</strong>.</p>
               <p>Asegúrate de contar con saldo disponible en tu método de pago registrado para que no pierdas acceso al control de tu negocio y tus reservas no se detengan.</p>
               <br/>
-              <p>Si deseas cambiar de plan o revisar tu facturación, visita tu panel de control: <a href="https://agendaclick.vercel.app/dashboard/billing">Ir a Facturación</a></p>
+              <p>Si deseas cambiar de plan o revisar tu facturación, visita tu panel de control: <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/dashboard/billing">Ir a Facturación</a></p>
               <br/>
               <p>Gracias por confiar en nosotros,</p>
               <p><strong>El equipo de AgendaClick</strong></p>
