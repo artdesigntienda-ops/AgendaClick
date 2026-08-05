@@ -123,8 +123,12 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Logotipo (Cuadrado o Circular recomendado)</label>
             <div className="flex items-center gap-4">
-              {clinic?.logo_url && (
+              {clinic?.logo_url ? (
                 <img src={clinic.logo_url} alt="Logo" className="w-16 h-16 rounded-full object-cover border" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold border border-gray-200 uppercase">
+                  {name ? name.charAt(0) : 'N'}
+                </div>
               )}
               <input type="file" name="logo" accept="image/*" className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800" />
             </div>
@@ -139,6 +143,43 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" 
               maxLength={100}
             />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Personalización Visual (Marca Blanca)</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color de Marca (Botones y Cabecera)</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="brand_color" 
+                defaultValue={clinic?.brand_color || '#10b981'} 
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500 font-mono uppercase">
+                {clinic?.brand_color || '#10b981'}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Este color se usará en los botones, fechas y la cabecera de tu página de reservas.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Letra (Tipografía)</label>
+            <select 
+              name="font_family" 
+              defaultValue={clinic?.font_family || 'Outfit'} 
+              className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black text-sm"
+            >
+              <option value="Outfit">Outfit (Premium & Redondeada)</option>
+              <option value="Inter">Inter (Limpia & Corporativa)</option>
+              <option value="Montserrat">Montserrat (Moderna & Negrita)</option>
+              <option value="Playfair Display">Playfair Display (Elegante & Serif)</option>
+              <option value="Roboto">Roboto (Clásica & Sencilla)</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">La tipografía que se cargará dinámicamente en tu página de reservas.</p>
           </div>
         </div>
       </div>

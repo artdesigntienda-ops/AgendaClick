@@ -50,6 +50,8 @@ export default async function SettingsPage() {
     const facebook = formData.get('facebook') as string
     const tiktok = formData.get('tiktok') as string
     const youtube = formData.get('youtube') as string
+    const brandColor = formData.get('brand_color') as string || '#10b981'
+    const fontFamily = formData.get('font_family') as string || 'Outfit'
     
     // Parse schedule
     let schedule = null
@@ -120,7 +122,9 @@ export default async function SettingsPage() {
       city,
       neighborhood,
       latitude,
-      longitude
+      longitude,
+      brand_color: brandColor,
+      font_family: fontFamily
     }
 
     if (existingClinic?.id) {

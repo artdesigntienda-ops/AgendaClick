@@ -225,19 +225,56 @@ export default function BookingClient({ clinic, services, professionals }: Props
 
   return (
     <div className="w-full max-w-lg mx-auto bg-white text-black rounded-2xl shadow-xl overflow-hidden border">
-      <div className="bg-black text-white p-8 text-center flex flex-col items-center">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=${(clinic.font_family || 'Outfit').replace(/ /g, '+')}:wght@300;400;500;700;900&display=swap');
+        :root {
+          --brand-color: ${clinic.brand_color || '#10b981'};
+          --font-family: '${clinic.font_family || 'Outfit'}', sans-serif;
+        }
+        .bg-brand {
+          background-color: var(--brand-color) !important;
+        }
+        .text-brand {
+          color: var(--brand-color) !important;
+        }
+        .border-brand {
+          border-color: var(--brand-color) !important;
+        }
+        .hover\:border-brand:hover {
+          border-color: var(--brand-color) !important;
+        }
+        .hover\:bg-brand:hover {
+          background-color: var(--brand-color) !important;
+          filter: brightness(0.9);
+        }
+        .group:hover .group-hover\:bg-brand {
+          background-color: var(--brand-color) !important;
+        }
+        .group:hover .group-hover\:text-brand {
+          color: var(--brand-color) !important;
+        }
+        .group:hover .group-hover\:text-white {
+          color: #ffffff !important;
+        }
+        .group:hover .group-hover\:border-brand {
+          border-color: var(--brand-color) !important;
+        }
+        .focus\:border-brand:focus {
+          border-color: var(--brand-color) !important;
+        }
+        .focus\:ring-brand:focus {
+          --tw-ring-color: var(--brand-color) !important;
+        }
+        body, html, *, .font-brand {
+          font-family: var(--font-family) !important;
+        }
+      ` }} />
+      <div className="bg-brand text-white p-8 text-center flex flex-col items-center transition-colors duration-300">
         {clinic.logo_url ? (
           <img src={clinic.logo_url} alt={clinic.name} className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-white/20 shadow-lg" />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/20 shadow-lg text-white">
-            {clinic.business_type === 'psicologia' && <Brain className="w-10 h-10" />}
-            {clinic.business_type === 'odontologia' && <Smile className="w-10 h-10" />}
-            {clinic.business_type === 'quiropractica' && <Activity className="w-10 h-10" />}
-            {clinic.business_type === 'medicina_general' && <Stethoscope className="w-10 h-10" />}
-            {clinic.business_type === 'salud' && <Heart className="w-10 h-10" />}
-            {clinic.business_type === 'bienestar' && <Leaf className="w-10 h-10" />}
-            {clinic.business_type === 'belleza' && <Sparkles className="w-10 h-10" />}
-            {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && <Sparkles className="w-10 h-10" />}
+          <div className="w-20 h-20 rounded-full bg-white/15 flex items-center justify-center mb-4 border border-white/20 shadow-lg text-white text-3xl font-black">
+            {clinic.name ? clinic.name.charAt(0).toUpperCase() : 'N'}
           </div>
         )}
         <h1 className="text-2xl font-light tracking-tight">{clinic.name}</h1>
@@ -308,10 +345,10 @@ export default function BookingClient({ clinic, services, professionals }: Props
                         setStep(2)
                       }
                     }}
-                    className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors group flex justify-between items-center"
+                    className="w-full text-left p-4 rounded-xl border hover:border-brand transition-colors group flex justify-between items-center"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-black group-hover:text-white transition-colors">
+                      <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-brand group-hover:text-white transition-colors">
                         {clinic.business_type === 'psicologia' && <Brain className="w-5 h-5" />}
                         {clinic.business_type === 'odontologia' && <Smile className="w-5 h-5" />}
                         {clinic.business_type === 'quiropractica' && <Activity className="w-5 h-5" />}
@@ -322,11 +359,11 @@ export default function BookingClient({ clinic, services, professionals }: Props
                         {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && <Sparkles className="w-5 h-5" />}
                       </div>
                       <div>
-                        <h3 className="font-medium group-hover:text-black">{service.name}</h3>
+                        <h3 className="font-medium group-hover:text-brand">{service.name}</h3>
                         <p className="text-sm text-gray-500">{service.duration_minutes} min • ${service.price}</p>
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-black transition-colors" />
+                    <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-brand transition-colors" />
                   </button>
                 ))
               )}
@@ -354,7 +391,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                   setSelectedProfessional(null) // Cualquiera
                   setStep(3)
                 }}
-                className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors flex items-center gap-4"
+                className="w-full text-left p-4 rounded-xl border hover:border-brand transition-colors flex items-center gap-4"
               >
                 <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                   <User className="w-6 h-6" />
@@ -372,7 +409,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                     setSelectedProfessional(prof)
                     setStep(3)
                   }}
-                  className="w-full text-left p-4 rounded-xl border hover:border-black transition-colors flex items-center gap-4"
+                  className="w-full text-left p-4 rounded-xl border hover:border-brand transition-colors flex items-center gap-4"
                 >
                   <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-lg">
                     {prof.name ? prof.name.charAt(0).toUpperCase() : 'P'}
@@ -414,8 +451,8 @@ export default function BookingClient({ clinic, services, professionals }: Props
                       onClick={() => setSelectedDate(date)}
                       className={`snap-start flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-xl border transition-colors ${
                         selectedDate.getTime() === date.getTime() 
-                          ? 'bg-black text-white border-black' 
-                          : 'hover:border-black'
+                          ? 'bg-brand text-white border-brand' 
+                          : 'hover:border-brand'
                       }`}
                     >
                       <span className="text-xs uppercase opacity-80">{format(date, 'eee', { locale: es })}</span>
@@ -441,8 +478,8 @@ export default function BookingClient({ clinic, services, professionals }: Props
                       }}
                       className={`py-3 rounded-lg border text-sm font-medium transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 ${
                         selectedTime === time
-                          ? 'bg-black text-white border-black shadow-lg scale-[1.02]'
-                          : 'hover:border-black hover:bg-gray-50'
+                          ? 'bg-brand text-white border-brand shadow-lg scale-[1.02]'
+                          : 'hover:border-brand hover:bg-gray-50'
                       }`}
                     >
                       {time}
@@ -487,7 +524,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                     <input
                       {...register('clientName')}
                       placeholder="Tu nombre completo"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all ${errors.clientName ? 'border-red-500' : 'border-gray-200'}`}
+                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all ${errors.clientName ? 'border-red-500' : 'border-gray-200'}`}
                     />
                   </div>
                   {errors.clientName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientName.message}</p>}
@@ -499,7 +536,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                     <input
                       {...register('clientEmail')}
                       placeholder="tu@correo.com"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all ${errors.clientEmail ? 'border-red-500' : 'border-gray-200'}`}
+                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all ${errors.clientEmail ? 'border-red-500' : 'border-gray-200'}`}
                     />
                   </div>
                   {errors.clientEmail && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientEmail.message}</p>}
@@ -511,7 +548,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                     <input
                       {...register('clientPhone')}
                       placeholder="Tu teléfono (Ej. +57300...)"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all ${errors.clientPhone ? 'border-red-500' : 'border-gray-200'}`}
+                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all ${errors.clientPhone ? 'border-red-500' : 'border-gray-200'}`}
                     />
                   </div>
                   {errors.clientPhone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientPhone.message}</p>}
@@ -522,10 +559,10 @@ export default function BookingClient({ clinic, services, professionals }: Props
                     type="checkbox"
                     id="acceptTerms"
                     {...register('acceptTerms')}
-                    className="mt-1 w-4 h-4 rounded border-gray-300 text-black focus:ring-black"
+                    className="mt-1 w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand"
                   />
                   <label htmlFor="acceptTerms" className="text-xs text-gray-500 leading-tight">
-                    He leído y acepto los <a href="/terminos" target="_blank" className="underline hover:text-black">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-black">Política de Privacidad</a>. Entiendo que AgendaClick es solo un intermediario tecnológico.
+                    He leído y acepto los <a href="/terminos" target="_blank" className="underline hover:text-brand">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-brand">Política de Privacidad</a>. Entiendo que AgendaClick es solo un intermediario tecnológico.
                   </label>
                 </div>
                 {errors.acceptTerms && <p className="text-red-500 text-xs ml-1">{errors.acceptTerms.message}</p>}
@@ -533,7 +570,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full mt-4 bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
+                  className="w-full mt-4 bg-brand hover:bg-brand text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? 'Enviando código...' : 'Enviar código de verificación'}
                 </button>
@@ -581,14 +618,14 @@ export default function BookingClient({ clinic, services, professionals }: Props
                   onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="000000"
                   disabled={countdown === 0}
-                  className="w-full text-center text-3xl tracking-[0.5em] font-mono py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all disabled:opacity-50"
+                  className="w-full text-center text-3xl tracking-[0.5em] font-mono py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all disabled:opacity-50"
                 />
               </div>
 
               <button
                 onClick={verifyOtpAndBook}
                 disabled={isVerifying || otpCode.length !== 6 || countdown === 0}
-                className="w-full bg-black text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-opacity"
+                className="w-full bg-brand hover:bg-brand text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-all"
               >
                 {isVerifying ? 'Verificando y Reservando...' : 'Confirmar Reserva'}
               </button>
@@ -602,7 +639,7 @@ export default function BookingClient({ clinic, services, professionals }: Props
                       await onSubmit(getValues())
                       setIsSubmitting(false)
                     }}
-                    className="text-black font-semibold underline hover:text-gray-700 transition-colors"
+                    className="text-brand font-semibold underline hover:brightness-90 transition-colors"
                   >
                     Reenviar código de verificación
                   </button>
