@@ -41,10 +41,12 @@ export default async function DashboardOverview() {
     clinicSlug = clinic?.slug || ''
   }
 
-  // 2. Fetch de citas para esta clínica, desde hoy en adelante
+  // 2. Fetch de citas para esta clínica, desde el inicio del año para permitir vistas semanales/mensuales/anuales
   let appointments: any[] = []
+  let staffMembers: any[] = []
+
   if (clinicId) {
-    const todayISO = startOfToday().toISOString()
+    const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString()
     let aptsQuery = supabase
       .from('appointments')
       .select(`
@@ -55,10 +57,11 @@ export default async function DashboardOverview() {
         start_time,
         status,
         services ( name ),
-        profiles ( name )
+        profiles ( id, name ),
+        staff_id
       `)
       .eq('clinic_id', clinicId)
-      .gte('start_time', todayISO)
+      .gte('start_time', startOfYear)
       .order('start_time', { ascending: true })
 
     if (profile?.role !== 'owner') {
@@ -66,11 +69,25 @@ export default async function DashboardOverview() {
     }
 
     const { data: apts } = await aptsQuery
-      
     if (apts) {
       appointments = apts
     }
+
+    // 3. Obtener listado de profesionales de la clínica
+    const { data: staff } = await supabase
+      .from('profiles')
+      .select('id, name, role')
+      .eq('clinic_id', clinicId)
+    if (staff) {
+      staffMembers = staff
+    }
   }
 
-  return <DashboardClient appointments={appointments as any} clinicSlug={clinicSlug} />
+  return (
+    <DashboardClient 
+      appointments={appointments as any} 
+      clinicSlug={clinicSlug} 
+      staff={staffMembers}
+    />
+  )
 }

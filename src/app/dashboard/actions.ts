@@ -101,3 +101,38 @@ export async function cancelAppointmentsForStaff(staffName: string | null, clini
 
   return { success: true, affected: affectedAppointments }
 }
+
+export async function assignStaffToAppointment(appointmentId: string, staffId: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('appointments')
+    .update({ staff_id: staffId })
+    .eq('id', appointmentId)
+
+  if (error) {
+    console.error('Error assigning staff:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function updateAppointmentStatus(appointmentId: string, status: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('appointments')
+    .update({ status: status })
+    .eq('id', appointmentId)
+
+  if (error) {
+    console.error('Error updating status:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
