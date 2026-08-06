@@ -21,7 +21,46 @@ export default async function DashboardLayout({
     .from('profiles')
     .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
+
+  // FALLBACK / CREACIÓN AUTOMÁTICA DE PERFIL SI NO EXISTE
+  if (!profile) {
+    const inviteCode = user.user_metadata?.invite_code || null
+    let resolvedRole = 'owner'
+    let resolvedClinicId = null
+
+    if (inviteCode) {
+      const { data: clinicExists } = await supabase
+        .from('clinics')
+        .select('id')
+        .eq('id', inviteCode)
+        .maybeSingle()
+
+      if (clinicExists) {
+        resolvedRole = 'staff'
+        resolvedClinicId = inviteCode
+      }
+    }
+
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .insert([{
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
+        role: resolvedRole,
+        clinic_id: resolvedClinicId,
+        is_bookable: true,
+        is_on_break: false,
+        has_seen_tutorial: false
+      }])
+      .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
+      .maybeSingle()
+
+    if (newProfile) {
+      profile = newProfile
+    }
+  }
 
   // FALLBACK / REPARACIÓN AUTOMÁTICA DE INVITACIÓN
   if (profile && !profile.clinic_id && user.user_metadata?.invite_code) {
@@ -30,7 +69,7 @@ export default async function DashboardLayout({
       .from('clinics')
       .select('id')
       .eq('id', inviteCode)
-      .single()
+      .maybeSingle()
 
     if (clinicExists) {
       const { data: updatedProfile } = await supabase
@@ -41,7 +80,7 @@ export default async function DashboardLayout({
         })
         .eq('id', user.id)
         .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
-        .single()
+        .maybeSingle()
 
       if (updatedProfile) {
         profile = updatedProfile
