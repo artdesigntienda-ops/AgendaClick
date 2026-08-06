@@ -17,11 +17,37 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
     .eq('id', user.id)
     .single()
+
+  // FALLBACK / REPARACIÓN AUTOMÁTICA DE INVITACIÓN
+  if (profile && !profile.clinic_id && user.user_metadata?.invite_code) {
+    const inviteCode = user.user_metadata.invite_code
+    const { data: clinicExists } = await supabase
+      .from('clinics')
+      .select('id')
+      .eq('id', inviteCode)
+      .single()
+
+    if (clinicExists) {
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .update({
+          role: 'staff',
+          clinic_id: inviteCode
+        })
+        .eq('id', user.id)
+        .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
+        .single()
+
+      if (updatedProfile) {
+        profile = updatedProfile
+      }
+    }
+  }
 
   let clinic = null
   let clinicId = profile?.clinic_id

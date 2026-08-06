@@ -14,11 +14,37 @@ export default async function DashboardOverview() {
   }
 
   // 1. Obtener la clínica (o la clínica en la que trabaja si es staff)
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('role, clinic_id')
     .eq('id', user.id)
     .single()
+
+  // FALLBACK / REPARACIÓN AUTOMÁTICA DE INVITACIÓN
+  if (profile && !profile.clinic_id && user.user_metadata?.invite_code) {
+    const inviteCode = user.user_metadata.invite_code
+    const { data: clinicExists } = await supabase
+      .from('clinics')
+      .select('id')
+      .eq('id', inviteCode)
+      .single()
+
+    if (clinicExists) {
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .update({
+          role: 'staff',
+          clinic_id: inviteCode
+        })
+        .eq('id', user.id)
+        .select('role, clinic_id')
+        .single()
+
+      if (updatedProfile) {
+        profile = updatedProfile
+      }
+    }
+  }
 
   let clinicId = profile?.clinic_id
   let clinicSlug = ''
