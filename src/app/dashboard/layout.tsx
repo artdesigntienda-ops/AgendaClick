@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { AutoLogout } from './AutoLogout'
 import Sidebar from './Sidebar'
 import TopNavbar from '@/components/TopNavbar'
@@ -23,22 +24,35 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .maybeSingle()
 
+  const cookieStore = await cookies()
+  const cookieInvite = cookieStore.get('invite_code')?.value
+
   // FALLBACK / CREACIÓN AUTOMÁTICA DE PERFIL SI NO EXISTE
   if (!profile) {
-    const inviteCode = user.user_metadata?.invite_code || null
+    const inviteCode = user.user_metadata?.invite_code || cookieInvite || null
     let resolvedRole = 'owner'
     let resolvedClinicId = null
 
     if (inviteCode) {
-      const { data: clinicExists } = await supabase
-        .from('clinics')
-        .select('id')
-        .eq('id', inviteCode)
-        .maybeSingle()
+      let slug = inviteCode
+      if (inviteCode.endsWith('-staff')) {
+        slug = inviteCode.slice(0, -6)
+      }
+      
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteCode)
+
+      let query = supabase.from('clinics').select('id')
+      if (isUuid) {
+        query = query.eq('id', inviteCode)
+      } else {
+        query = query.eq('slug', slug)
+      }
+
+      const { data: clinicExists } = await query.maybeSingle()
 
       if (clinicExists) {
         resolvedRole = 'staff'
-        resolvedClinicId = inviteCode
+        resolvedClinicId = clinicExists.id
       }
     }
 
@@ -60,23 +74,37 @@ export default async function DashboardLayout({
     if (newProfile) {
       profile = newProfile
     }
+
+    if (cookieInvite) {
+      cookieStore.delete('invite_code')
+    }
   }
 
   // FALLBACK / REPARACIÓN AUTOMÁTICA DE INVITACIÓN
-  if (profile && !profile.clinic_id && user.user_metadata?.invite_code) {
-    const inviteCode = user.user_metadata.invite_code
-    const { data: clinicExists } = await supabase
-      .from('clinics')
-      .select('id')
-      .eq('id', inviteCode)
-      .maybeSingle()
+  const activeInviteCode = user.user_metadata?.invite_code || cookieInvite
+  if (profile && !profile.clinic_id && activeInviteCode) {
+    let slug = activeInviteCode
+    if (activeInviteCode.endsWith('-staff')) {
+      slug = activeInviteCode.slice(0, -6)
+    }
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(activeInviteCode)
+
+    let query = supabase.from('clinics').select('id')
+    if (isUuid) {
+      query = query.eq('id', activeInviteCode)
+    } else {
+      query = query.eq('slug', slug)
+    }
+
+    const { data: clinicExists } = await query.maybeSingle()
 
     if (clinicExists) {
       const { data: updatedProfile } = await supabase
         .from('profiles')
         .update({
           role: 'staff',
-          clinic_id: inviteCode
+          clinic_id: clinicExists.id
         })
         .eq('id', user.id)
         .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
@@ -85,6 +113,10 @@ export default async function DashboardLayout({
       if (updatedProfile) {
         profile = updatedProfile
       }
+    }
+
+    if (cookieInvite) {
+      cookieStore.delete('invite_code')
     }
   }
 

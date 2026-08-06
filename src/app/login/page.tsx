@@ -1,5 +1,6 @@
 import { login, signup, loginWithGoogle } from './actions'
 import { GoogleLoginButton } from './GoogleLoginButton'
+import { cookies } from 'next/headers'
 
 export default async function LoginPage({
   searchParams,
@@ -7,6 +8,17 @@ export default async function LoginPage({
   searchParams: Promise<{ message?: string, invite?: string }>
 }) {
   const params = await searchParams
+  const cookieStore = await cookies()
+  
+  if (params?.invite) {
+    cookieStore.set('invite_code', params.invite, {
+      path: '/',
+      maxAge: 3600 * 24, // 1 day
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax'
+    })
+  }
   return (
     <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
