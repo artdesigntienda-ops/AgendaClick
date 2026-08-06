@@ -27,52 +27,74 @@ export default async function DashboardLayout({
   const cookieStore = await cookies()
   const cookieInvite = cookieStore.get('invite_code')?.value
 
-  // FALLBACK / CREACIÓN AUTOMÁTICA DE PERFIL SI NO EXISTE
+  // FALLBACK / CREACIÓN AUTOMÁTICA O VINCULACIÓN POR CORREO SI NO EXISTE PERFIL POR ID
   if (!profile) {
-    const inviteCode = user.user_metadata?.invite_code || cookieInvite || null
-    let resolvedRole = 'owner'
-    let resolvedClinicId = null
-
-    if (inviteCode) {
-      let slug = inviteCode
-      if (inviteCode.endsWith('-staff')) {
-        slug = inviteCode.slice(0, -6)
-      }
-      
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteCode)
-
-      let query = supabase.from('clinics').select('id')
-      if (isUuid) {
-        query = query.eq('id', inviteCode)
-      } else {
-        query = query.eq('slug', slug)
-      }
-
-      const { data: clinicExists } = await query.maybeSingle()
-
-      if (clinicExists) {
-        resolvedRole = 'staff'
-        resolvedClinicId = clinicExists.id
-      }
-    }
-
-    const { data: newProfile } = await supabase
+    // 1. Buscar si el administrador ya pre-registró este correo
+    const { data: existingEmailProfile } = await supabase
       .from('profiles')
-      .insert([{
-        id: user.id,
-        email: user.email,
-        name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
-        role: resolvedRole,
-        clinic_id: resolvedClinicId,
-        is_bookable: true,
-        is_on_break: false,
-        has_seen_tutorial: false
-      }])
       .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
+      .eq('email', user.email)
       .maybeSingle()
 
-    if (newProfile) {
-      profile = newProfile
+    if (existingEmailProfile) {
+      // Vinculamos su cuenta de auth al perfil actualizando el ID
+      const { data: linkedProfile } = await supabase
+        .from('profiles')
+        .update({ id: user.id })
+        .eq('id', existingEmailProfile.id)
+        .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
+        .maybeSingle()
+
+      if (linkedProfile) {
+        profile = linkedProfile
+      }
+    } else {
+      // 2. Si no pre-registró el correo, creamos un nuevo perfil por defecto
+      const inviteCode = user.user_metadata?.invite_code || cookieInvite || null
+      let resolvedRole = 'owner'
+      let resolvedClinicId = null
+
+      if (inviteCode) {
+        let slug = inviteCode
+        if (inviteCode.endsWith('-staff')) {
+          slug = inviteCode.slice(0, -6)
+        }
+        
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inviteCode)
+
+        let query = supabase.from('clinics').select('id')
+        if (isUuid) {
+          query = query.eq('id', inviteCode)
+        } else {
+          query = query.eq('slug', slug)
+        }
+
+        const { data: clinicExists } = await query.maybeSingle()
+
+        if (clinicExists) {
+          resolvedRole = 'staff'
+          resolvedClinicId = clinicExists.id
+        }
+      }
+
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert([{
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
+          role: resolvedRole,
+          clinic_id: resolvedClinicId,
+          is_bookable: true,
+          is_on_break: false,
+          has_seen_tutorial: false
+        }])
+        .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
+        .maybeSingle()
+
+      if (newProfile) {
+        profile = newProfile
+      }
     }
 
     if (cookieInvite) {

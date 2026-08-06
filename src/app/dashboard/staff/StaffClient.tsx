@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { CopyButton } from './CopyButton'
 import { Trash2, Clock } from 'lucide-react'
-import { removeStaffMember } from './actions'
+import { removeStaffMember, addStaffMemberByEmail } from './actions'
 import { StaffScheduleModal } from './StaffScheduleModal'
 import { toast } from 'sonner'
 
@@ -14,6 +14,27 @@ export default function StaffClient({ clinic, staff, isOwner, appointments = [] 
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [selectedStaffForSchedule, setSelectedStaffForSchedule] = useState<any | null>(null)
   const [commissionPeriod, setCommissionPeriod] = useState<'month' | 'last_month' | 'year'>('month')
+  
+  const [directName, setDirectName] = useState('')
+  const [directEmail, setDirectEmail] = useState('')
+  const [isSubmittingDirect, setIsSubmittingDirect] = useState(false)
+
+  const handleDirectRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!directEmail.trim() || !directName.trim()) return
+
+    try {
+      setIsSubmittingDirect(true)
+      await addStaffMemberByEmail(directEmail, directName)
+      toast.success('¡Profesional pre-registrado correctamente! Ahora puede unirse registrándose con este correo.')
+      setDirectEmail('')
+      setDirectName('')
+    } catch (error: any) {
+      toast.error(error.message || 'Error al pre-registrar al profesional.')
+    } finally {
+      setIsSubmittingDirect(false)
+    }
+  }
 
   const getFilteredAppointmentsForCommissions = () => {
     const now = new Date()
@@ -69,20 +90,59 @@ export default function StaffClient({ clinic, staff, isOwner, appointments = [] 
       </motion.div>
 
       {isOwner && currentStaffCount < clinic.staff_limit && (
-        <motion.div variants={itemVariants} className="bg-black text-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-lg font-bold mb-2">Invitar a un nuevo profesional</h2>
-          <p className="text-sm text-gray-300 mb-4">Copia este enlace y envíaselo a tu empleado para que cree su cuenta y se una automáticamente a tu estética.</p>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <input 
-              type="text" 
-              readOnly 
-              value={inviteLink}
-              className="flex-1 bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 w-full text-sm font-mono focus:outline-none focus:border-white/40 transition-colors"
-            />
-            <CopyButton text={inviteLink} />
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div variants={itemVariants} className="bg-black text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+            <div>
+              <h2 className="text-lg font-bold mb-2">Invitar por Enlace</h2>
+              <p className="text-sm text-gray-300 mb-4">Copia este enlace y envíaselo a tu empleado para que cree su cuenta y se una automáticamente a tu estética.</p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <input 
+                type="text" 
+                readOnly 
+                value={inviteLink}
+                className="flex-1 bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 w-full text-sm font-mono focus:outline-none focus:border-white/40 transition-colors"
+              />
+              <CopyButton text={inviteLink} />
+            </div>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="bg-white border border-gray-200 text-black p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+            <div>
+              <h2 className="text-lg font-bold mb-2">Pre-registrar por Correo</h2>
+              <p className="text-sm text-gray-500 mb-4">Agrega su nombre y correo. Cuando el profesional se registre (por contraseña o con Google) usando ese correo, se vinculará de inmediato sin usar enlaces.</p>
+            </div>
+            
+            <form onSubmit={handleDirectRegister} className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Nombre" 
+                  value={directName}
+                  onChange={(e) => setDirectName(e.target.value)}
+                  required
+                  className="flex-1 bg-gray-50 border border-gray-300 text-black rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                />
+                <input 
+                  type="email" 
+                  placeholder="Correo (Gmail, etc.)" 
+                  value={directEmail}
+                  onChange={(e) => setDirectEmail(e.target.value)}
+                  required
+                  className="flex-1 bg-gray-50 border border-gray-300 text-black rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={isSubmittingDirect}
+                className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 text-sm font-medium py-2.5 rounded-xl transition-colors shadow-sm"
+              >
+                {isSubmittingDirect ? 'Registrando...' : 'Pre-registrar Profesional'}
+              </button>
+            </form>
+          </motion.div>
+        </div>
       )}
 
       {isOwner && currentStaffCount >= clinic.staff_limit && (
