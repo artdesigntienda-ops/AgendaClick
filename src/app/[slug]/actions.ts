@@ -170,7 +170,7 @@ export async function createAppointment(data: {
       status: 'pending' // En MVP todas inician como pending
     })
     .select('id')
-    .single()
+    .maybeSingle()
 
   if (error || !newApp) {
     console.error('Error creating appointment:', error)
@@ -187,13 +187,13 @@ export async function createAppointment(data: {
     .from('clinics')
     .select('name, profiles(email, google_refresh_token, google_calendar_id)')
     .eq('id', data.clinicId)
-    .single()
+    .maybeSingle()
 
   const { data: serviceInfo } = await supabase
     .from('services')
     .select('name')
     .eq('id', data.serviceId)
-    .single()
+    .maybeSingle()
 
   const serviceName = serviceInfo?.name || 'Cita'
   const clinicName = clinicInfo?.name || 'Estética'
@@ -320,7 +320,7 @@ export async function cancelAppointmentFromClient(appointmentId: string) {
     .from('appointments')
     .select('*, services(name), clinics(name, owner_id)')
     .eq('id', appointmentId)
-    .single()
+    .maybeSingle()
 
   if (getError || !appointment) {
     console.error('Error fetching appointment for cancellation:', getError)
@@ -348,7 +348,7 @@ export async function cancelAppointmentFromClient(appointmentId: string) {
     .from('profiles')
     .select('email, google_refresh_token, google_calendar_id')
     .eq('id', appointment.clinics.owner_id)
-    .single()
+    .maybeSingle()
 
   const formattedDate = format(new Date(appointment.start_time), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
   const serviceName = appointment.services?.name || 'Cita'

@@ -16,7 +16,7 @@ export default async function ServicesPage() {
     .from('clinics')
     .select('id')
     .eq('owner_id', user?.id)
-    .single()
+    .maybeSingle()
 
   let services: any[] = []
   if (clinic) {
@@ -37,7 +37,7 @@ export default async function ServicesPage() {
       .from('clinics')
       .select('id')
       .eq('owner_id', user?.id)
-      .single()
+      .maybeSingle()
 
     if (!clinic) return
 

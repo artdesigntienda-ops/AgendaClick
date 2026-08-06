@@ -12,7 +12,7 @@ export async function requireActiveSubscription() {
     .from('profiles')
     .select('role, clinic_id')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   let clinicId = profile?.clinic_id
 
@@ -21,7 +21,7 @@ export async function requireActiveSubscription() {
       .from('clinics')
       .select('id')
       .eq('owner_id', user.id)
-      .single()
+      .maybeSingle()
     if (data) clinicId = data.id
   }
 
@@ -30,7 +30,7 @@ export async function requireActiveSubscription() {
       .from('clinics')
       .select('subscription_status, subscription_ends_at')
       .eq('id', clinicId)
-      .single()
+      .maybeSingle()
 
     if (clinic) {
       // Check if subscription has ended

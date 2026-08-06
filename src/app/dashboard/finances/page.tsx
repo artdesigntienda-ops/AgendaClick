@@ -17,7 +17,7 @@ export default async function FinancesPage() {
     .from('profiles')
     .select('role, clinic_id')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   let clinicId = profile?.clinic_id
 

@@ -20,7 +20,7 @@ export async function removeStaffMember(staffId: string) {
     .from('profiles')
     .select('role, clinic_id')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   if (ownerProfile?.role !== 'owner') {
     throw new Error('Solo el administrador puede eliminar profesionales.')
@@ -56,7 +56,7 @@ export async function addStaffMemberByEmail(email: string, name: string) {
     .from('profiles')
     .select('role, clinic_id')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   if (ownerProfile?.role !== 'owner' || !ownerProfile.clinic_id) {
     throw new Error('Solo el administrador puede agregar profesionales.')
@@ -74,7 +74,7 @@ export async function addStaffMemberByEmail(email: string, name: string) {
     .from('clinics')
     .select('staff_limit')
     .eq('id', ownerProfile.clinic_id)
-    .single()
+    .maybeSingle()
 
   const currentStaff = count || 0
   const limit = clinic?.staff_limit || 0

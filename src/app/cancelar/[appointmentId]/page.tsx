@@ -17,7 +17,7 @@ export default async function CancelPage({ params }: { params: Promise<{ appoint
     .from('appointments')
     .select('*, services(name), clinics(name)')
     .eq('id', appointmentId)
-    .single()
+    .maybeSingle()
 
   if (getError || !appointment) {
     return (

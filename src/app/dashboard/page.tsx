@@ -82,7 +82,7 @@ export default async function DashboardOverview() {
       .from('clinics')
       .select('slug')
       .eq('id', clinicId)
-      .single()
+      .maybeSingle()
     clinicSlug = clinic?.slug || ''
   }
 

@@ -17,13 +17,13 @@ export default async function SettingsPage() {
     .from('clinics')
     .select('*')
     .eq('owner_id', user.id)
-    .single()
+    .maybeSingle()
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   async function saveSettings(formData: FormData) {
     'use server'

@@ -40,7 +40,7 @@ export async function cancelAppointmentsForStaff(staffName: string | null, clini
     .from('clinics')
     .select('id')
     .eq('slug', clinicSlug)
-    .single()
+    .maybeSingle()
 
   if (!clinic) return { success: false, error: 'Clínica no encontrada' }
 
@@ -52,7 +52,7 @@ export async function cancelAppointmentsForStaff(staffName: string | null, clini
       .select('id')
       .eq('clinic_id', clinic.id)
       .eq('name', staffName)
-      .single()
+      .maybeSingle()
     if (staff) staffId = staff.id
   }
 

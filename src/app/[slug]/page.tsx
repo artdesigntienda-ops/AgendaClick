@@ -10,7 +10,7 @@ export const revalidate = 60 // revalidate at most every minute
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient()
-  const { data: clinic } = await supabase.from('clinics').select('name, business_type').eq('slug', slug).single()
+  const { data: clinic } = await supabase.from('clinics').select('name, business_type').eq('slug', slug).maybeSingle()
   
   if (!clinic) return { title: 'No Encontrado | AgendaClick' }
 
@@ -43,7 +43,7 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
     .from('clinics')
     .select('*')
     .eq('slug', slug)
-    .single()
+    .maybeSingle()
 
   if (clinicError || !clinic) {
     notFound()

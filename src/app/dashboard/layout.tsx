@@ -76,14 +76,14 @@ export default async function DashboardLayout({
       .from('clinics')
       .select('name, slug')
       .eq('owner_id', user.id)
-      .single()
+      .maybeSingle()
     clinic = data
   } else if (clinicId) {
     const { data } = await supabase
       .from('clinics')
       .select('name, slug')
       .eq('id', clinicId)
-      .single()
+      .maybeSingle()
     clinic = data
   }
 

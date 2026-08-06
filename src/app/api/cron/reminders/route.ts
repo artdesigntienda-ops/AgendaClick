@@ -42,7 +42,7 @@ export async function GET(req: Request) {
         .from('profiles')
         .select('email')
         .eq('id', clinic.owner_id)
-        .single()
+        .maybeSingle()
 
       if (owner && owner.email) {
         await resend.emails.send({
