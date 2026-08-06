@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { requireActiveSubscription } from '@/utils/billingGuard'
 import crypto from 'crypto'
@@ -26,8 +27,9 @@ export async function removeStaffMember(staffId: string) {
     throw new Error('Solo el administrador puede eliminar profesionales.')
   }
 
-  // Remove the staff member from the clinic
-  const { error } = await supabase
+  // Remove the staff member from the clinic (use admin to bypass RLS)
+  const adminClient = createAdminClient()
+  const { error } = await adminClient
     .from('profiles')
     .update({ clinic_id: null, role: 'owner', is_bookable: false }) // Reset them to an independent user
     .eq('id', staffId)
@@ -97,7 +99,9 @@ export async function addStaffMemberByEmail(email: string, name: string) {
       throw new Error('Este profesional ya forma parte de tu estética.')
     }
     // Si ya tiene perfil, simplemente actualizamos su clinic_id y role a staff
-    const { error: updateError } = await supabase
+    // Usamos el admin client para bypass de RLS (estamos modificando el perfil de otro usuario)
+    const adminClient = createAdminClient()
+    const { error: updateError } = await adminClient
       .from('profiles')
       .update({
         clinic_id: ownerProfile.clinic_id,
@@ -113,8 +117,10 @@ export async function addStaffMemberByEmail(email: string, name: string) {
     }
   } else {
     // Si no tiene perfil, creamos un perfil pre-registrado con un UUID aleatorio
+    // Usamos el admin client para bypass de RLS (estamos creando el perfil de otro usuario)
+    const adminClient = createAdminClient()
     const tempId = crypto.randomUUID()
-    const { error: insertError } = await supabase
+    const { error: insertError } = await adminClient
       .from('profiles')
       .insert([{
         id: tempId,

@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { AutoLogout } from './AutoLogout'
@@ -34,8 +35,9 @@ export default async function DashboardLayout({
       .maybeSingle()
 
     if (existingEmailProfile) {
-      // Vinculamos su cuenta de auth al perfil actualizando el ID
-      const { data: linkedProfile } = await supabase
+      // Vinculamos su cuenta de auth al perfil actualizando el ID (admin para bypass RLS)
+      const adminClient = createAdminClient()
+      const { data: linkedProfile } = await adminClient
         .from('profiles')
         .update({ id: user.id })
         .eq('id', existingEmailProfile.id)
@@ -47,7 +49,8 @@ export default async function DashboardLayout({
       }
     } else {
       // 2. Si no pre-registró el correo, creamos un nuevo perfil por defecto (dueño)
-      const { data: newProfile } = await supabase
+      const adminClient = createAdminClient()
+      const { data: newProfile } = await adminClient
         .from('profiles')
         .insert([{
           id: user.id,
