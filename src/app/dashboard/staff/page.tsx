@@ -18,7 +18,7 @@ export default async function StaffPage() {
     .from('profiles')
     .select('role, clinic_id')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   let clinicId = profile?.clinic_id
 
@@ -27,7 +27,7 @@ export default async function StaffPage() {
       .from('clinics')
       .select('id, staff_limit')
       .eq('owner_id', user.id)
-      .single()
+      .maybeSingle()
     if (data) clinicId = data.id
   }
 
@@ -39,7 +39,11 @@ export default async function StaffPage() {
     .from('clinics')
     .select('id, name, staff_limit')
     .eq('id', clinicId)
-    .single()
+    .maybeSingle()
+
+  if (!clinic) {
+    redirect('/dashboard')
+  }
 
   // Fetch staff
   const { data: staff } = await supabase
