@@ -30,59 +30,11 @@ export async function signup(formData: FormData) {
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const invite = formData.get('invite') as string | null
-  
-  let resolvedInviteCode: string | null = null
 
-  if (invite) {
-    let slug = invite
-    if (invite.endsWith('-staff')) {
-      slug = invite.slice(0, -6)
-    }
-
-    // Buscar clínica por slug o por id (como fallback para enlaces anteriores)
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(invite)
-    
-    let query = supabase.from('clinics').select('id, staff_limit')
-    if (isUuid) {
-      query = query.eq('id', invite)
-    } else {
-      query = query.eq('slug', slug)
-    }
-
-    const { data: clinic } = await query.maybeSingle()
-
-    if (clinic) {
-      resolvedInviteCode = clinic.id
-      
-      // Contar cuántos empleados tiene actualmente
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('clinic_id', clinic.id)
-        .neq('role', 'owner')
-
-      const currentStaff = count || 0
-
-      if (currentStaff >= clinic.staff_limit) {
-        redirect(`/login?message=Esta+clínica+ha+alcanzado+su+límite+de+profesionales`)
-      }
-    } else {
-      redirect(`/login?message=Código+de+invitación+inválido`)
-    }
-  }
-
-  const data = {
+  const { error } = await supabase.auth.signUp({
     email,
-    password,
-    options: {
-      data: {
-        invite_code: resolvedInviteCode || null
-      }
-    }
-  }
-
-  const { error } = await supabase.auth.signUp(data)
+    password
+  })
 
   if (error) {
     redirect('/login?message=No+se+pudo+registrar')

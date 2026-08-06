@@ -31,11 +31,30 @@ export default async function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile?.role === 'staff') {
+      const staffName = formData.get('staff_name') as string
+      if (staffName) {
+        await supabase
+          .from('profiles')
+          .update({ name: staffName })
+          .eq('id', user.id)
+      }
+      revalidatePath('/dashboard/settings')
+      revalidatePath('/dashboard/staff')
+      return
+    }
+
     const { data: existingClinic } = await supabase
       .from('clinics')
       .select('id, logo_url')
       .eq('owner_id', user.id)
-      .single()
+      .maybeSingle()
 
     const name = formData.get('name') as string
     const phone = formData.get('phone') as string
@@ -152,7 +171,9 @@ export default async function SettingsPage() {
         strategy="afterInteractive"
       />
       <h1 className="text-2xl font-semibold mb-6">
-        {clinic ? 'Edición de mi Perfil' : 'Creación del Perfil de mi Negocio'}
+        {profile?.role === 'staff'
+          ? 'Mi Perfil Profesional'
+          : (clinic ? 'Edición de mi Perfil' : 'Creación del Perfil de mi Negocio')}
       </h1>
 
       <div className="bg-white border rounded-lg p-6 max-w-2xl shadow-sm">

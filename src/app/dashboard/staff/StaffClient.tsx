@@ -90,59 +90,44 @@ export default function StaffClient({ clinic, staff, isOwner, appointments = [] 
       </motion.div>
 
       {isOwner && currentStaffCount < clinic.staff_limit && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div variants={itemVariants} className="bg-black text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
-            <div>
-              <h2 className="text-lg font-bold mb-2">Invitar por Enlace</h2>
-              <p className="text-sm text-gray-300 mb-4">Copia este enlace y envíaselo a tu empleado para que cree su cuenta y se una automáticamente a tu estética.</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <input 
-                type="text" 
-                readOnly 
-                value={inviteLink}
-                className="flex-1 bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 w-full text-sm font-mono focus:outline-none focus:border-white/40 transition-colors"
-              />
-              <CopyButton text={inviteLink} />
-            </div>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="bg-white border border-gray-200 text-black p-6 rounded-2xl shadow-sm flex flex-col justify-between">
-            <div>
-              <h2 className="text-lg font-bold mb-2">Pre-registrar por Correo</h2>
-              <p className="text-sm text-gray-500 mb-4">Agrega su nombre y correo. Cuando el profesional se registre (por contraseña o con Google) usando ese correo, se vinculará de inmediato sin usar enlaces.</p>
-            </div>
-            
-            <form onSubmit={handleDirectRegister} className="space-y-3">
-              <div className="flex flex-col sm:flex-row gap-2">
+        <motion.div variants={itemVariants} className="bg-white border border-gray-200 text-black p-6 rounded-2xl shadow-sm max-w-xl">
+          <h2 className="text-lg font-bold mb-2">Pre-registrar Profesional</h2>
+          <p className="text-sm text-gray-500 mb-4">Agrega su nombre y correo. Cuando el profesional se registre (por contraseña o con Google) usando ese correo, se vinculará de inmediato sin usar enlaces.</p>
+          
+          <form onSubmit={handleDirectRegister} className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Nombre</label>
                 <input 
                   type="text" 
                   placeholder="Nombre" 
                   value={directName}
                   onChange={(e) => setDirectName(e.target.value)}
                   required
-                  className="flex-1 bg-gray-50 border border-gray-300 text-black rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full bg-gray-50 border border-gray-300 text-black rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                 />
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Correo (Gmail, etc.)</label>
                 <input 
                   type="email" 
-                  placeholder="Correo (Gmail, etc.)" 
+                  placeholder="ejemplo@gmail.com" 
                   value={directEmail}
                   onChange={(e) => setDirectEmail(e.target.value)}
                   required
-                  className="flex-1 bg-gray-50 border border-gray-300 text-black rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full bg-gray-50 border border-gray-300 text-black rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                 />
               </div>
-              <button 
-                type="submit" 
-                disabled={isSubmittingDirect}
-                className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 text-sm font-medium py-2.5 rounded-xl transition-colors shadow-sm"
-              >
-                {isSubmittingDirect ? 'Registrando...' : 'Pre-registrar Profesional'}
-              </button>
-            </form>
-          </motion.div>
-        </div>
+            </div>
+            <button 
+              type="submit" 
+              disabled={isSubmittingDirect}
+              className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 text-sm font-medium py-2.5 rounded-xl transition-colors shadow-sm"
+            >
+              {isSubmittingDirect ? 'Registrando...' : 'Pre-registrar Profesional'}
+            </button>
+          </form>
+        </motion.div>
       )}
 
       {isOwner && currentStaffCount >= clinic.staff_limit && (

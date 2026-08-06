@@ -17,12 +17,84 @@ const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
   '+51': 'PE'
 }
 
+function GoogleCalendarSync({ profile, isDisconnecting, onDisconnect }: { profile: any, isDisconnecting: boolean, onDisconnect: () => void }) {
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gray-50 border rounded-xl">
+      <div className="flex items-center gap-3">
+        <div className={`w-3 h-3 rounded-full ${profile?.google_calendar_id ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+        <div>
+          <p className="text-sm font-bold text-gray-900">
+            {profile?.google_calendar_id ? 'Google Calendar Conectado' : 'Google Calendar Sin Conectar'}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {profile?.google_calendar_id 
+              ? 'Las citas se sincronizan automáticamente en tu calendario.' 
+              : 'Conecta tu cuenta para sincronizar tus citas en tiempo real.'}
+          </p>
+        </div>
+      </div>
+
+      {profile?.google_calendar_id ? (
+        <button 
+          type="button"
+          onClick={onDisconnect}
+          disabled={isDisconnecting}
+          className="text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-2 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
+        >
+          {isDisconnecting ? 'Desconectando...' : 'Desconectar Cuenta'}
+        </button>
+      ) : (
+        <a 
+          href="/api/calendar/auth" 
+          className="inline-flex text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 border border-blue-200 rounded-lg transition-colors"
+        >
+          Conectar Calendario
+        </a>
+      )}
+    </div>
+  )
+}
+
 export default function SettingsForm({ clinic, profile, saveAction }: { clinic: any, profile?: any, saveAction: (formData: FormData) => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
   const [isBookable, setIsBookable] = useState(profile?.is_bookable || false)
   const searchParams = useSearchParams()
+
+  const [staffName, setStaffName] = useState(profile?.name || '')
+  const [isSavingStaff, setIsSavingStaff] = useState(false)
+  const [isDisconnectingCalendar, setIsDisconnectingCalendar] = useState(false)
+
+  const handleStaffSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!staffName.trim()) return
+    setIsSavingStaff(true)
+    try {
+      const formData = new FormData()
+      formData.set('staff_name', staffName)
+      await saveAction(formData)
+      toast.success('Perfil guardado con éxito')
+    } catch (error) {
+      toast.error('Ocurrió un error al guardar')
+    } finally {
+      setIsSavingStaff(false)
+    }
+  }
+
+  const handleDisconnectCalendar = async () => {
+    if (!window.confirm('¿Estás seguro de que deseas desconectar Google Calendar? Las citas nuevas ya no se sincronizarán.')) return
+    setIsDisconnectingCalendar(true)
+    try {
+      const { disconnectGoogleCalendar } = await import('./actions')
+      await disconnectGoogleCalendar()
+      toast.success('Google Calendar desconectado correctamente')
+    } catch (error: any) {
+      toast.error(error.message || 'Error al desconectar Google Calendar')
+    } finally {
+      setIsDisconnectingCalendar(false)
+    }
+  }
   
   useEffect(() => {
     if (searchParams.get('tutorial') === 'true' && !clinic) {
@@ -111,6 +183,56 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (profile?.role === 'staff') {
+    return (
+      <div className="space-y-6">
+        <form onSubmit={handleStaffSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre Público</label>
+            <input 
+              type="text" 
+              name="staff_name" 
+              value={staffName} 
+              onChange={(e) => setStaffName(e.target.value)}
+              required
+              placeholder="Ej. Dra. Carolina Gómez"
+              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-black focus:border-black" 
+            />
+            <p className="text-xs text-gray-500 mt-1">Este es el nombre que verán los clientes al agendar una cita contigo.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Correo Electrónico (Solo Lectura)</label>
+            <input 
+              type="email" 
+              readOnly 
+              value={profile?.email || ''} 
+              className="w-full border border-gray-200 bg-gray-50 text-gray-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none cursor-not-allowed" 
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={isSavingStaff}
+            className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 text-sm font-semibold py-3 rounded-xl transition-colors shadow-sm"
+          >
+            {isSavingStaff ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+        </form>
+
+        <div className="border-t pt-6 space-y-4">
+          <h3 className="text-lg font-bold text-gray-900">Sincronización con Google Calendar</h3>
+          <p className="text-sm text-gray-500">Sincroniza tus citas de AgendaClick en tu calendario personal de Google automáticamente para evitar que se te crucen con compromisos personales.</p>
+          <GoogleCalendarSync 
+            profile={profile} 
+            isDisconnecting={isDisconnectingCalendar} 
+            onDisconnect={handleDisconnectCalendar} 
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -430,6 +552,16 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
             />
           </div>
         </div>
+      </div>
+
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Sincronización con Google Calendar</h2>
+        <p className="text-sm text-gray-500 mb-4">Sincroniza tus citas de AgendaClick en tu calendario personal de Google automáticamente para evitar que se te crucen con compromisos personales.</p>
+        <GoogleCalendarSync 
+          profile={profile} 
+          isDisconnecting={isDisconnectingCalendar} 
+          onDisconnect={handleDisconnectCalendar} 
+        />
       </div>
 
       <div className="pt-4 border-t">

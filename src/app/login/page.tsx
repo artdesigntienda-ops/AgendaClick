@@ -1,33 +1,16 @@
 import { login, signup, loginWithGoogle } from './actions'
 import { GoogleLoginButton } from './GoogleLoginButton'
-import { cookies } from 'next/headers'
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string, invite?: string }>
+  searchParams: Promise<{ message?: string }>
 }) {
   const params = await searchParams
-  const cookieStore = await cookies()
-  
-  if (params?.invite) {
-    cookieStore.set('invite_code', params.invite, {
-      path: '/',
-      maxAge: 3600 * 24, // 1 day
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax'
-    })
-  }
   return (
     <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
         <img src="/full-logo.png" alt="AgendaClick Logo" className="h-20 mx-auto mb-8 object-contain" />
-        
-        {/* Hidden field to pass the invite ID if present */}
-        {params?.invite && (
-          <input type="hidden" name="invite" value={params.invite} />
-        )}
         
         <label className="text-md" htmlFor="email">
           Correo Electrónico
