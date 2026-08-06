@@ -31,17 +31,31 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const invite = formData.get('invite') as string | null
+  
+  let resolvedInviteCode: string | null = null
 
   if (invite) {
-    // 1. Obtener la clínica y su límite
-    const { data: clinic } = await supabase
-      .from('clinics')
-      .select('id, staff_limit')
-      .eq('id', invite)
-      .single()
+    let slug = invite
+    if (invite.endsWith('-staff')) {
+      slug = invite.slice(0, -6)
+    }
+
+    // Buscar clínica por slug o por id (como fallback para enlaces anteriores)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(invite)
+    
+    let query = supabase.from('clinics').select('id, staff_limit')
+    if (isUuid) {
+      query = query.eq('id', invite)
+    } else {
+      query = query.eq('slug', slug)
+    }
+
+    const { data: clinic } = await query.maybeSingle()
 
     if (clinic) {
-      // 2. Contar cuántos empleados tiene actualmente
+      resolvedInviteCode = clinic.id
+      
+      // Contar cuántos empleados tiene actualmente
       const { count } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
@@ -63,7 +77,7 @@ export async function signup(formData: FormData) {
     password,
     options: {
       data: {
-        invite_code: invite || null
+        invite_code: resolvedInviteCode || null
       }
     }
   }

@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 
 export default function StaffClient({ clinic, staff, isOwner, appointments = [] }: { clinic: any, staff: any[], isOwner: boolean, appointments?: any[] }) {
   const currentStaffCount = staff.filter(s => s.role !== 'owner').length
-  const inviteLink = typeof window !== 'undefined' ? `${window.location.origin}/login?invite=${clinic.id}` : ''
+  const inviteLink = typeof window !== 'undefined' ? `${window.location.origin}/login?invite=${clinic.slug}-staff` : ''
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [selectedStaffForSchedule, setSelectedStaffForSchedule] = useState<any | null>(null)
   const [commissionPeriod, setCommissionPeriod] = useState<'month' | 'last_month' | 'year'>('month')
