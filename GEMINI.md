@@ -4,29 +4,79 @@ Este archivo sirve como la fuente única de verdad para que cualquier modelo de 
 
 ---
 
+## ⚙️ INSTRUCCIONES CRÍTICAS PARA EL AGENTE
+
+### Acceso directo a Supabase (NO pedir SQL al usuario)
+Cuando necesites consultar o modificar datos en Supabase, **hazlo automáticamente** usando Node.js con el cliente de Supabase y la service role key del archivo `.env.local`. Ejemplo:
+
+Lee las credenciales del archivo `.env.local` del proyecto. Ejemplo:
+
+```javascript
+// Ejecutar desde la raíz del proyecto con: node script.js
+const{createClient}=require('@supabase/supabase-js');
+// Las credenciales están en .env.local (NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY)
+const s=createClient('URL_DE_ENV_LOCAL', 'SERVICE_ROLE_KEY_DE_ENV_LOCAL');
+s.from('appointments').select('*').then(r=>console.log(JSON.stringify(r.data,null,2)))
+"
+```
+
+**NUNCA** le pidas al usuario que copie SQL en Supabase. Siempre ejecuta los scripts directamente desde la terminal.
+
+### Deploy automático
+Después de hacer cambios, haz commit y push automáticamente:
+```powershell
+git add "ruta/archivo"; git commit -m "descripción"; git push
+```
+El proyecto tiene CI/CD con Vercel — cada push a `main` despliega automáticamente.
+
+### Verificación de API keys
+Para probar la API de Resend, usa la `RESEND_API_KEY` del `.env.local`:
+```powershell
+# Reemplaza <RESEND_API_KEY> con el valor de .env.local
+Invoke-RestMethod -Uri "https://api.resend.com/domains" -Headers @{ "Authorization" = "Bearer <RESEND_API_KEY>" } -Method Get
+```
+
+---
+
 ## 📋 Información General del Negocio
 *   **Dueño/Administrador principal:** Dr. Jaison Rodríguez (`j4150nrodriguez@gmail.com`)
-*   **Dominio en Vercel:** [agendaclick.vercel.app](https://agendaclick.vercel.app/)
+*   **Dominio principal:** [agendaclick.com.co](https://www.agendaclick.com.co/)
+*   **Dominio Vercel:** [agendaclick.vercel.app](https://agendaclick.vercel.app/)
 *   **Repositorio GitHub:** `github.com/artdesigntienda-ops/AgendaClick`
 
 ---
 
 ## 🛠️ Arquitectura y Tecnologías
 1.  **Frontend/Backend:** Next.js (App Router, Versión 16+ con Turbopack y compilación asíncrona de `params` en rutas dinámicas).
-2.  **Base de Datos:** Supabase (PostgreSQL).
+2.  **Base de Datos:** Supabase (PostgreSQL) con Row Level Security (RLS).
 3.  **Estilos:** Tailwind CSS con diseño responsivo premium.
 4.  **Autenticación:** Supabase Auth + Google Login.
+5.  **Correo electrónico:** Resend API (SDK) con dominio verificado `agendaclick.com.co`.
 
 ---
 
-## 📧 Configuración de Correo Electrónico (Brevo SMTP)
-Para el envío de códigos de verificación OTP y confirmaciones de citas, el sistema utiliza **Brevo** en lugar de Gmail (Gmail bloquea conexiones desde servidores de Vercel por geolocalización).
-*   **SMTP_HOST:** `smtp-relay.brevo.com`
-*   **SMTP_PORT:** `587`
-*   **SMTP_SECURE:** `false` (usa STARTTLS sobre el puerto 587)
-*   **SMTP_USER:** `b4638b001@smtp-brevo.com`
-*   **SMTP_PASS:** `[REDACTADA - Clave de Brevo (Guardada de forma segura en Vercel)]`
-*   **SMTP_FROM:** `agendaclickcolombia@gmail.com` *(Remitente único verificado en Brevo)*
+## 📧 Configuración de Correo Electrónico (Resend API)
+El sistema usa la **API de Resend** (no SMTP) para enviar correos. Esto incluye:
+- Códigos de verificación OTP
+- Confirmaciones de citas (al dueño y al cliente)
+- Notificaciones de cancelación
+- Recordatorios de suscripción (cron job)
+
+**Configuración:**
+*   **RESEND_API_KEY:** Guardada en `.env.local` y en Vercel Environment Variables.
+*   **Dominio verificado:** `agendaclick.com.co` (status: verified)
+*   **From address:** `no-reply@agendaclick.com.co`
+*   **SDK:** `resend` v6.16+ (ya instalado en package.json)
+
+**IMPORTANTE:** NO usar nodemailer/SMTP. La autenticación SMTP falla en Vercel. Siempre usar `import { Resend } from 'resend'` y `resend.emails.send()`.
+
+---
+
+## 🔒 Supabase - Notas sobre RLS (Row Level Security)
+- Las operaciones públicas (booking de clientes, OTP) deben usar `getSupabaseAdmin()` o `createAdminClient()` para saltar RLS.
+- El dashboard usa `createAdminClient()` para consultar appointments y staff.
+- La seguridad se garantiza por la validación OTP (para clientes) y la sesión autenticada (para el dashboard).
+- **Service Role Key:** En `.env.local` como `SUPABASE_SERVICE_ROLE_KEY`.
 
 ---
 
@@ -59,24 +109,17 @@ Cambiamos los nombres de los planes anteriores (dirigidos a estéticas) por nomb
 3.  **Negocio** *(Antes Salón)* (Hasta 8 Profesionales) - $115,000 COP/mes — **Destacado como el más recomendado (🚀 MEJOR VALOR)**.
 4.  **Élite** (Ilimitados) - $190,000 COP/mes.
 
-*Beneficios redactados con Neuromarketing:*
-*   En lugar de "Agenda online", se usa: **"Tu agenda en piloto automático 24/7"**.
-*   En lugar de "Recordatorios por email", se usa: **"Reduce inasistencias con recordatorios"**.
-*   En lugar de "Métricas avanzadas", se usa: **"Control total de tus finanzas"**.
-*   En lugar de "Onboarding", se usa: **"Te ayudamos a configurar todo paso a paso"** y **"Soporte VIP inmediato 24/7"**.
-
 ---
 
-## 🔄 Cambios Recientes Importantes (4 de Agosto de 2026)
-1.  **Migración SMTP:** Se integró Brevo SMTP para los correos transaccionales y de verificación OTP.
-2.  **Responsividad de Facturación:** Se cambió el contenedor a `max-w-7xl` y la cuadrícula a `md:grid-cols-2 lg:grid-cols-4`.
-3.  **Cancelación Autónoma de Citas:** Se creó la ruta `/cancelar/[appointmentId]`, el enlace en el correo de confirmación, la lógica en Supabase y la auto-limpieza del evento de Google Calendar.
-4.  **Actualización de Llaves Wompi:** Se integraron las nuevas credenciales de producción provistas en el archivo `.env.local`.
-5.  **Facturación Anual y Prorrateo:** Se agregó toggle selector de facturación mensual/anual con un 10% de descuento, junto al recálculo y desglose detallado de saldo a favor del plan anterior.
-6.  **Actualizaciones de Webhook:** El endpoint `/api/webhooks/wompi` ahora procesa referencias del tipo `SUB_[clinicId]_[planId]_[billingPeriod]_[timestamp]` para calcular y establecer correctamente `plan_type` y `subscription_ends_at` (sumando 30 días para mensual y 365 días para anual).
-7.  **Corrección de Script en Strict Mode:** Se previno que el script de Wompi se interrumpa por el desmontaje doble de React Strict Mode en `BillingClient.tsx` y se removió la eliminación del script en el cleanup.
-8.  **Control de Errores de Firma (Server Actions):** Se modificó `generateWompiSignature` para retornar objetos con mensajes legibles de error (como llaves faltantes en Vercel) y se integró en `BillingClient.tsx` para presentarlos mediante Toasts, evitando caídas críticas de servidor 500 en producción.
-9.  **Límite de Prorrateo (Bug del 2100):** Se limitó el cálculo de saldo a favor a un máximo del ciclo contratado (30 días para mensual y 365 días para anual) para evitar que cuentas con vencimiento lejano en base de datos arrojen saldos negativos de millones de pesos.
-10. **Ajuste de Accesibilidad:** Se mejoró el contraste de la etiqueta "Oferta" cambiándole el estilo a `bg-emerald-800 text-white font-black`.
-11. **Actualización de CSP (next.config.ts):** Se agregaron los dominios `https://checkout.wompi.co`, `https://*.wompi.co`, `https://vercel.live` y `https://*.vercel.live` a las directivas `script-src`, `connect-src` y `frame-src` para evitar bloqueos del navegador a la pasarela y a la consola.
-12. **Landing Page Pulida:** Se removió la píldora superior del hero en la página de inicio que contenía textos genéricos de IA, dándole mayor presencia al título principal del software.
+## 🔄 Cambios Recientes Importantes
+
+### 8 de Agosto de 2026
+1.  **Migración de SMTP a Resend API:** Se reemplazó `nodemailer` (SMTP) por el SDK de `Resend` en `src/app/[slug]/actions.ts` para enviar OTP, confirmaciones y cancelaciones. SMTP fallaba con error `535 5.7.8 Authentication failed` en Vercel.
+2.  **Fix RLS en INSERT de appointments:** Se cambió a `getSupabaseAdmin()` para insertar citas desde el flujo público de booking, ya que RLS bloqueaba el insert con el cliente de sesión.
+3.  **Fix RLS en SELECT del dashboard:** Se cambió a `createAdminClient()` para consultar appointments y staff en el dashboard, resolviendo que las citas no aparecieran.
+
+### 4 de Agosto de 2026
+1.  **Cancelación Autónoma de Citas:** Se creó la ruta `/cancelar/[appointmentId]`, el enlace en el correo de confirmación, la lógica en Supabase y la auto-limpieza del evento de Google Calendar.
+2.  **Actualización de Llaves Wompi:** Se integraron las nuevas credenciales de producción provistas en el archivo `.env.local`.
+3.  **Facturación Anual y Prorrateo:** Se agregó toggle selector de facturación mensual/anual con un 10% de descuento, junto al recálculo y desglose detallado de saldo a favor del plan anterior.
+4.  **Actualizaciones de Webhook:** El endpoint `/api/webhooks/wompi` ahora procesa referencias del tipo `SUB_[clinicId]_[planId]_[billingPeriod]_[timestamp]` para calcular y establecer correctamente `plan_type` y `subscription_ends_at`.
