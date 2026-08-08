@@ -143,8 +143,8 @@ export async function createAppointment(data: {
     return { error: true, message: 'Código inválido o expirado. Por favor intenta de nuevo.' }
   }
 
-  // 2. Guardar en la DB
-  const { data: newApp, error } = await supabase
+  // 2. Guardar en la DB (usamos admin para saltar RLS, ya que la legitimidad fue validada por el OTP)
+  const { data: newApp, error } = await getSupabaseAdmin()
     .from('appointments')
     .insert({
       clinic_id: data.clinicId,
