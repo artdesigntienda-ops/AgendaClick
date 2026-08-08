@@ -178,7 +178,7 @@ export async function createAppointment(data: {
       client_phone: data.clientPhone,
       start_time: data.startTime,
       end_time: data.endTime,
-      status: 'pending' // En MVP todas inician como pending
+      status: 'confirmed' // El OTP valida la intención, así que entra como confirmado
     })
     .select('id')
     .maybeSingle()

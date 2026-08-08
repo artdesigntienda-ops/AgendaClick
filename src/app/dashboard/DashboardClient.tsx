@@ -24,7 +24,7 @@ import {
   subYears 
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cancelAppointment, cancelAppointmentsForStaff, assignStaffToAppointment, updateAppointmentStatus, saveAppointmentNotes, blockTime } from './actions'
+import { cancelAppointment, cancelAppointmentsForStaff, assignStaffToAppointment, updateAppointmentStatus, saveAppointmentNotes, blockTime, updateAppointmentTime } from './actions'
 import { toast } from 'sonner'
 
 type Appointment = {
@@ -33,6 +33,7 @@ type Appointment = {
   client_phone: string
   client_email: string
   start_time: string
+  end_time?: string | null
   status: string
   services: { name: string } | null
   profiles: { id: string; name: string } | null
@@ -74,6 +75,34 @@ export default function DashboardClient({
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isAssigningStaff, setIsAssigningStaff] = useState(false)
+  const [isRescheduling, setIsRescheduling] = useState(false)
+
+  const handleTimeChange = async (appointmentId: string, newStartTime: string) => {
+    setIsRescheduling(true)
+    const apt = localAppointments.find(a => a.id === appointmentId)
+    if (apt) {
+      // Calculate end time based on the old duration
+      const oldStart = new Date(apt.start_time).getTime()
+      let oldEnd = new Date(apt.start_time).getTime() + 30 * 60000 // default 30 min
+      if (apt.end_time) {
+         oldEnd = new Date(apt.end_time).getTime()
+      }
+      const duration = oldEnd - oldStart
+
+      const newStartObj = new Date(newStartTime)
+      const newEndObj = new Date(newStartObj.getTime() + duration)
+
+      const res = await updateAppointmentTime(appointmentId, newStartObj.toISOString(), newEndObj.toISOString())
+      if (res.success) {
+        toast.success('Horario actualizado')
+        setLocalAppointments(prev => prev.map(a => a.id === appointmentId ? { ...a, start_time: newStartObj.toISOString(), end_time: newEndObj.toISOString() } : a))
+        setSelectedAppointment(prev => prev ? { ...prev, start_time: newStartObj.toISOString(), end_time: newEndObj.toISOString() } : null)
+      } else {
+        toast.error(res.error || 'Error al cambiar horario')
+      }
+    }
+    setIsRescheduling(false)
+  }
 
   // Block time States
   const [isBlockTimeModalOpen, setIsBlockTimeModalOpen] = useState(false)
@@ -653,9 +682,9 @@ export default function DashboardClient({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100"
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-100"
             >
-              <div className="p-6 border-b flex justify-between items-start bg-gray-50">
+              <div className="p-6 border-b flex justify-between items-start bg-gray-50 flex-shrink-0">
                 <div>
                   <h3 className="text-2xl font-black">{selectedAppointment.client_name}</h3>
                   <p className="text-gray-500 mt-1">{selectedAppointment.services?.name || 'Cita General'}</p>
@@ -665,13 +694,17 @@ export default function DashboardClient({
                 </button>
               </div>
               
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-4 overflow-y-auto flex-1">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500 block mb-1">Fecha y Hora</span>
-                    <span className="font-bold text-sm block">
-                      {format(parseISO(selectedAppointment.start_time), "d 'de' MMM - hh:mm a", { locale: es })}
-                    </span>
+                    <label className="text-xs font-black text-gray-400 uppercase block mb-1">Fecha y Hora</label>
+                    <input 
+                      type="datetime-local" 
+                      disabled={isRescheduling}
+                      value={format(parseISO(selectedAppointment.start_time), "yyyy-MM-dd'T'HH:mm")}
+                      onChange={(e) => handleTimeChange(selectedAppointment.id, e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50"
+                    />
                   </div>
                   <div>
                     <span className="text-gray-500 block mb-1">Estado</span>

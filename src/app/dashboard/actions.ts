@@ -32,6 +32,24 @@ export async function cancelAppointment(appointmentId: string) {
   return { success: true }
 }
 
+export async function updateAppointmentTime(appointmentId: string, newStartTime: string, newEndTime: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('appointments')
+    .update({ start_time: newStartTime, end_time: newEndTime })
+    .eq('id', appointmentId)
+
+  if (error) {
+    console.error('Error updating appointment time:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+
 export async function cancelAppointmentsForStaff(staffName: string | null, clinicSlug: string, dateIso: string) {
   const supabase = await createClient()
 
