@@ -144,6 +144,28 @@ export async function createAppointment(data: {
     return { error: true, message: 'Código inválido o expirado. Por favor intenta de nuevo.' }
   }
 
+  // 1.5 Validar que el horario siga disponible (prevenir double-booking / carrera de clicks)
+  let overlapQuery = getSupabaseAdmin()
+    .from('appointments')
+    .select('id')
+    .eq('clinic_id', data.clinicId)
+    .neq('status', 'cancelled')
+    .lt('start_time', data.endTime) // La cita existente empieza antes de que la nueva termine
+    .gt('end_time', data.startTime) // La cita existente termina después de que la nueva empiece
+
+  if (data.staffId) {
+    // Si la nueva cita es para un doctor específico, chocará si ya hay otra para él, o si hay un bloqueo de toda la clínica (null)
+    overlapQuery = overlapQuery.or(`staff_id.eq.${data.staffId},staff_id.is.null`)
+  } else {
+    // Si la nueva cita no tiene doctor asignado (null), choca si ya hay un bloqueo general (null)
+    overlapQuery = overlapQuery.is('staff_id', null)
+  }
+
+  const { data: overlapping } = await overlapQuery
+  if (overlapping && overlapping.length > 0) {
+    return { error: true, message: 'Lo sentimos, este horario acaba de ser ocupado. Por favor elige otro.' }
+  }
+
   // 2. Guardar en la DB (usamos admin para saltar RLS, ya que la legitimidad fue validada por el OTP)
   const { data: newApp, error } = await getSupabaseAdmin()
     .from('appointments')
