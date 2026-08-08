@@ -217,7 +217,8 @@ export default function BookingClient({ clinic, services, professionals, appoint
       clientEmail: formData.clientEmail,
       clientPhone: formData.clientPhone,
       startTime: startTime.toISOString(),
-      endTime: endTime.toISOString()
+      endTime: endTime.toISOString(),
+      staffId: selectedProfessional?.id || null
     }, otpCode)
 
     setIsVerifying(false)

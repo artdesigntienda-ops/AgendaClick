@@ -125,6 +125,7 @@ export async function createAppointment(data: {
   clientPhone: string
   startTime: string
   endTime: string
+  staffId?: string | null
 }, otpCode: string) {
   const supabase = await createClient()
 
@@ -149,6 +150,7 @@ export async function createAppointment(data: {
     .insert({
       clinic_id: data.clinicId,
       service_id: data.serviceId,
+      staff_id: data.staffId,
       client_name: data.clientName,
       client_email: data.clientEmail,
       client_phone: data.clientPhone,
