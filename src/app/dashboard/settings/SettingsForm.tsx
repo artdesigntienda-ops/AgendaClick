@@ -59,8 +59,14 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
+  const [slogan, setSlogan] = useState(clinic?.slogan || '')
   const [isBookable, setIsBookable] = useState(profile?.is_bookable || false)
   const searchParams = useSearchParams()
+
+  const [brandColor, setBrandColor] = useState(clinic?.brand_color || '#10b981')
+  const [headerTextColor, setHeaderTextColor] = useState(clinic?.header_text_color || '#ffffff')
+  const [coverPreview, setCoverPreview] = useState<string | null>(clinic?.cover_image_url || null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(clinic?.logo_url || null)
 
   const [staffName, setStaffName] = useState(profile?.name || '')
   const [isSavingStaff, setIsSavingStaff] = useState(false)
@@ -166,6 +172,20 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
     setSlug(generated)
   }
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setLogoPreview(URL.createObjectURL(file))
+    }
+  }
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setCoverPreview(URL.createObjectURL(file))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (isSubmitting) return
@@ -243,16 +263,31 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
         
         <div className="space-y-4">
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen de Portada (Fondo del Encabezado)</label>
+            <div className="flex items-center gap-4">
+              {coverPreview ? (
+                <img src={coverPreview} alt="Portada" className="w-24 h-16 rounded-lg object-cover border" />
+              ) : (
+                <div className="w-24 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center border border-gray-200">
+                  Sin Portada
+                </div>
+              )}
+              <input type="file" name="cover_image" accept="image/*" onChange={handleCoverChange} className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800" />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Sube una imagen horizontal (paisaje) para mostrar como fondo en la página de agendamiento.</p>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Logotipo (Cuadrado o Circular recomendado)</label>
             <div className="flex items-center gap-4">
-              {clinic?.logo_url ? (
-                <img src={clinic.logo_url} alt="Logo" className="w-16 h-16 rounded-full object-cover border" />
+              {logoPreview ? (
+                <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-full object-cover border bg-white" />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold border border-gray-200 uppercase">
                   {name ? name.charAt(0) : 'N'}
                 </div>
               )}
-              <input type="file" name="logo" accept="image/*" className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800" />
+              <input type="file" name="logo" accept="image/*" onChange={handleLogoChange} className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800" />
             </div>
           </div>
 
@@ -260,7 +295,8 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
             <label className="block text-sm font-medium text-gray-700 mb-1">Slogan o Descripción Corta</label>
             <input 
               name="slogan" 
-              defaultValue={clinic?.slogan || ''} 
+              value={slogan}
+              onChange={(e) => setSlogan(e.target.value)}
               placeholder="Ej. Realzando tu belleza natural" 
               className="w-full border rounded-md px-3 py-2 focus:ring-black focus:border-black" 
               maxLength={100}
@@ -278,14 +314,32 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               <input 
                 type="color" 
                 name="brand_color" 
-                defaultValue={clinic?.brand_color || '#10b981'} 
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
                 className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
               />
               <span className="text-xs text-gray-500 font-mono uppercase">
-                {clinic?.brand_color || '#10b981'}
+                {brandColor}
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Este color se usará en los botones, fechas y la cabecera de tu página de reservas.</p>
+            <p className="text-xs text-gray-500 mt-1">Este color se usará en los botones, fechas y elementos principales.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color de Texto (Sobre la Portada)</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="header_text_color" 
+                value={headerTextColor}
+                onChange={(e) => setHeaderTextColor(e.target.value)}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500 font-mono uppercase">
+                {headerTextColor}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Garantiza que el texto se lea correctamente según la imagen de portada.</p>
           </div>
 
           <div>
@@ -302,6 +356,51 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               <option value="Roboto">Roboto (Clásica & Sencilla)</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">La tipografía que se cargará dinámicamente en tu página de reservas.</p>
+          </div>
+        </div>
+        
+        <div className="mt-8">
+          <h3 className="text-sm font-bold text-gray-700 mb-2">Vista Previa en Vivo</h3>
+          <div className="border border-gray-200 rounded-2xl overflow-hidden max-w-sm mx-auto shadow-lg relative bg-white h-[400px] flex flex-col">
+            <div 
+              className="relative p-6 text-center flex flex-col items-center transition-colors duration-300 min-h-[250px] justify-center"
+              style={{
+                backgroundColor: coverPreview ? undefined : brandColor,
+                backgroundImage: coverPreview ? `url(${coverPreview})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              {coverPreview && (
+                <div className="absolute inset-0 bg-black/40" />
+              )}
+              <div className="relative z-10 w-full flex flex-col items-center">
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-full object-cover mb-3 border-2 shadow-lg bg-white" style={{ borderColor: 'rgba(255,255,255,0.2)' }} />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-black mb-3 border-2 border-white/20 shadow-lg">
+                    {name ? name.charAt(0).toUpperCase() : 'N'}
+                  </div>
+                )}
+                <h1 className="text-xl font-light tracking-tight" style={{ color: headerTextColor }}>
+                  {name || 'Nombre de tu Clínica'}
+                </h1>
+                <p className="mt-1 text-xs italic" style={{ color: headerTextColor, opacity: 0.8 }}>
+                  {slogan || 'Tu slogan aparecerá aquí'}
+                </p>
+                <div className="flex items-center gap-2 mt-3 p-2 rounded-xl border max-w-[90%] w-full" style={{ borderColor: 'rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: brandColor }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  </div>
+                  <span className="text-[10px] font-medium truncate" style={{ color: headerTextColor }}>
+                    Dirección de prueba
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 flex-1 bg-white flex flex-col items-center justify-center text-gray-400">
+              <span className="text-xs">Contenido de la página...</span>
+            </div>
           </div>
         </div>
       </div>

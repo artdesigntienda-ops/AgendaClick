@@ -52,7 +52,7 @@ export default async function SettingsPage() {
 
     const { data: existingClinic } = await supabase
       .from('clinics')
-      .select('id, logo_url')
+      .select('id, logo_url, cover_image_url')
       .eq('owner_id', user.id)
       .maybeSingle()
 
@@ -70,6 +70,7 @@ export default async function SettingsPage() {
     const tiktok = formData.get('tiktok') as string
     const youtube = formData.get('youtube') as string
     const brandColor = formData.get('brand_color') as string || '#10b981'
+    const headerTextColor = formData.get('header_text_color') as string || '#ffffff'
     const fontFamily = formData.get('font_family') as string || 'Outfit'
     
     // Parse schedule
@@ -107,18 +108,37 @@ export default async function SettingsPage() {
 
     if (logoFile && logoFile.size > 0) {
       const fileExt = logoFile.name.split('.').pop()
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`
+      const fileName = `${user.id}-logo-${Math.random()}.${fileExt}`
       
       const { error: uploadError } = await supabase.storage
         .from('logos')
         .upload(fileName, logoFile)
         
       if (!uploadError) {
-        // Obtener URL pública
         const { data: publicUrlData } = supabase.storage
           .from('logos')
           .getPublicUrl(fileName)
         logoUrl = publicUrlData.publicUrl
+      }
+    }
+
+    // Manejo de la subida de la imagen de portada
+    const coverFile = formData.get('cover_image') as File
+    let coverUrl = existingClinic?.cover_image_url
+
+    if (coverFile && coverFile.size > 0) {
+      const fileExt = coverFile.name.split('.').pop()
+      const fileName = `${user.id}-cover-${Math.random()}.${fileExt}`
+      
+      const { error: uploadError } = await supabase.storage
+        .from('logos') // Usaremos el mismo bucket de logos para mayor facilidad
+        .upload(fileName, coverFile)
+        
+      if (!uploadError) {
+        const { data: publicUrlData } = supabase.storage
+          .from('logos')
+          .getPublicUrl(fileName)
+        coverUrl = publicUrlData.publicUrl
       }
     }
 
@@ -135,6 +155,7 @@ export default async function SettingsPage() {
       youtube_url: youtube,
       ...(schedule ? { schedule } : {}),
       logo_url: logoUrl,
+      cover_image_url: coverUrl,
       address,
       country,
       state,
@@ -143,6 +164,7 @@ export default async function SettingsPage() {
       latitude,
       longitude,
       brand_color: brandColor,
+      header_text_color: headerTextColor,
       font_family: fontFamily
     }
 

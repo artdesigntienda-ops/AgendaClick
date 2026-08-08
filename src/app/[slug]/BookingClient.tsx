@@ -6,9 +6,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse } from 'date-fns'
+import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse, startOfMonth, getDaysInMonth, addMonths, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, Brain, Smile, Activity, Stethoscope, Heart, Leaf, Sparkles, Scissors } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, Brain, Smile, Activity, Stethoscope, Heart, Leaf, Sparkles, Scissors, ChevronLeft, ChevronRight } from 'lucide-react'
 import { createAppointment, sendOtpCode } from './actions'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
@@ -78,8 +78,12 @@ export default function BookingClient({ clinic, services, professionals, appoint
     resolver: zodResolver(bookingSchema)
   })
 
-  // Generar próximos 14 días
-  const availableDates = Array.from({ length: 14 }).map((_, i) => addDays(startOfToday(), i))
+  const [currentMonth, setCurrentMonth] = useState<Date>(startOfMonth(startOfToday()))
+
+  // Generar días del mes seleccionado (filtrando los días pasados si es el mes actual)
+  const availableDates = Array.from({ length: getDaysInMonth(currentMonth) })
+    .map((_, i) => addDays(currentMonth, i))
+    .filter(date => date >= startOfToday() || isSameDay(date, startOfToday()))
   
   // Calcular horarios disponibles
   const getAvailableTimes = () => {
@@ -293,58 +297,77 @@ export default function BookingClient({ clinic, services, professionals, appoint
           font-family: var(--font-family) !important;
         }
       ` }} />
-      <div className="bg-brand text-white p-8 text-center flex flex-col items-center transition-colors duration-300">
-        {clinic.logo_url ? (
-          <img src={clinic.logo_url} alt={clinic.name} className="w-20 h-20 rounded-full object-cover mb-4 border-2 border-white/20 shadow-lg" />
-        ) : (
-          <div className="w-20 h-20 rounded-full bg-white/15 flex items-center justify-center mb-4 border border-white/20 shadow-lg text-white text-3xl font-black">
-            {clinic.name ? clinic.name.charAt(0).toUpperCase() : 'N'}
-          </div>
-        )}
-        <h1 className="text-2xl font-light tracking-tight">{clinic.name}</h1>
-        {clinic.slogan ? (
-          <p className="text-gray-300 mt-2 text-sm italic">{clinic.slogan}</p>
-        ) : (
-          <p className="text-gray-400 mt-2 text-xs uppercase tracking-widest font-semibold">
-            {clinic.business_type === 'belleza' && '💅 Estética y Belleza'}
-            {clinic.business_type === 'bienestar' && '🧘 Spas y Bienestar'}
-            {clinic.business_type === 'salud' && '🏥 Clínica y Salud'}
-            {clinic.business_type === 'psicologia' && '🧠 Psicología y Terapia'}
-            {clinic.business_type === 'odontologia' && '🦷 Odontología y Ortodoncia'}
-            {clinic.business_type === 'quiropractica' && '🦴 Quiropráctica y Masajes'}
-            {clinic.business_type === 'medicina_general' && '🩺 Consulta Médica y Especialistas'}
-            {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && clinic.business_type}
-          </p>
+      <div 
+        className="relative p-8 text-center flex flex-col items-center transition-colors duration-300 overflow-hidden"
+        style={{
+          backgroundColor: clinic.cover_image_url ? undefined : 'var(--brand-color)',
+          backgroundImage: clinic.cover_image_url ? `url(${clinic.cover_image_url})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: clinic.header_text_color || '#ffffff'
+        }}
+      >
+        {clinic.cover_image_url && (
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         )}
         
-        {clinic.address && (
-          <a 
-            href={`https://www.google.com/maps/search/?api=1&query=${clinic.latitude},${clinic.longitude}`} 
-            target="_blank" 
-            rel="noreferrer"
-            className="flex items-center gap-3 mt-4 text-left bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-xl transition-colors mx-auto max-w-sm"
-          >
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-              <MapPin className="w-5 h-5 text-white" />
+        <div className="relative z-10 flex flex-col items-center w-full">
+          {clinic.logo_url ? (
+            <img src={clinic.logo_url} alt={clinic.name} className="w-20 h-20 rounded-full object-cover mb-4 border-2 shadow-lg bg-white" style={{ borderColor: 'rgba(255,255,255,0.2)' }} />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-white/15 flex items-center justify-center mb-4 border-2 shadow-lg text-3xl font-black" style={{ borderColor: 'rgba(255,255,255,0.2)', color: clinic.header_text_color || '#ffffff' }}>
+              {clinic.name ? clinic.name.charAt(0).toUpperCase() : 'N'}
             </div>
-            <div>
-              <span className="block font-medium text-sm text-white">{clinic.address}</span>
-              <span className="text-[10px] uppercase tracking-wider text-blue-200 font-bold flex items-center gap-1 mt-0.5">
-                 Abrir en Google Maps <ArrowRight className="w-3 h-3" />
-              </span>
-            </div>
-          </a>
-        )}
+          )}
+          <h1 className="text-2xl font-light tracking-tight">{clinic.name}</h1>
+          {clinic.slogan ? (
+            <p className="mt-2 text-sm italic" style={{ opacity: 0.85 }}>{clinic.slogan}</p>
+          ) : (
+            <p className="mt-2 text-xs uppercase tracking-widest font-semibold" style={{ opacity: 0.85 }}>
+              {clinic.business_type === 'belleza' && '💅 Estética y Belleza'}
+              {clinic.business_type === 'bienestar' && '🧘 Spas y Bienestar'}
+              {clinic.business_type === 'salud' && '🏥 Clínica y Salud'}
+              {clinic.business_type === 'psicologia' && '🧠 Psicología y Terapia'}
+              {clinic.business_type === 'odontologia' && '🦷 Odontología y Ortodoncia'}
+              {clinic.business_type === 'quiropractica' && '🦴 Quiropráctica y Masajes'}
+              {clinic.business_type === 'medicina_general' && '🩺 Consulta Médica y Especialistas'}
+              {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && clinic.business_type}
+            </p>
+          )}
+          
+          {clinic.address && (
+            <a 
+              href={`https://www.google.com/maps/search/?api=1&query=${clinic.latitude},${clinic.longitude}`} 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center gap-3 mt-4 text-left p-3 rounded-xl transition-colors mx-auto max-w-sm border backdrop-blur-sm"
+              style={{ 
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                borderColor: 'rgba(255,255,255,0.15)'
+              }}
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg" style={{ backgroundColor: 'var(--brand-color)' }}>
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <span className="block font-medium text-sm">{clinic.address}</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold flex items-center gap-1 mt-0.5" style={{ opacity: 0.9 }}>
+                   Abrir en Google Maps <ArrowRight className="w-3 h-3" />
+                </span>
+              </div>
+            </a>
+          )}
 
-        {/* Redes Sociales */}
-        {(clinic.instagram_url || clinic.facebook_url || clinic.tiktok_url || clinic.youtube_url) && (
-          <div className="flex items-center justify-center gap-4 mt-6">
-            {clinic.instagram_url && <a href={clinic.instagram_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><LinkIcon className="w-5 h-5" /></a>}
-            {clinic.facebook_url && <a href={clinic.facebook_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><LinkIcon className="w-5 h-5" /></a>}
-            {clinic.tiktok_url && <a href={clinic.tiktok_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><Video className="w-5 h-5" /></a>}
-            {clinic.youtube_url && <a href={clinic.youtube_url} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors"><LinkIcon className="w-5 h-5" /></a>}
-          </div>
-        )}
+          {/* Redes Sociales */}
+          {(clinic.instagram_url || clinic.facebook_url || clinic.tiktok_url || clinic.youtube_url) && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              {clinic.instagram_url && <a href={clinic.instagram_url} target="_blank" rel="noreferrer" className="hover:opacity-100 transition-opacity" style={{ opacity: 0.7 }}><LinkIcon className="w-5 h-5" /></a>}
+              {clinic.facebook_url && <a href={clinic.facebook_url} target="_blank" rel="noreferrer" className="hover:opacity-100 transition-opacity" style={{ opacity: 0.7 }}><LinkIcon className="w-5 h-5" /></a>}
+              {clinic.tiktok_url && <a href={clinic.tiktok_url} target="_blank" rel="noreferrer" className="hover:opacity-100 transition-opacity" style={{ opacity: 0.7 }}><Video className="w-5 h-5" /></a>}
+              {clinic.youtube_url && <a href={clinic.youtube_url} target="_blank" rel="noreferrer" className="hover:opacity-100 transition-opacity" style={{ opacity: 0.7 }}><LinkIcon className="w-5 h-5" /></a>}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="p-8 relative min-h-[400px]">
@@ -470,26 +493,53 @@ export default function BookingClient({ clinic, services, professionals, appoint
                 Volver
               </div>
               
-              <h2 className="text-lg font-medium mb-6">
-                {professionals.length <= 1 ? '2. Fecha y Hora' : '3. Fecha y Hora'}
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-medium">
+                  {professionals.length <= 1 ? '2. Fecha y Hora' : '3. Fecha y Hora'}
+                </h2>
+                
+                <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-100">
+                  <button 
+                    onClick={() => setCurrentMonth(prev => addMonths(prev, -1))}
+                    disabled={isBefore(addMonths(currentMonth, -1), startOfMonth(startOfToday()))}
+                    className="p-1.5 rounded-md hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none transition-all"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <span className="text-xs font-semibold px-2 min-w-[90px] text-center capitalize text-gray-700">
+                    {format(currentMonth, 'MMMM yyyy', { locale: es })}
+                  </span>
+                  <button 
+                    onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
+                    className="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all"
+                  >
+                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+              </div>
               
               <div className="mb-6">
-                <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
-                  {availableDates.map(date => (
-                    <button
-                      key={date.toISOString()}
-                      onClick={() => setSelectedDate(date)}
-                      className={`snap-start flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-xl border transition-colors ${
-                        selectedDate.getTime() === date.getTime() 
-                          ? 'bg-brand text-white border-brand' 
-                          : 'hover:border-brand'
-                      }`}
-                    >
-                      <span className="text-xs uppercase opacity-80">{format(date, 'eee', { locale: es })}</span>
-                      <span className="text-xl font-medium mt-1">{format(date, 'dd')}</span>
-                    </button>
-                  ))}
+                <div className="flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar">
+                  {availableDates.length === 0 ? (
+                    <div className="text-sm text-gray-500 w-full text-center py-4">No hay días disponibles en este mes.</div>
+                  ) : (
+                    availableDates.map(date => (
+                      <motion.button
+                        key={date.toISOString()}
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.05 }}
+                        onClick={() => setSelectedDate(date)}
+                        className={`snap-start flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-xl border transition-colors ${
+                          selectedDate.getTime() === date.getTime() 
+                            ? 'bg-brand text-white border-brand shadow-md' 
+                            : 'hover:border-brand bg-white'
+                        }`}
+                      >
+                        <span className="text-xs uppercase opacity-80">{format(date, 'eee', { locale: es })}</span>
+                        <span className="text-xl font-medium mt-1">{format(date, 'dd')}</span>
+                      </motion.button>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -501,20 +551,22 @@ export default function BookingClient({ clinic, services, professionals, appoint
                   </div>
                 ) : (
                   availableTimes.map(time => (
-                    <button
+                    <motion.button
                       key={time}
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
                       onClick={() => {
                         setSelectedTime(time)
                         setStep(4)
                       }}
-                      className={`py-3 rounded-lg border text-sm font-medium transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 ${
+                      className={`py-3 rounded-lg border text-sm font-medium transition-all ${
                         selectedTime === time
-                          ? 'bg-brand text-white border-brand shadow-lg scale-[1.02]'
-                          : 'hover:border-brand hover:bg-gray-50'
+                          ? 'bg-brand text-white border-brand shadow-lg'
+                          : 'hover:border-brand hover:bg-gray-50 bg-white'
                       }`}
                     >
                       {time}
-                    </button>
+                    </motion.button>
                   ))
                 )}
               </div>
