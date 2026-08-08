@@ -94,8 +94,9 @@ export default async function DashboardOverview() {
   let staffMembers: any[] = []
 
   if (clinicId) {
+    const adminClient = createAdminClient()
     const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString()
-    let aptsQuery = supabase
+    let aptsQuery = adminClient
       .from('appointments')
       .select(`
         id,
@@ -123,7 +124,7 @@ export default async function DashboardOverview() {
     }
 
     // 3. Obtener listado de profesionales de la clínica
-    const { data: staff } = await supabase
+    const { data: staff } = await adminClient
       .from('profiles')
       .select('id, name, role')
       .eq('clinic_id', clinicId)
