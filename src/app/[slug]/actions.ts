@@ -3,29 +3,16 @@
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { google } from 'googleapis'
 
-function getTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true para puerto 465 (SSL), false para 587 (TLS)
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
-  })
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!)
 }
 
-function getFromAddress() {
-  return process.env.SMTP_FROM || process.env.SMTP_USER || 'agendaclickcolombia@gmail.com'
-}
+const FROM_ADDRESS = 'AgendaClick <no-reply@agendaclick.com.co>'
 
 
 function getSupabaseAdmin() {
@@ -106,16 +93,16 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
   }
 
   try {
-    const transporter = getTransporter()
-    await transporter.sendMail({
-      from: `"AgendaClick Seguridad" <${getFromAddress()}>`,
+    const resend = getResend()
+    await resend.emails.send({
+      from: 'AgendaClick Seguridad <no-reply@agendaclick.com.co>',
       to: email.trim().toLowerCase(),
       subject: `Tu código de verificación es ${otpCode}`,
       html: `
-        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px;">
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #000;">Hola ${clientName},</h2>
           <p>Para confirmar tu cita, ingresa el siguiente código de verificación de 6 dígitos:</p>
-          <div style="font-size: 32px; font-weight: bold; tracking: 4px; padding: 20px; text-align: center; background: #f4f4f5; border-radius: 8px; margin: 20px 0;">
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 4px; padding: 20px; text-align: center; background: #f4f4f5; border-radius: 8px; margin: 20px 0;">
             ${otpCode}
           </div>
           <p>Este código expirará en 5 minutos.</p>
@@ -253,16 +240,16 @@ export async function createAppointment(data: {
   }
 
   try {
-    const transporter = getTransporter()
+    const resend = getResend()
     
     // 4. Enviar correo al Dueño
     if (ownerEmail) {
-      await transporter.sendMail({
-        from: `"AgendaClick Notificaciones" <${getFromAddress()}>`,
+      await resend.emails.send({
+        from: 'AgendaClick Notificaciones <no-reply@agendaclick.com.co>',
         to: ownerEmail,
         subject: `¡Nueva Cita! ${serviceName} - ${data.clientName}`,
         html: `
-          <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px;">
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #000;">Tienes una nueva cita en ${clinicName}</h2>
             <p><strong>Cliente:</strong> ${data.clientName}</p>
             <p><strong>Teléfono:</strong> ${data.clientPhone}</p>
@@ -274,19 +261,23 @@ export async function createAppointment(data: {
             <p><i>Abre el archivo adjunto (cita.ics) desde tu celular para guardar este evento en tu calendario de Google o Apple.</i></p>
           </div>
         `,
-        attachments: [attachment]
+        attachments: [{
+          filename: 'cita.ics',
+          content: Buffer.from(icsContent).toString('base64'),
+          contentType: 'text/calendar'
+        }]
       })
     }
 
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}`
 
     // 5. Enviar correo a la Clienta
-    await transporter.sendMail({
-      from: `"AgendaClick" <${getFromAddress()}>`,
+    await resend.emails.send({
+      from: FROM_ADDRESS,
       to: data.clientEmail,
       subject: `Reserva Confirmada en ${clinicName}`,
       html: `
-        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
           <h2 style="color: #000; margin-top: 0;">¡Hola ${data.clientName}, tu reserva está confirmada!</h2>
           <p>Has agendado exitosamente tu cita en <strong>${clinicName}</strong>.</p>
           <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
@@ -301,10 +292,14 @@ export async function createAppointment(data: {
           </p>
         </div>
       `,
-      attachments: [attachment]
+      attachments: [{
+        filename: 'cita.ics',
+        content: Buffer.from(icsContent).toString('base64'),
+        contentType: 'text/calendar'
+      }]
     })
   } catch (e) {
-    console.error('Error sending emails via SMTP:', e)
+    console.error('Error sending emails via Resend:', e)
   }
 
   revalidatePath('/dashboard')
@@ -355,15 +350,15 @@ export async function cancelAppointmentFromClient(appointmentId: string) {
   const clinicName = appointment.clinics?.name || 'Estética'
 
   try {
-    const transporter = getTransporter()
+    const resend = getResend()
 
     // 4. Enviar correo al Cliente
-    await transporter.sendMail({
-      from: `"AgendaClick" <${getFromAddress()}>`,
+    await resend.emails.send({
+      from: FROM_ADDRESS,
       to: appointment.client_email,
       subject: `Cancelación de Cita: ${serviceName} en ${clinicName}`,
       html: `
-        <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
           <h2 style="color: #ef4444; margin-top: 0;">Tu cita ha sido cancelada</h2>
           <p>Te confirmamos que tu cita para <strong>${serviceName}</strong> en <strong>${clinicName}</strong> ha sido cancelada con éxito.</p>
           <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
@@ -377,12 +372,12 @@ export async function cancelAppointmentFromClient(appointmentId: string) {
 
     // 5. Enviar correo al Dueño
     if (ownerProfile?.email) {
-      await transporter.sendMail({
-        from: `"AgendaClick Notificaciones" <${getFromAddress()}>`,
+      await resend.emails.send({
+        from: 'AgendaClick Notificaciones <no-reply@agendaclick.com.co>',
         to: ownerProfile.email,
         subject: `Cita Cancelada por Cliente: ${serviceName} - ${appointment.client_name}`,
         html: `
-          <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
             <h2 style="color: #ef4444; margin-top: 0;">Un cliente ha cancelado su cita</h2>
             <p>El cliente <strong>${appointment.client_name}</strong> ha cancelado su cita de <strong>${serviceName}</strong> de forma autónoma.</p>
             <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
