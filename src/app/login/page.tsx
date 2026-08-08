@@ -12,6 +12,17 @@ export default async function LoginPage({
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
         <img src="/full-logo.png" alt="AgendaClick Logo" className="h-20 mx-auto mb-8 object-contain" />
         
+        <GoogleLoginButton action={loginWithGoogle} />
+
+        <div className="relative mb-6 mt-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500">O continúa con</span>
+          </div>
+        </div>
+        
         <label className="text-md" htmlFor="email">
           Correo Electrónico
         </label>
@@ -45,17 +56,6 @@ export default async function LoginPage({
         >
           Crear cuenta con correo
         </button>
-
-        <div className="relative mb-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-gray-500">O continúa con</span>
-          </div>
-        </div>
-
-        <GoogleLoginButton action={loginWithGoogle} />
 
         {params?.message && (
           <p className="mt-4 p-4 bg-red-50 text-red-600 rounded-md border border-red-100 text-center text-sm font-medium">
