@@ -6,6 +6,8 @@ import { startOfToday } from 'date-fns'
 import DashboardClient from './DashboardClient'
 import { requireActiveSubscription } from '@/utils/billingGuard'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardOverview() {
   await requireActiveSubscription()
   const supabase = await createClient()
@@ -118,7 +120,8 @@ export default async function DashboardOverview() {
       aptsQuery = aptsQuery.eq('staff_id', user.id)
     }
 
-    const { data: apts } = await aptsQuery
+    const { data: apts, error: aptsError } = await aptsQuery
+    console.log('[Dashboard Debug]', { clinicId, role: profile?.role, aptsCount: apts?.length, aptsError })
     if (apts) {
       appointments = apts
     }
