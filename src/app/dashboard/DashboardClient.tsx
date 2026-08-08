@@ -426,37 +426,36 @@ export default function DashboardClient({
 
       <motion.div variants={itemVariants} className="bg-white border border-gray-200 shadow-sm">
         <div className="p-6 border-b border-gray-200 space-y-4">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            {/* Título y Navegador de fecha */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <h2 className="text-xl font-bold tracking-tight">Calendario Maestro</h2>
-              
-              {/* Controles de navegación */}
-              <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-xl">
-                <button 
-                  onClick={handlePrev} 
-                  className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-600 hover:text-black"
-                  title="Anterior"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-xs font-bold px-2 capitalize min-w-[140px] text-center">
-                  {getPeriodLabel()}
-                </span>
-                <button 
-                  onClick={handleNext} 
-                  className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-600 hover:text-black"
-                  title="Siguiente"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => setCurrentDate(new Date())} 
-                  className="px-2.5 py-1 hover:bg-white rounded-lg transition-colors text-[10px] font-black uppercase text-gray-500 hover:text-black border border-transparent hover:border-gray-200"
-                >
-                  Hoy
-                </button>
-              </div>
+          {/* Fila 1: Título */}
+          <h2 className="text-xl font-bold tracking-tight">Calendario Maestro</h2>
+
+          {/* Fila 2: Navegación de fecha + Selector de vista */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            {/* Controles de navegación */}
+            <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-xl">
+              <button 
+                onClick={handlePrev} 
+                className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-600 hover:text-black"
+                title="Anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-bold px-2 capitalize min-w-[140px] text-center">
+                {getPeriodLabel()}
+              </span>
+              <button 
+                onClick={handleNext} 
+                className="p-1.5 hover:bg-white rounded-lg transition-colors text-gray-600 hover:text-black"
+                title="Siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setCurrentDate(new Date())} 
+                className="px-2.5 py-1 hover:bg-white rounded-lg transition-colors text-[10px] font-black uppercase text-gray-500 hover:text-black border border-transparent hover:border-gray-200"
+              >
+                Hoy
+              </button>
             </div>
 
             {/* Selector de vistas */}
@@ -480,44 +479,48 @@ export default function DashboardClient({
             </div>
           </div>
 
-          {/* Filtros de personal y Calamidad */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-gray-400 font-bold uppercase mr-1">Filtrar por Staff:</span>
+          {/* Fila 3: Botones de acción */}
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setIsBlockTimeModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-black text-white hover:bg-gray-800 rounded-full transition-colors"
+            >
+              <Clock className="w-3 h-3 text-white" /> Bloquear Horario
+            </button>
+            <button 
+              onClick={() => setIsEmergencyMode(true)}
+              className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
+            >
+              <AlertTriangle className="w-3 h-3" /> Calamidad / Emergencia
+            </button>
+          </div>
+
+          {/* Fila 4: Filtro por Staff — estilo igual al selector de vista */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-gray-400 font-bold uppercase mr-1">Filtrar por Staff:</span>
+            <div className="flex bg-gray-100 p-1 rounded-xl gap-1 flex-wrap">
               {uniqueStaff.map(staffName => {
                 const isSelected = selectedStaff === staffName
-                const isFaded = selectedStaff !== null && !isSelected
                 return (
                   <button 
                     key={staffName} 
                     onClick={() => setSelectedStaff(isSelected ? null : staffName)}
-                    className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${staffColors[staffName] || 'bg-gray-100 text-black'} ${isFaded ? 'opacity-30' : 'opacity-100 hover:scale-105'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      isSelected 
+                        ? 'bg-black text-white shadow-sm' 
+                        : 'text-gray-500 hover:text-black'
+                    }`}
                   >
                     {staffName}
                   </button>
                 )
               })}
-              {selectedStaff && (
-                <button onClick={() => setSelectedStaff(null)} className="px-2 py-1 text-xs text-gray-500 hover:text-black underline ml-2">
-                  Limpiar filtro
-                </button>
-              )}
             </div>
-
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setIsBlockTimeModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-black text-white hover:bg-gray-800 rounded-full transition-colors"
-              >
-                <Clock className="w-3 h-3 text-white" /> Bloquear Horario
+            {selectedStaff && (
+              <button onClick={() => setSelectedStaff(null)} className="px-2 py-1 text-xs text-gray-500 hover:text-black underline ml-1">
+                Limpiar filtro
               </button>
-              <button 
-                onClick={() => setIsEmergencyMode(true)}
-                className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
-              >
-                <AlertTriangle className="w-3 h-3" /> Calamidad / Emergencia
-              </button>
-            </div>
+            )}
           </div>
         </div>
         
