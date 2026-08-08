@@ -109,8 +109,7 @@ export default async function DashboardOverview() {
         status,
         services ( name ),
         profiles ( id, name ),
-        staff_id,
-        notes
+        staff_id
       `)
       .eq('clinic_id', clinicId)
       .gte('start_time', startOfYear)
