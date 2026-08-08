@@ -695,7 +695,7 @@ export default function DashboardClient({
               </div>
               
               <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <label className="text-xs font-black text-gray-400 uppercase block mb-1">Fecha y Hora</label>
                     <input 

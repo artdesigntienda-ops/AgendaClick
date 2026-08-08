@@ -322,10 +322,17 @@ export default function BookingClient({ clinic, services, professionals, appoint
             href={`https://www.google.com/maps/search/?api=1&query=${clinic.latitude},${clinic.longitude}`} 
             target="_blank" 
             rel="noreferrer"
-            className="flex items-center gap-1.5 mt-4 text-xs text-gray-300 hover:text-white transition-colors"
+            className="flex items-center gap-3 mt-4 text-left bg-white/10 hover:bg-white/20 border border-white/10 p-3 rounded-xl transition-colors mx-auto max-w-sm"
           >
-            <MapPin className="w-3.5 h-3.5" />
-            {clinic.address}
+            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <span className="block font-medium text-sm text-white">{clinic.address}</span>
+              <span className="text-[10px] uppercase tracking-wider text-blue-200 font-bold flex items-center gap-1 mt-0.5">
+                 Abrir en Google Maps <ArrowRight className="w-3 h-3" />
+              </span>
+            </div>
           </a>
         )}
 
