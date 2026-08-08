@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { notFound } from 'next/navigation'
 import BookingClient from './BookingClient'
 import ReCaptchaWrapper from './ReCaptchaWrapper'
@@ -37,6 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PublicClinicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   // Buscar el negocio por slug
   const { data: clinic, error: clinicError } = await supabase
@@ -64,7 +66,7 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
     .order('name', { ascending: true })
 
   // Buscar todas las citas activas de la clínica para filtrar disponibilidad y prevenir double bookings
-  const { data: appointments } = await supabase
+  const { data: appointments } = await adminClient
     .from('appointments')
     .select('start_time, end_time, staff_id')
     .eq('clinic_id', clinic.id)
