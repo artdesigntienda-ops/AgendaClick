@@ -66,12 +66,20 @@ export default function LandingPage() {
           className="space-y-8"
         >
           <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
-            Haz que tu negocio <span className="text-gray-500">brille con luz propia.</span>
+            AgendaClick
           </motion.h1>
+          <motion.h2 variants={fadeInUp} className="text-2xl lg:text-3xl font-semibold text-gray-600">
+            Haz que tu negocio <span className="text-gray-500">brille con luz propia.</span>
+          </motion.h2>
           
-          <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-lg leading-relaxed">
-            Libérate de contestar mensajes todo el día. Cuando un cliente busque <strong>Consultorios, Especialistas, Spas o Centros de Estética</strong> cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick. ¡Sé el mejor de Colombia!
-          </motion.p>
+          <motion.div variants={fadeInUp} className="space-y-4">
+            <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
+              <strong>El propósito de AgendaClick es ser el sistema central de reservas para tu negocio.</strong> Permite a tus clientes agendar citas online 24/7 y sincroniza automáticamente todas las reservas con tu <strong>Google Calendar</strong> personal y el de tus empleados, evitando cruces de horarios.
+            </p>
+            <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
+              Libérate de contestar mensajes todo el día. Cuando un cliente busque Consultorios, Especialistas, Spas o Centros de Estética cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick.
+            </p>
+          </motion.div>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
             <Link href="/login" className="flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-0.5">

@@ -17,8 +17,8 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://agendaclick.com.co";
 
 // 1. SEO Base Fuerte
 export const metadata: Metadata = {
-  title: "AgendaClick | Software de Agendamiento Online",
-  description: "Automatiza tus reservas 24/7 con AgendaClick. Agenda inteligente, control de empleados, CRM y recordatorios automáticos para negocios en Colombia.",
+  title: "AgendaClick",
+  description: "AgendaClick es una aplicación que permite a los negocios gestionar sus reservas y sincronizarlas automáticamente con Google Calendar.",
   keywords: ["software de citas", "agendamiento de turnos", "gestión de clínicas", "software estética", "agendamiento colombia", "SaaS citas", "reservas online"],
   authors: [{ name: "AgendaClick" }],
   metadataBase: new URL(siteUrl),
