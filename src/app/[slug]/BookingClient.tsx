@@ -8,7 +8,8 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse, startOfMonth, getDaysInMonth, addMonths, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, Brain, Smile, Activity, Stethoscope, Heart, Leaf, Sparkles, Scissors, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { getSegmentConfig } from '@/lib/segment-icons'
 import { createAppointment, sendOtpCode } from './actions'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
@@ -324,14 +325,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
             <p className="mt-2 text-sm italic" style={{ opacity: 0.85 }}>{clinic.slogan}</p>
           ) : (
             <p className="mt-2 text-xs uppercase tracking-widest font-semibold" style={{ opacity: 0.85 }}>
-              {clinic.business_type === 'belleza' && '💅 Estética y Belleza'}
-              {clinic.business_type === 'bienestar' && '🧘 Spas y Bienestar'}
-              {clinic.business_type === 'salud' && '🏥 Clínica y Salud'}
-              {clinic.business_type === 'psicologia' && '🧠 Psicología y Terapia'}
-              {clinic.business_type === 'odontologia' && '🦷 Odontología y Ortodoncia'}
-              {clinic.business_type === 'quiropractica' && '🦴 Quiropráctica y Masajes'}
-              {clinic.business_type === 'medicina_general' && '🩺 Consulta Médica y Especialistas'}
-              {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && clinic.business_type}
+              {(() => { const sc = getSegmentConfig(clinic.business_type); return `${sc.emoji} ${sc.displayName}`; })()}
             </p>
           )}
           
@@ -403,14 +397,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-brand group-hover:text-white transition-colors">
-                        {clinic.business_type === 'psicologia' && <Brain className="w-5 h-5" />}
-                        {clinic.business_type === 'odontologia' && <Smile className="w-5 h-5" />}
-                        {clinic.business_type === 'quiropractica' && <Activity className="w-5 h-5" />}
-                        {clinic.business_type === 'medicina_general' && <Stethoscope className="w-5 h-5" />}
-                        {clinic.business_type === 'salud' && <Heart className="w-5 h-5" />}
-                        {clinic.business_type === 'bienestar' && <Leaf className="w-5 h-5" />}
-                        {clinic.business_type === 'belleza' && <Scissors className="w-5 h-5" />}
-                        {!['belleza', 'bienestar', 'salud', 'psicologia', 'odontologia', 'quiropractica', 'medicina_general'].includes(clinic.business_type) && <Sparkles className="w-5 h-5" />}
+                        {(() => { const ServiceIcon = getSegmentConfig(clinic.business_type).serviceItemIcon; return <ServiceIcon className="w-5 h-5" />; })()}
                       </div>
                       <div>
                         <h3 className="font-medium group-hover:text-brand">{service.name}</h3>

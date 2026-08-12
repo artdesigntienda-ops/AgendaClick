@@ -486,6 +486,11 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               <option value="odontologia">🦷 Odontología y Ortodoncia (Limpiezas, Estética Dental)</option>
               <option value="quiropractica">🦴 Quiropráctica y Masajes Terapéuticos</option>
               <option value="medicina_general">🩺 Consulta Médica y Especialistas</option>
+              <option value="deportes">🏆 Deportes y Canchas (Sintéticas, Tenis, Pádel, Squash)</option>
+              <option value="automotriz">🚗 Automotriz y Carga Eléctrica (Lavaderos, Talleres, Estaciones)</option>
+              <option value="educacion">🎓 Educación y Clases (Tutorías, Idiomas, Autoescuelas, Música)</option>
+              <option value="mascotas">🐾 Mascotas y Veterinarias (Peluquería Canina, Guardería)</option>
+              <option value="profesional">💼 Servicios Profesionales (Abogados, Fotógrafos, Tatuadores, Consultoría)</option>
             </select>
           </div>
 

@@ -77,14 +77,14 @@ export default async function DashboardLayout({
   if (!clinicId && profile?.role === 'owner') {
     const { data } = await supabase
       .from('clinics')
-      .select('name, slug')
+      .select('name, slug, business_type')
       .eq('owner_id', user.id)
       .maybeSingle()
     clinic = data
   } else if (clinicId) {
     const { data } = await supabase
       .from('clinics')
-      .select('name, slug')
+      .select('name, slug, business_type')
       .eq('id', clinicId)
       .maybeSingle()
     clinic = data
@@ -103,7 +103,7 @@ export default async function DashboardLayout({
       <TopNavbar profile={profile} />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar clinic={clinic} role={profile?.role as 'owner' | 'staff'} />
+        <Sidebar clinic={clinic} role={profile?.role as 'owner' | 'staff'} businessType={clinic?.business_type} />
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto bg-[#fafafa]">

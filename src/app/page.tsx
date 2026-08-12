@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot, Shield, User, XCircle, Stethoscope } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot, Shield, User, XCircle, Stethoscope, Trophy, Car, GraduationCap, PawPrint } from 'lucide-react'
 
 // Variantes de animación para hacer la página fluida y elegante
 const fadeInUp = {
@@ -77,7 +77,7 @@ export default function LandingPage() {
               <strong>El propósito de AgendaClick es ser el sistema central de reservas para tu negocio.</strong> Permite a tus clientes agendar citas online 24/7 y sincroniza automáticamente todas las reservas con tu <strong>Google Calendar</strong> personal y el de tus empleados, evitando cruces de horarios.
             </p>
             <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-              Libérate de contestar mensajes todo el día. Cuando un cliente busque Consultorios, Especialistas, Spas o Centros de Estética cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick.
+              Libérate de contestar mensajes todo el día. Cuando un cliente busque Canchas Sintéticas, Consultorios, Spas, Centros de Estética o Estaciones de Carga cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick.
             </p>
           </motion.div>
           
@@ -176,8 +176,8 @@ export default function LandingPage() {
             variants={fadeInUp}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">Creado para Profesionales y Negocios de Servicios</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">Entendemos que tu tiempo es valioso. Tu sistema de reservas debe ser tan eficiente y profesional como el servicio que ofreces a tus clientes.</p>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-gray-900">Creado para Todo Negocio que Trabaje con Citas o Reservas</h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">Si tu negocio necesita que los clientes reserven un horario, AgendaClick es para ti. Desde canchas sintéticas hasta consultorios médicos, automatizamos tu agenda.</p>
           </motion.div>
           
           <motion.div 
@@ -185,13 +185,17 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {[
               { icon: Sparkles, title: "Belleza y Cuidado", desc: "Barberías, spas, salones de uñas y centros de estética. Mantén tu agenda llena sin estrés." },
-              { icon: Heart, title: "Salud y Bienestar", desc: "Fisioterapeutas, centros de yoga, nutricionistas y terapias alternativas. Gestiona citas sin fricciones." },
+              { icon: Trophy, title: "Deportes y Canchas", desc: "Canchas sintéticas, canchas de tenis, pádel, squash y centros deportivos. Que reserven su turno online." },
               { icon: Stethoscope, title: "Medicina y Consulta", desc: "Consultorios de odontología, psicología, quiropráctica, medicina general y especialistas. Privacidad y confianza." },
-              { icon: User, title: "Servicios Profesionales", desc: "Asesorías, abogados, consultorías, entrenadores personales y clases privadas. Profesionaliza tu marca." }
+              { icon: Car, title: "Automotriz y Carga", desc: "Estaciones de carga eléctrica, lavaderos de autos, talleres mecánicos y centros de revisión técnica." },
+              { icon: Heart, title: "Salud y Bienestar", desc: "Fisioterapeutas, centros de yoga, nutricionistas y terapias alternativas. Gestiona citas sin fricciones." },
+              { icon: GraduationCap, title: "Educación y Clases", desc: "Tutorías, clases de idiomas, autoescuelas, academias de música y clases particulares. Organiza tu agenda." },
+              { icon: PawPrint, title: "Mascotas", desc: "Veterinarias, peluquerías caninas, guarderías de mascotas y entrenadores. Tus clientes peludos también merecen orden." },
+              { icon: User, title: "Servicios Profesionales", desc: "Asesorías, abogados, consultorías, fotógrafos, tatuadores y entrenadores personales. Profesionaliza tu marca." }
             ].map((item, i) => (
               <motion.div key={i} variants={fadeInUp} className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-6">

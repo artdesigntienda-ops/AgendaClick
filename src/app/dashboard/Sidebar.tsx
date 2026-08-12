@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Calendar, Scissors, Settings, LogOut, Users, Menu, X, DollarSign, HeartHandshake, Copy, CreditCard } from 'lucide-react'
+import { Calendar, Settings, LogOut, Users, Menu, X, DollarSign, Copy, CreditCard } from 'lucide-react'
 import { toast } from 'sonner'
+import { getSegmentConfig } from '@/lib/segment-icons'
 
-export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' | 'staff' }) {
+export default function Sidebar({ clinic, role, businessType }: { clinic: any, role: 'owner' | 'staff', businessType?: string }) {
   const [isOpen, setIsOpen] = useState(false)
   const [domain, setDomain] = useState('agendaclick.com')
+  const segmentConfig = getSegmentConfig(businessType)
 
   useEffect(() => {
     setDomain(window.location.host)
@@ -133,8 +135,8 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
             Agenda Maestra
           </Link>
           <Link id="tour-clients" onClick={() => setIsOpen(false)} href="/dashboard/clients" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-            <HeartHandshake className="w-4 h-4" />
-            Clientas (CRM)
+            <segmentConfig.clientsIcon className="w-4 h-4" />
+            {segmentConfig.clientLabel}
           </Link>
           <Link id="tour-finances" onClick={() => setIsOpen(false)} href="/dashboard/finances" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
             <DollarSign className="w-4 h-4" />
@@ -144,8 +146,8 @@ export default function Sidebar({ clinic, role }: { clinic: any, role: 'owner' |
           {role === 'owner' && (
             <>
               <Link id="tour-services" onClick={() => setIsOpen(false)} href="/dashboard/services" className="animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
-                <Scissors className="w-4 h-4" />
-                Servicios
+                <segmentConfig.servicesIcon className="w-4 h-4" />
+                {segmentConfig.serviceLabel}
               </Link>
               <Link id="tour-staff" onClick={() => setIsOpen(false)} href="/dashboard/staff" className="animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
                 <Users className="w-4 h-4" />
