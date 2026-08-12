@@ -405,6 +405,92 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
         </div>
       </div>
       <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">🎨 Personaliza tu Dashboard</h2>
+        <p className="text-sm text-gray-500 mb-4">Cambia los colores de la barra lateral de tu panel de administración. Estos colores solo los verás tú y tu equipo.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fondo de la Barra Lateral</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="sidebar_color" 
+                defaultValue={clinic?.sidebar_color || '#111827'}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500">Oscuro por defecto</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Texto e Iconos del Sidebar</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="sidebar_text_color" 
+                defaultValue={clinic?.sidebar_text_color || '#9ca3af'}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500">Gris claro por defecto</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color de Acento (Hover)</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="dashboard_accent_color" 
+                defaultValue={clinic?.dashboard_accent_color || '#10b981'}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500">Para elementos activos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">🌐 Personaliza tu Página de Reservas</h2>
+        <p className="text-sm text-gray-500 mb-4">Personaliza los colores de la página que ven tus clientes cuando van a agendar una cita.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color de Fondo</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="booking_bg_color" 
+                defaultValue={clinic?.booking_bg_color || '#f9fafb'}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500">Gris muy claro</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color del Texto</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="booking_text_color" 
+                defaultValue={clinic?.booking_text_color || '#111827'}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500">Oscuro por defecto</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color de Tarjetas</label>
+            <div className="flex items-center gap-3">
+              <input 
+                type="color" 
+                name="booking_card_color" 
+                defaultValue={clinic?.booking_card_color || '#ffffff'}
+                className="w-12 h-10 border border-gray-300 rounded-md cursor-pointer bg-transparent"
+              />
+              <span className="text-xs text-gray-500">Blanco por defecto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-b pb-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">Horario de Atención</h2>
         <div className="bg-white">
           <ScheduleManager initialSchedule={clinic?.schedule} />

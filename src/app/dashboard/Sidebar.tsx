@@ -6,10 +6,19 @@ import { Calendar, Settings, LogOut, Users, Menu, X, DollarSign, Copy, CreditCar
 import { toast } from 'sonner'
 import { getSegmentConfig } from '@/lib/segment-icons'
 
-export default function Sidebar({ clinic, role, businessType }: { clinic: any, role: 'owner' | 'staff', businessType?: string }) {
+export default function Sidebar({ clinic, role, businessType, themeColors }: { 
+  clinic: any, 
+  role: 'owner' | 'staff', 
+  businessType?: string,
+  themeColors?: { sidebarColor?: string, sidebarTextColor?: string, accentColor?: string }
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [domain, setDomain] = useState('agendaclick.com')
   const segmentConfig = getSegmentConfig(businessType)
+
+  const sidebarBg = themeColors?.sidebarColor || '#ffffff'
+  const sidebarText = themeColors?.sidebarTextColor || '#374151'
+  const accentColor = themeColors?.accentColor || '#000000'
 
   useEffect(() => {
     setDomain(window.location.host)
@@ -36,11 +45,20 @@ export default function Sidebar({ clinic, role, businessType }: { clinic: any, r
       )}
 
       {/* Sidebar Content */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-black/10 flex flex-col transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:relative md:translate-x-0
-      `}>
+      <aside 
+        className={`
+          fixed inset-y-0 left-0 z-40 w-64 border-r border-black/10 flex flex-col transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:relative md:translate-x-0
+        `}
+        style={{ backgroundColor: sidebarBg, color: sidebarText }}
+      >
+        <style>{`
+          .sidebar-link:hover {
+            background-color: ${accentColor} !important;
+            color: white !important;
+          }
+        `}</style>
         <div className="p-6 border-b border-black/10 hidden md:block text-center">
           
           <div className="flex flex-col items-center justify-center mb-6">
@@ -51,11 +69,11 @@ export default function Sidebar({ clinic, role, businessType }: { clinic: any, r
                 {clinic?.name?.charAt(0) || 'N'}
               </div>
             )}
-            <p className="text-sm text-black font-black uppercase tracking-wide">
+            <p className="text-sm font-black uppercase tracking-wide">
               {clinic?.name || 'Mi Negocio'}
             </p>
             {clinic?.slogan && (
-              <p className="text-xs text-gray-500 mt-1 italic">
+              <p className="text-xs opacity-60 mt-1 italic">
                 {clinic.slogan}
               </p>
             )}
@@ -126,34 +144,34 @@ export default function Sidebar({ clinic, role, businessType }: { clinic: any, r
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <Link id="tour-settings" onClick={() => setIsOpen(false)} href="/dashboard/settings" className="animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-settings" onClick={() => setIsOpen(false)} href="/dashboard/settings" className="sidebar-link animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
             <Settings className="w-4 h-4" />
             {clinic?.slug ? 'Editar Perfil' : 'Crear Perfil'}
           </Link>
-          <Link id="tour-calendar" onClick={() => setIsOpen(false)} href="/dashboard" className="animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-calendar" onClick={() => setIsOpen(false)} href="/dashboard" className="sidebar-link animate-fade-in-right anim-delay-100 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
             <Calendar className="w-4 h-4" />
             Agenda Maestra
           </Link>
-          <Link id="tour-clients" onClick={() => setIsOpen(false)} href="/dashboard/clients" className="animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-clients" onClick={() => setIsOpen(false)} href="/dashboard/clients" className="sidebar-link animate-fade-in-right anim-delay-400 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
             <segmentConfig.clientsIcon className="w-4 h-4" />
             {segmentConfig.clientLabel}
           </Link>
-          <Link id="tour-finances" onClick={() => setIsOpen(false)} href="/dashboard/finances" className="animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+          <Link id="tour-finances" onClick={() => setIsOpen(false)} href="/dashboard/finances" className="sidebar-link animate-fade-in-right anim-delay-500 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
             <DollarSign className="w-4 h-4" />
             Finanzas
           </Link>
 
           {role === 'owner' && (
             <>
-              <Link id="tour-services" onClick={() => setIsOpen(false)} href="/dashboard/services" className="animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+              <Link id="tour-services" onClick={() => setIsOpen(false)} href="/dashboard/services" className="sidebar-link animate-fade-in-right anim-delay-200 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
                 <segmentConfig.servicesIcon className="w-4 h-4" />
                 {segmentConfig.serviceLabel}
               </Link>
-              <Link id="tour-staff" onClick={() => setIsOpen(false)} href="/dashboard/staff" className="animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+              <Link id="tour-staff" onClick={() => setIsOpen(false)} href="/dashboard/staff" className="sidebar-link animate-fade-in-right anim-delay-300 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
                 <Users className="w-4 h-4" />
                 Profesionales
               </Link>
-              <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none hover:bg-black hover:text-white transition-colors duration-200">
+              <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="sidebar-link animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
                 <CreditCard className="w-4 h-4" />
                 Facturación
               </Link>
@@ -162,12 +180,12 @@ export default function Sidebar({ clinic, role, businessType }: { clinic: any, r
         </nav>
 
         {/* Branding Sidebar Footer */}
-        <div className="p-4 border-t border-black/10 text-center">
-          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">
+        <div className="p-4 border-t text-center" style={{ borderColor: sidebarText + '1a' }}>
+          <p className="text-[10px] opacity-40 uppercase tracking-widest font-semibold">
             AgendaClick
           </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">
-            Una solución de <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">ArtDesign</a>
+          <p className="text-[10px] opacity-40 mt-0.5">
+            Una solución de <a href="https://artdesigntienda.vercel.app/software" target="_blank" rel="noreferrer" className="font-bold hover:opacity-100 transition-opacity">ArtDesign</a>
           </p>
         </div>
       </aside>

@@ -72,6 +72,12 @@ export default async function SettingsPage() {
     const brandColor = formData.get('brand_color') as string || '#10b981'
     const headerTextColor = formData.get('header_text_color') as string || '#ffffff'
     const fontFamily = formData.get('font_family') as string || 'Outfit'
+    const sidebarColor = formData.get('sidebar_color') as string || '#111827'
+    const sidebarTextColor = formData.get('sidebar_text_color') as string || '#9ca3af'
+    const dashboardAccentColor = formData.get('dashboard_accent_color') as string || '#10b981'
+    const bookingBgColor = formData.get('booking_bg_color') as string || '#f9fafb'
+    const bookingTextColor = formData.get('booking_text_color') as string || '#111827'
+    const bookingCardColor = formData.get('booking_card_color') as string || '#ffffff'
     
     // Parse schedule
     let schedule = null
@@ -165,7 +171,13 @@ export default async function SettingsPage() {
       longitude,
       brand_color: brandColor,
       header_text_color: headerTextColor,
-      font_family: fontFamily
+      font_family: fontFamily,
+      sidebar_color: sidebarColor,
+      sidebar_text_color: sidebarTextColor,
+      dashboard_accent_color: dashboardAccentColor,
+      booking_bg_color: bookingBgColor,
+      booking_text_color: bookingTextColor,
+      booking_card_color: bookingCardColor
     }
 
     if (existingClinic?.id) {

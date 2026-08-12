@@ -77,14 +77,14 @@ export default async function DashboardLayout({
   if (!clinicId && profile?.role === 'owner') {
     const { data } = await supabase
       .from('clinics')
-      .select('name, slug, business_type')
+      .select('name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
       .eq('owner_id', user.id)
       .maybeSingle()
     clinic = data
   } else if (clinicId) {
     const { data } = await supabase
       .from('clinics')
-      .select('name, slug, business_type')
+      .select('name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
       .eq('id', clinicId)
       .maybeSingle()
     clinic = data
@@ -103,7 +103,16 @@ export default async function DashboardLayout({
       <TopNavbar profile={profile} />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar clinic={clinic} role={profile?.role as 'owner' | 'staff'} businessType={clinic?.business_type} />
+        <Sidebar 
+          clinic={clinic} 
+          role={profile?.role as 'owner' | 'staff'} 
+          businessType={clinic?.business_type}
+          themeColors={{
+            sidebarColor: clinic?.sidebar_color,
+            sidebarTextColor: clinic?.sidebar_text_color,
+            accentColor: clinic?.dashboard_accent_color,
+          }}
+        />
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto bg-[#fafafa]">

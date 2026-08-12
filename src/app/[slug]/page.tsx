@@ -127,7 +127,7 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center" style={{ backgroundColor: clinic.booking_bg_color || '#f9fafb' }}>
         <div className="w-full max-w-lg">
           <ReCaptchaWrapper siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}>
             <BookingClient 

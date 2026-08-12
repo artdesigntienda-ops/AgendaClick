@@ -253,12 +253,15 @@ export default function BookingClient({ clinic, services, professionals, appoint
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto bg-white text-black rounded-2xl shadow-xl overflow-hidden border">
+    <div className="w-full max-w-lg mx-auto rounded-2xl shadow-xl overflow-hidden border" style={{ backgroundColor: 'var(--booking-card, #ffffff)', color: 'var(--booking-text, #111827)' }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=${(clinic.font_family || 'Outfit').replace(/ /g, '+')}:wght@300;400;500;700;900&display=swap');
         :root {
           --brand-color: ${clinic.brand_color || '#10b981'};
           --font-family: '${clinic.font_family || 'Outfit'}', sans-serif;
+          --booking-bg: ${clinic.booking_bg_color || '#f9fafb'};
+          --booking-text: ${clinic.booking_text_color || '#111827'};
+          --booking-card: ${clinic.booking_card_color || '#ffffff'};
         }
         .bg-brand {
           background-color: var(--brand-color) !important;
