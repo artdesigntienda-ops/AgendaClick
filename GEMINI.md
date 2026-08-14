@@ -49,6 +49,11 @@ Invoke-RestMethod -Uri "https://api.resend.com/domains" -Headers @{ "Authorizati
 
 ---
 
+## 🚀 Tareas Pendientes y Roadmap Futuro
+* [ ] **Sincronización con Google My Business (Google Business Profile):** Permitir a los dueños de negocios vincular su ficha de Google Maps directamente desde el dashboard de AgendaClick para sincronizar citas, reseñas y enlaces automáticos. *(Recordatorio guardado para implementar al finalizar el alta en directorios).*
+
+---
+
 ## 🛠️ Arquitectura y Tecnologías
 1.  **Frontend/Backend:** Next.js (App Router, Versión 16+ con Turbopack y compilación asíncrona de `params` en rutas dinámicas).
 2.  **Base de Datos:** Supabase (PostgreSQL) con Row Level Security (RLS).
