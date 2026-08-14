@@ -19,7 +19,7 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://agendaclick.com.co";
 export const metadata: Metadata = {
   title: "AgendaClick",
   description: "AgendaClick es una aplicación que permite a los negocios gestionar sus reservas y sincronizarlas automáticamente con Google Calendar.",
-  keywords: ["software de citas", "agendamiento de turnos", "gestión de clínicas", "software estética", "agendamiento colombia", "SaaS citas", "reservas online", "reservar cancha sintética", "agendar cancha de fútbol", "citas veterinaria online", "agendar carga vehículo eléctrico", "reservar clases particulares", "software agendamiento deportivo", "citas médicas online colombia", "agenda peluquería", "reservar turno barbería"],
+  keywords: ["software de citas", "agendamiento de turnos", "gestión de clínicas", "software estética", "agendamiento colombia", "SaaS citas", "reservas online", "documentación agendamiento", "tutoriales software citas", "academia de ventas whatsapp", "reservar cancha sintética", "agendar cancha de fútbol", "citas veterinaria online", "agendar carga vehículo eléctrico", "reservar clases particulares", "software agendamiento deportivo", "citas médicas online colombia", "agenda peluquería", "reservar turno barbería"],
   authors: [{ name: "AgendaClick" }],
   metadataBase: new URL(siteUrl),
   alternates: {

@@ -42,6 +42,7 @@ export default function LandingPage() {
             <a href="#segmentos" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Segmentos</a>
             <a href="#funciones" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Características</a>
             <a href="#precios" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Planes</a>
+            <Link href="/documentacion" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Documentación</Link>
           </div>
 
           <div className="flex items-center gap-4">
@@ -519,6 +520,7 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="flex gap-6 text-sm font-medium">
+            <Link href="/documentacion" className="text-gray-500 hover:text-black transition-colors font-semibold">Documentación</Link>
             <Link href="/terminos" className="text-gray-500 hover:text-black transition-colors">Términos Legales</Link>
             <Link href="/privacidad" className="text-gray-500 hover:text-black transition-colors">Privacidad</Link>
           </div>
