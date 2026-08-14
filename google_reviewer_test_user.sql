@@ -1,0 +1,27 @@
+-- =============================================================================
+-- USUARIO DE PRUEBA PARA REVISORES DE GOOGLE OAUTH VERIFICATION
+-- =============================================================================
+-- Este usuario fue creado con la API Admin de Supabase para que los
+-- revisores de Google puedan verificar la pantalla de consentimiento OAuth
+-- de AgendaClick sin necesidad de crear una cuenta nueva.
+--
+-- CREDENCIALES:
+--   URL de Login:  https://www.agendaclick.com.co/login
+--   Email:         reviewer@agendaclick.com.co
+--   Contraseña:    GoogleReview2026!
+--
+-- NEGOCIO DEMO:
+--   Nombre:        Demo Salón & Spa
+--   Slug:          demo-google-reviewer
+--   URL Pública:   https://www.agendaclick.com.co/demo-google-reviewer
+--
+-- FUNCIONALIDADES DISPONIBLES:
+--   1. Iniciar sesión con email/contraseña en /login
+--   2. Acceder al Dashboard de administración (/dashboard)
+--   3. Ver citas, servicios y configuración del negocio
+--   4. Vincular Google Calendar (flujo OAuth que requiere verificación)
+--   5. Ver la página pública de reservas del negocio demo
+--
+-- NOTA: Este usuario fue creado vía Supabase Admin API (Node.js).
+--       Este archivo SQL es solo documentación de referencia.
+-- =============================================================================
