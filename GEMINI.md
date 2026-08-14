@@ -39,7 +39,10 @@ Invoke-RestMethod -Uri "https://api.resend.com/domains" -Headers @{ "Authorizati
 ---
 
 ## 📋 Información General del Negocio
-*   **Dueño/Administrador principal:** Dr. Jaison Rodríguez (`j4150nrodriguez@gmail.com`)
+*   **Dueño/Administrador principal:** Dr. Jaison Rodríguez
+*   **Correo Corporativo / Institucional:** `jrodriguez0639@soy.sena.edu.co`
+*   **Correo Personal Principal:** `jaisonrodriguez@gmail.com`
+*   **Correo Alternativo:** `j4150nrodriguez@gmail.com`
 *   **Dominio principal:** [agendaclick.com.co](https://www.agendaclick.com.co/)
 *   **Dominio Vercel:** [agendaclick.vercel.app](https://agendaclick.vercel.app/)
 *   **Repositorio GitHub:** `github.com/artdesigntienda-ops/AgendaClick`
