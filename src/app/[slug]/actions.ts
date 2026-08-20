@@ -202,10 +202,10 @@ export async function createAppointment(data: {
   // Borramos el OTP que ya se usó para evitar reusos (fire and forget)
   getSupabaseAdmin().from('otp_verifications').delete().eq('id', verifications[0].id).then()
 
-  // 3. Obtener info adicional (correo del dueño y nombre del servicio) para el email
+  // 3. Obtener info de la clínica y del dueño / profesional
   const { data: clinicInfo } = await supabase
     .from('clinics')
-    .select('name, profiles(email, google_refresh_token, google_calendar_id)')
+    .select('name, owner_id')
     .eq('id', data.clinicId)
     .maybeSingle()
 
@@ -218,6 +218,29 @@ export async function createAppointment(data: {
   const serviceName = data.serviceNames || serviceInfo?.name || 'Cita'
   const clinicName = clinicInfo?.name || 'AgendaClick'
   
+  // Buscar el perfil adecuado (profesional asignado o dueño de la clínica) que tenga Google Calendar conectado
+  let targetProfile: any = null
+
+  if (data.staffId) {
+    const { data: staffProf } = await supabase
+      .from('profiles')
+      .select('email, google_refresh_token, google_calendar_id')
+      .eq('id', data.staffId)
+      .maybeSingle()
+    if (staffProf?.google_refresh_token) {
+      targetProfile = staffProf
+    }
+  }
+
+  if (!targetProfile && clinicInfo?.owner_id) {
+    const { data: ownerProf } = await supabase
+      .from('profiles')
+      .select('email, google_refresh_token, google_calendar_id')
+      .eq('id', clinicInfo.owner_id)
+      .maybeSingle()
+    targetProfile = ownerProf
+  }
+
   // Generar archivo de calendario (.ics)
   const appointmentUid = `${Date.now()}@agendaclick.com`
   const icsContent = generateICS(
@@ -238,10 +261,9 @@ export async function createAppointment(data: {
   const formattedDate = format(new Date(data.startTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
   
   // Extraemos tokens de google si existen
-  const ownerProfile = (clinicInfo?.profiles as any)?.[0] || (clinicInfo?.profiles as any)
-  const ownerEmail = ownerProfile?.email || null
-  const googleRefreshToken = ownerProfile?.google_refresh_token || null
-  const googleCalendarId = ownerProfile?.google_calendar_id || null
+  const ownerEmail = targetProfile?.email || null
+  const googleRefreshToken = targetProfile?.google_refresh_token || null
+  const googleCalendarId = targetProfile?.google_calendar_id || null
 
   try {
     // 3.5. Crear evento en Google Calendar si el dueño tiene la integración activa
