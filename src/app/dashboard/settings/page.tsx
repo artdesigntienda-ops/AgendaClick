@@ -101,6 +101,24 @@ export default async function SettingsPage() {
         console.error('Error parsing vehicle_brands', e)
       }
     }
+
+    // Legal information, Terms and Habeas Data
+    const legalBusinessName = formData.get('legal_business_name') as string
+    const legalNit = formData.get('legal_nit') as string
+    const legalTermsUrl = formData.get('legal_terms_url') as string
+    const legalPrivacyUrl = formData.get('legal_privacy_url') as string
+    const legalCustomTermsText = formData.get('legal_custom_terms_text') as string
+    const legalDataPolicy = formData.get('legal_data_policy') as string
+
+    schedule = schedule || (existingClinic?.schedule as any) || {}
+    schedule.legal = {
+      business_legal_name: legalBusinessName?.trim() || null,
+      nit: legalNit?.trim() || null,
+      terms_url: legalTermsUrl?.trim() || null,
+      privacy_url: legalPrivacyUrl?.trim() || null,
+      custom_terms_text: legalCustomTermsText?.trim() || null,
+      data_treatment_policy: legalDataPolicy?.trim() || null,
+    }
     
     // Dual Role (Owner as professional)
     const isBookable = formData.get('is_bookable') === 'on'

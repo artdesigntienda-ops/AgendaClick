@@ -792,6 +792,103 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
         </div>
       </div>
 
+      {/* Sección de Información Legal, Términos del Servicio y Habeas Data */}
+      <div className="border-b pb-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-2">⚖️ Información Legal, Términos y Habeas Data</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Configura los términos de servicio, política de privacidad y tratamiento de datos de tu empresa para cumplir con la normativa legal (Ley 1581 de Habeas Data, SIC y transparencia con el consumidor).
+        </p>
+
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
+          {/* Razón Social y NIT */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Razón Social / Nombre Legal de la Empresa <span className="text-gray-400 font-normal">(Opcional)</span>
+              </label>
+              <input
+                name="legal_business_name"
+                defaultValue={clinic?.schedule?.legal?.business_legal_name || ''}
+                placeholder="Ej. Grupo Motor K S.A.S. o Juan Pérez"
+                className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                NIT / Identificación Tributaria <span className="text-gray-400 font-normal">(Opcional)</span>
+              </label>
+              <input
+                name="legal_nit"
+                defaultValue={clinic?.schedule?.legal?.nit || ''}
+                placeholder="Ej. 901.234.567-8"
+                className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
+              />
+            </div>
+          </div>
+
+          {/* Enlaces externos a Términos y Política de Privacidad */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Enlace a tus Términos y Condiciones <span className="text-gray-400 font-normal">(URL externa)</span>
+              </label>
+              <input
+                type="url"
+                name="legal_terms_url"
+                defaultValue={clinic?.schedule?.legal?.terms_url || ''}
+                placeholder="https://tuempresa.com/terminos"
+                className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Enlace a tu Política de Privacidad / Habeas Data <span className="text-gray-400 font-normal">(URL externa)</span>
+              </label>
+              <input
+                type="url"
+                name="legal_privacy_url"
+                defaultValue={clinic?.schedule?.legal?.privacy_url || ''}
+                placeholder="https://tuempresa.com/privacidad"
+                className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
+              />
+            </div>
+          </div>
+
+          {/* Texto directo de Términos / Condiciones de Servicio y Cancelación */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
+              Términos del Servicio y Políticas de Cancelación <span className="text-gray-400 font-normal">(Texto directo para tus clientes)</span>
+            </label>
+            <textarea
+              name="legal_custom_terms_text"
+              rows={3}
+              defaultValue={clinic?.schedule?.legal?.custom_terms_text || ''}
+              placeholder="Ej. Las citas deben cancelarse con al menos 2 horas de anticipación. El cliente debe presentarse 10 minutos antes. Garantía de 3 meses en reparaciones..."
+              className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
+            />
+            <p className="text-[11px] text-gray-500 mt-1">
+              Si no tienes una página web externa, redacta aquí tus condiciones y tus clientes podrán consultarlas antes de agendar.
+            </p>
+          </div>
+
+          {/* Cláusula de Tratamiento de Datos Personales / Habeas Data */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
+              Autorización de Tratamiento de Datos Personales (Habeas Data)
+            </label>
+            <textarea
+              name="legal_data_policy"
+              rows={2}
+              defaultValue={clinic?.schedule?.legal?.data_treatment_policy || ''}
+              placeholder="Ej. Al agendar, autorizo el tratamiento de mis datos personales (nombre, teléfono, correo y placa vehicular) conforme a la Ley 1581 de 2012 de Colombia para la gestión y confirmación de la cita."
+              className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="border-b pb-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">Redes Sociales (Firma para Correos)</h2>
         <p className="text-sm text-gray-500 mb-4">Estos enlaces se incluirán en los correos de confirmación de citas invitando a tus clientes a seguirte.</p>
