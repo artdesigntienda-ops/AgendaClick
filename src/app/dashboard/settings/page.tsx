@@ -52,7 +52,7 @@ export default async function SettingsPage() {
 
     const { data: existingClinic } = await supabase
       .from('clinics')
-      .select('id, logo_url, cover_image_url')
+      .select('id, logo_url, cover_image_url, schedule')
       .eq('owner_id', user.id)
       .maybeSingle()
 
@@ -80,13 +80,25 @@ export default async function SettingsPage() {
     const bookingCardColor = formData.get('booking_card_color') as string || '#ffffff'
     
     // Parse schedule
-    let schedule = null
+    let schedule: any = null
     const scheduleRaw = formData.get('schedule') as string
     if (scheduleRaw) {
       try {
         schedule = JSON.parse(scheduleRaw)
       } catch (e) {
         console.error('Error parsing schedule', e)
+      }
+    }
+
+    // Vehicle brands for automotive segments
+    const vehicleBrandsRaw = formData.get('vehicle_brands') as string
+    if (vehicleBrandsRaw) {
+      try {
+        const parsedBrands = JSON.parse(vehicleBrandsRaw)
+        schedule = schedule || (existingClinic?.schedule as any) || {}
+        schedule.vehicle_brands = parsedBrands
+      } catch (e) {
+        console.error('Error parsing vehicle_brands', e)
       }
     }
     

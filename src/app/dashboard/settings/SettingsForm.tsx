@@ -72,6 +72,42 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
   const [isSavingStaff, setIsSavingStaff] = useState(false)
   const [isDisconnectingCalendar, setIsDisconnectingCalendar] = useState(false)
 
+  const [selectedCategory, setSelectedCategory] = useState(clinic?.business_type || 'belleza')
+  const [brands, setBrands] = useState<string[]>(() => {
+    if (clinic?.schedule?.vehicle_brands && Array.isArray(clinic.schedule.vehicle_brands)) {
+      return clinic.schedule.vehicle_brands
+    }
+    return [
+      'JAC Motors (Combustión y Eléctricos)',
+      'DFSK (Utilitarios y Eléctricos)',
+      'Honda',
+      'Foton (Camiones y Pickups)',
+      'KGM / SsangYong',
+      'Great Wall / Haval',
+      'Toyota',
+      'Renault',
+      'Chevrolet',
+      'Mazda',
+      'Nissan',
+      'Kia',
+      'BYD (Eléctricos e Híbridos)',
+      'Otra Marca / Multimarca'
+    ]
+  })
+  const [newBrandInput, setNewBrandInput] = useState('')
+
+  const addBrand = () => {
+    if (!newBrandInput.trim()) return
+    if (!brands.includes(newBrandInput.trim())) {
+      setBrands(prev => [...prev, newBrandInput.trim()])
+    }
+    setNewBrandInput('')
+  }
+
+  const removeBrand = (brandToRemove: string) => {
+    setBrands(prev => prev.filter(b => b !== brandToRemove))
+  }
+
   const handleStaffSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!staffName.trim()) return
@@ -564,7 +600,12 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Categoría de tu Negocio</label>
-            <select name="business_type" defaultValue={clinic?.business_type || 'belleza'} className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black text-sm">
+            <select 
+              name="business_type" 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 bg-white focus:ring-black focus:border-black text-sm"
+            >
               <option value="belleza">💅 Estética y Belleza (Peluquerías, Barberías, Cejas, Uñas)</option>
               <option value="bienestar">🧘 Spas y Bienestar (Masajes, Terapias, Yoga, Relajación)</option>
               <option value="salud">🏥 Clínicas y Centros de Salud (Fisioterapia, Nutrición)</option>
@@ -579,6 +620,62 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               <option value="profesional">💼 Servicios Profesionales (Abogados, Fotógrafos, Tatuadores, Consultoría)</option>
             </select>
           </div>
+
+          {/* Gestión de Marcas para Talleres y Concesionarios */}
+          {selectedCategory === 'automotriz' && (
+            <div className="bg-red-50/60 border border-red-200 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    🚗 Marcas de Vehículos Atendidas
+                  </h3>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    Estas son las marcas que tus clientes podrán elegir al momento de reservar su cita.
+                  </p>
+                </div>
+              </div>
+
+              {/* Lista de tags/marcas */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {brands.map(brand => (
+                  <span 
+                    key={brand}
+                    className="inline-flex items-center gap-1.5 bg-white border border-red-200 text-gray-800 text-xs font-semibold px-3 py-1.5 rounded-full shadow-2xs"
+                  >
+                    {brand}
+                    <button
+                      type="button"
+                      onClick={() => removeBrand(brand)}
+                      className="text-red-500 hover:text-red-700 font-bold ml-0.5"
+                      title="Eliminar marca"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              {/* Form para agregar marca */}
+              <div className="flex gap-2 pt-2">
+                <input
+                  type="text"
+                  value={newBrandInput}
+                  onChange={(e) => setNewBrandInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBrand(); } }}
+                  placeholder="Escribe una nueva marca (Ej. Mercedes-Benz, Ford, Suzuki)..."
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-xs bg-white focus:ring-black focus:border-black"
+                />
+                <button
+                  type="button"
+                  onClick={addBrand}
+                  className="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors shadow-xs"
+                >
+                  + Añadir Marca
+                </button>
+              </div>
+              <input type="hidden" name="vehicle_brands" value={JSON.stringify(brands)} />
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp (Notificaciones y Reservas)</label>

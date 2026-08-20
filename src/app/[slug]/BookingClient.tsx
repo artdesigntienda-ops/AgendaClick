@@ -32,6 +32,9 @@ const isValidEmailDomain = (email: string) => {
 
 const bookingSchema = z.object({
   clientName: z.string().trim().min(3, 'Ingresa tu nombre completo (mínimo 3 caracteres)'),
+  vehicleBrand: z.string().optional(),
+  customBrand: z.string().optional(),
+  vehicleModel: z.string().optional(),
   vehiclePlate: z.string()
     .trim()
     .optional()
@@ -71,11 +74,31 @@ interface Props {
   appointments: any[]
 }
 
+const DEFAULT_AUTOMOTIVE_BRANDS = [
+  'JAC Motors (Combustión y Eléctricos)',
+  'DFSK (Utilitarios y Eléctricos)',
+  'Honda',
+  'Foton (Camiones y Pickups)',
+  'KGM / SsangYong',
+  'Great Wall / Haval',
+  'Toyota',
+  'Renault',
+  'Chevrolet',
+  'Mazda',
+  'Nissan',
+  'Kia',
+  'BYD (Eléctricos e Híbridos)',
+  'Otra Marca / Multimarca'
+]
+
 export default function BookingClient({ clinic, services, professionals, appointments = [] }: Props) {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [step, setStep] = useState(1)
   
   const isAutomotive = clinic?.business_type === 'automotriz'
+  const availableBrands: string[] = clinic?.schedule?.vehicle_brands && Array.isArray(clinic.schedule.vehicle_brands)
+    ? clinic.schedule.vehicle_brands
+    : DEFAULT_AUTOMOTIVE_BRANDS
 
   // Soporte de múltiples servicios seleccionados
   const [selectedServices, setSelectedServices] = useState<any[]>([])
@@ -136,8 +159,13 @@ export default function BookingClient({ clinic, services, professionals, appoint
   }, [step])
 
   const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema)
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+      vehicleBrand: availableBrands[0] || ''
+    }
   })
+
+  const selectedBrand = watch('vehicleBrand')
 
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfMonth(startOfToday()))
 
@@ -282,8 +310,18 @@ export default function BookingClient({ clinic, services, professionals, appoint
     const cleanPlate = formData.vehiclePlate ? formData.vehiclePlate.trim().toUpperCase().replace(/[\s-]/g, '') : ''
     const formattedPlate = cleanPlate.length === 6 ? `${cleanPlate.slice(0, 3)}-${cleanPlate.slice(3)}` : cleanPlate
 
-    const finalClientName = formattedPlate 
-      ? `${formData.clientName} (Placa: ${formattedPlate})`
+    const resolvedBrand = formData.vehicleBrand === 'Otra Marca / Multimarca' && formData.customBrand
+      ? formData.customBrand.trim()
+      : formData.vehicleBrand
+
+    const vehicleDetails = [
+      resolvedBrand,
+      formData.vehicleModel?.trim(),
+      formattedPlate ? `Placa: ${formattedPlate}` : null
+    ].filter(Boolean).join(' - ')
+
+    const finalClientName = vehicleDetails 
+      ? `${formData.clientName} (${vehicleDetails})`
       : formData.clientName
 
     const servicesNamesList = selectedServices.map(s => s.name).join(', ')
@@ -308,16 +346,16 @@ export default function BookingClient({ clinic, services, professionals, appoint
       toast.error(result.message || 'Código incorrecto o expirado')
     } else {
       toast.success('¡Cita agendada con éxito! Redirigiendo a WhatsApp...')
-      window.location.href = generateWhatsAppLink(formData.clientName, formattedPlate)
+      window.location.href = generateWhatsAppLink(formData.clientName, vehicleDetails)
     }
   }
 
-  // Generar enlace wa.me con desglose de servicios y placa si aplica
-  const generateWhatsAppLink = (clientName: string, plate?: string) => {
+  // Generar enlace wa.me con desglose de servicios, vehículo y placa
+  const generateWhatsAppLink = (clientName: string, vehicleInfo?: string) => {
     const formattedDate = format(selectedDate, 'dd/MM/yyyy')
     const servicesText = selectedServices.map(s => s.name).join(' + ')
-    const plateText = plate ? ` | Vehículo Placa: ${plate}` : ''
-    const message = `Hola, acabo de agendar una cita en ${clinic.name} para: ${servicesText}${plateText} (Duración estimada: ${totalDuration} min, Total: $${totalPrice.toLocaleString('es-CO')}) el día ${formattedDate} a las ${selectedTime}. Mi nombre es ${clientName}.`
+    const vehicleText = vehicleInfo ? ` | 🚗 Vehículo: ${vehicleInfo}` : ''
+    const message = `Hola, acabo de agendar una cita en ${clinic.name} para: ${servicesText}${vehicleText} (Duración estimada: ${totalDuration} min, Total: $${totalPrice.toLocaleString('es-CO')}) el día ${formattedDate} a las ${selectedTime}. Mi nombre es ${clientName}.`
     const encodedMessage = encodeURIComponent(message)
     const phone = clinic.phone?.replace(/[^0-9]/g, '') || ''
     return `https://wa.me/${phone}?text=${encodedMessage}`
@@ -714,7 +752,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
             </motion.div>
           )}
 
-          {/* PASO 4: DATOS DEL CLIENTE, PLACA DEL VEHÍCULO Y VALIDACIÓN ESTRICTA */}
+          {/* PASO 4: DATOS DEL CLIENTE, MARCA, MODELO, PLACA Y VALIDACIÓN ESTRICTA */}
           {step === 4 && (
             <motion.div
               key="step4"
@@ -771,26 +809,73 @@ export default function BookingClient({ clinic, services, professionals, appoint
                   {errors.clientName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientName.message}</p>}
                 </div>
 
-                {/* Placa del Vehículo (Especial para talleres y automotriz) */}
+                {/* Sección de Datos del Vehículo para Talleres y Automotriz */}
                 {isAutomotive && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Placa del Vehículo <span className="text-brand font-bold">(3 letras y 3 números)</span>
-                    </label>
-                    <div className="relative">
-                      <Car className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        {...register('vehiclePlate')}
-                        maxLength={7}
-                        placeholder="Ej. ABC123"
-                        onChange={(e) => {
-                          const val = e.target.value.toUpperCase()
-                          setValue('vehiclePlate', val)
-                        }}
-                        className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl font-mono uppercase tracking-wider font-bold focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all text-sm ${errors.vehiclePlate ? 'border-red-500' : 'border-gray-200'}`}
-                      />
+                  <div className="bg-red-50/40 border border-red-200/80 rounded-xl p-4 space-y-3">
+                    <h3 className="text-xs font-bold text-red-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <Car className="w-4 h-4 text-red-700" />
+                      Datos de tu Vehículo
+                    </h3>
+
+                    {/* Marca del Vehículo */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Marca del Vehículo
+                      </label>
+                      <select
+                        {...register('vehicleBrand')}
+                        className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand text-xs font-medium"
+                      >
+                        {availableBrands.map(b => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                      </select>
                     </div>
-                    {errors.vehiclePlate && <p className="text-red-500 text-xs mt-1 ml-1">{errors.vehiclePlate.message}</p>}
+
+                    {/* Si es Otra Marca */}
+                    {selectedBrand === 'Otra Marca / Multimarca' && (
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          Escribe la marca de tu vehículo
+                        </label>
+                        <input
+                          {...register('customBrand')}
+                          placeholder="Ej. Mercedes-Benz, Ford, Suzuki, Volkswagen..."
+                          className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:ring-brand focus:border-brand"
+                        />
+                      </div>
+                    )}
+
+                    {/* Placa y Modelo */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          Placa <span className="text-brand font-bold">(3 letras y 3 números)</span>
+                        </label>
+                        <input
+                          {...register('vehiclePlate')}
+                          maxLength={7}
+                          placeholder="Ej. ABC123"
+                          onChange={(e) => {
+                            const val = e.target.value.toUpperCase()
+                            setValue('vehiclePlate', val)
+                          }}
+                          className={`w-full px-3 py-2.5 bg-white border rounded-xl font-mono uppercase tracking-wider font-bold text-xs focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand ${errors.vehiclePlate ? 'border-red-500' : 'border-gray-300'}`}
+                        />
+                        {errors.vehiclePlate && <p className="text-red-500 text-[11px] mt-1">{errors.vehiclePlate.message}</p>}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          Línea / Modelo <span className="text-gray-400 font-normal">(Opcional)</span>
+                        </label>
+                        <input
+                          {...register('vehicleModel')}
+                          placeholder="Ej. Duster, JAC E-JS4, Hilux"
+                          className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand"
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
 
