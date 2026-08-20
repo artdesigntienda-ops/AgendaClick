@@ -35,16 +35,20 @@ export async function GET(request: Request) {
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
 
-    // Crear un sub-calendario específico para AgendaClick
-    const newCalendar = await calendar.calendars.insert({
-      requestBody: {
-        summary: 'AgendaClick - Trabajo',
-        description: 'Calendario automático para citas de AgendaClick',
-        timeZone: 'America/Bogota'
-      }
-    })
+    // Buscar si ya existe un sub-calendario para AgendaClick
+    const calendarList = await calendar.calendarList.list()
+    let calendarId = calendarList.data.items?.find(c => c.summary === 'AgendaClick - Trabajo')?.id
 
-    const calendarId = newCalendar.data.id
+    if (!calendarId) {
+      const newCalendar = await calendar.calendars.insert({
+        requestBody: {
+          summary: 'AgendaClick - Trabajo',
+          description: 'Calendario automático para citas de AgendaClick',
+          timeZone: 'America/Bogota'
+        }
+      })
+      calendarId = newCalendar.data.id
+    }
 
     // Guardar tokens y calendarId en Supabase
     // Solo guardamos el refresh_token si viene en la respuesta, de lo contrario mantenemos el anterior
