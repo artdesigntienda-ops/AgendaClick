@@ -11,28 +11,65 @@ const PLANS = [
     name: 'Independiente',
     priceCOP: 35000,
     limit: 1,
-    features: ['1 Profesional', 'Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte estándar']
+    badge: '1 Profesional / Bahía',
+    target: 'Ideal para personas que trabajan solas en su propio consultorio o espacio.',
+    features: [
+      '1 Profesional / Bahía / Cancha',
+      'Agendamiento 24/7 con código OTP de seguridad',
+      'Selección de 1 servicio por cita',
+      'Enlace y confirmación directa a WhatsApp',
+      'Página de reservas pública personalizada',
+      'Soporte estándar por correo'
+    ]
   },
   {
     id: 'boutique',
     name: 'Profesional',
     priceCOP: 75000,
     limit: 4,
-    features: ['Hasta 4 Profesionales', 'Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario']
+    badge: 'Hasta 4 Profesionales',
+    target: 'Para negocios con equipo que necesitan agendar múltiples servicios.',
+    features: [
+      'Hasta 4 Profesionales / Técnicos / Bahías',
+      '✨ Agendamiento Multi-Servicio Simultáneo',
+      '🚗 Campos Especiales (Placa, Marcas, Odómetro)',
+      '📅 Sincronización Google Calendar por empleado',
+      '🎨 Personalización de Marca (Colores y Logotipo)',
+      '⚡ Soporte prioritario por WhatsApp'
+    ]
   },
   {
     id: 'salon',
     name: 'Negocio',
-    priceCOP: 115000,
+    priceCOP: 125000,
     limit: 8,
-    features: ['Hasta 8 Profesionales', 'Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario', 'Control total de tus finanzas']
+    badge: '🚀 MÁS POPULAR / MEJOR VALOR',
+    target: 'Para empresas consolidadas, talleres, clínicas y spas con equipo.',
+    features: [
+      'Hasta 8 Profesionales / Técnicos / Bahías',
+      'Todo lo del Plan Profesional',
+      '💰 Módulo de Finanzas y Comisiones de Empleados',
+      '🏷️ Marca Blanca 100% (Sin logo de AgendaClick)',
+      '📊 Exportación de Base de Clientes a Excel / CSV',
+      '💳 Habilitado para cobros y anticipos en línea',
+      '⭐ Soporte VIP Inmediato 24/7'
+    ]
   },
   {
     id: 'elite',
     name: 'Élite',
-    priceCOP: 190000,
-    limit: 999, // ilimitado
-    features: ['Crecimiento sin límites (Staff infinito)', 'Todo lo del plan Negocio', 'Soporte VIP inmediato 24/7', 'Te ayudamos a configurar todo paso a paso']
+    priceCOP: 199000,
+    limit: 999,
+    badge: 'Capacidad Ilimitada',
+    target: 'Para grandes concesionarios, franquicias y centros de alto volumen.',
+    features: [
+      '🚀 Staff, Técnicos y Bahías Ilimitadas (999+)',
+      'Todo lo del Plan Negocio',
+      '🏢 Soporte Multi-Sede y Múltiples Ubicaciones',
+      '🤝 Onboarding y Configuración VIP Asistida',
+      '📞 Asesor y Línea de Atención Dedicada',
+      '🛡️ Garantía de Disponibilidad y SLA 99.9%'
+    ]
   }
 ]
 
@@ -225,9 +262,15 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
                 </div>
               ) : null}
 
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
-                <div className="mt-2 flex items-baseline gap-1">
+              <div className="mb-4">
+                <div className="flex items-center justify-between gap-1">
+                  <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 shrink-0">
+                    {plan.badge}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1 min-h-[32px] leading-relaxed">{plan.target}</p>
+                <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-3xl font-black text-black">
                     ${billingPeriod === 'monthly' ? plan.priceCOP.toLocaleString('es-CO') : Math.floor(plan.priceCOP * 0.9).toLocaleString('es-CO')}
                   </span>

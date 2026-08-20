@@ -444,56 +444,90 @@ export default function LandingPage() {
               {
                 name: 'Independiente',
                 price: '35.000',
-                limit: '1 Profesional',
-                features: ['Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte estándar']
+                limit: '1 Profesional / Bahía',
+                target: 'Ideal para personas que trabajan solas en su consultorio o espacio.',
+                features: [
+                  '1 Profesional / Bahía / Cancha',
+                  'Agendamiento 24/7 con filtro OTP',
+                  'Selección de 1 servicio por cita',
+                  'Enlace y confirmación a WhatsApp',
+                  'Página de reservas pública',
+                  'Soporte estándar por correo'
+                ]
               },
               {
                 name: 'Profesional',
                 price: '75.000',
                 limit: 'Hasta 4 Profesionales',
-                features: ['Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario']
+                target: 'Para negocios con equipo que necesitan agendar múltiples servicios.',
+                features: [
+                  'Hasta 4 Profesionales / Bahías',
+                  '✨ Agendamiento Multi-Servicio',
+                  '🚗 Campos Pro (Placa, Marcas)',
+                  '📅 Google Calendar por empleado',
+                  '🎨 Personalización con Logo y Colores',
+                  '⚡ Soporte prioritario por WhatsApp'
+                ]
               },
               {
                 name: 'Negocio',
-                price: '115.000',
+                price: '125.000',
                 limit: 'Hasta 8 Profesionales',
-                features: ['Tu agenda en piloto automático 24/7', 'Reduce inasistencias con recordatorios', 'Soporte prioritario', 'Control total de tus finanzas']
+                target: 'Para empresas consolidadas, talleres, clínicas y spas con equipo.',
+                features: [
+                  'Hasta 8 Profesionales / Bahías',
+                  'Todo lo del Plan Profesional',
+                  '💰 Finanzas y Comisiones automáticas',
+                  '🏷️ Marca Blanca 100% (Sin nuestro logo)',
+                  '📊 Exportar Base de Clientes a Excel',
+                  '💳 Habilitado para Pagos Online',
+                  '⭐ Soporte VIP Inmediato 24/7'
+                ]
               },
               {
                 name: 'Élite',
-                price: '190.000',
-                limit: 'Crecimiento sin límites (Staff infinito)',
-                features: ['Todo lo del plan Negocio', 'Soporte VIP inmediato 24/7', 'Te ayudamos a configurar todo paso a paso']
+                price: '199.000',
+                limit: 'Capacidad Ilimitada (999+)',
+                target: 'Para grandes concesionarios, franquicias y centros de alto volumen.',
+                features: [
+                  '🚀 Staff y Bahías Ilimitadas',
+                  'Todo lo del Plan Negocio',
+                  '🏢 Soporte Multi-Sede / Ubicaciones',
+                  '🤝 Onboarding y Configuración VIP',
+                  '📞 Asesor y Línea Dedicada 24/7',
+                  '🛡️ Garantía de Disponibilidad 99.9%'
+                ]
               }
             ].map((plan, index) => (
               <motion.div 
                 key={index}
                 variants={fadeInUp}
-                className={`bg-white text-black border-2 ${index === 2 ? 'border-black shadow-xl lg:scale-105 relative z-10' : 'border-gray-100 hover:border-gray-300'} rounded-3xl p-8 flex flex-col transition-all`}
+                className={`bg-white text-black border-2 ${index === 2 ? 'border-black shadow-xl lg:scale-105 relative z-10' : 'border-gray-100 hover:border-gray-300'} rounded-3xl p-7 flex flex-col transition-all`}
               >
                 {index === 2 && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full tracking-wider">
                     MÁS POPULAR
                   </div>
                 )}
-                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                <p className="text-sm font-semibold text-gray-500 mb-4">{plan.limit}</p>
-                <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-black">${plan.price}</span>
+                <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
+                <p className="text-xs font-bold text-gray-500 mb-2">{plan.limit}</p>
+                <p className="text-xs text-gray-400 mb-4 min-h-[32px] leading-relaxed">{plan.target}</p>
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-3xl font-black">${plan.price}</span>
                   <span className="text-sm font-medium text-gray-500">/mes</span>
                 </div>
                 
-                <ul className="space-y-4 mb-8 flex-1">
+                <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${index === 2 ? 'text-black' : 'text-gray-400'}`} />
-                      <span className="text-sm font-medium text-gray-700">{feature}</span>
+                    <li key={i} className="flex items-start gap-2.5">
+                      <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${index === 2 ? 'text-black' : 'text-gray-400'}`} />
+                      <span className="text-xs font-medium text-gray-700 leading-snug">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Link href="/login" className={`block text-center w-full py-3 rounded-xl font-bold transition-colors ${index === 2 ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-black hover:bg-gray-200'}`}>
-                  Comenzar gratis
+                  Comenzar gratis (14 días)
                 </Link>
               </motion.div>
             ))}
