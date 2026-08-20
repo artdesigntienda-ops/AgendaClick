@@ -8,15 +8,55 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse, startOfMonth, getDaysInMonth, addMonths, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, ChevronLeft, ChevronRight, Check, Car } from 'lucide-react'
 import { getSegmentConfig } from '@/lib/segment-icons'
 import { createAppointment, sendOtpCode } from './actions'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
+// Dominios y TLDs válidos y comunes para evitar errores de digitación
+const ALLOWED_EMAIL_DOMAINS = [
+  'com', 'co', 'com.co', 'gov', 'gov.co', 'edu', 'edu.co', 
+  'org', 'org.co', 'net', 'net.co', 'io', 'la', 'dev', 
+  'app', 'me', 'info', 'xyz', 'tech', 'online', 'lat', 'es'
+]
+
+const isValidEmailDomain = (email: string) => {
+  if (!email || !email.includes('@')) return false
+  const parts = email.trim().toLowerCase().split('@')
+  if (parts.length !== 2) return false
+  const domain = parts[1]
+  if (!domain || !domain.includes('.')) return false
+  
+  return ALLOWED_EMAIL_DOMAINS.some(ext => domain === ext || domain.endsWith('.' + ext))
+}
+
 const bookingSchema = z.object({
-  clientName: z.string().min(2, 'El nombre es muy corto'),
-  clientEmail: z.string().email('Correo inválido'),
-  clientPhone: z.string().min(7, 'Teléfono inválido'),
+  clientName: z.string().trim().min(3, 'Ingresa tu nombre completo (mínimo 3 caracteres)'),
+  vehiclePlate: z.string()
+    .trim()
+    .optional()
+    .refine(val => {
+      if (!val || val.length === 0) return true // Opcional si no se diligencia
+      const clean = val.replace(/[\s-]/g, '')
+      return /^[A-Za-z]{3}[0-9]{3}$/.test(clean)
+    }, { message: 'La placa debe tener 3 letras y 3 números (Ej. ABC123)' }),
+  clientEmail: z.string()
+    .trim()
+    .min(5, 'Ingresa tu correo electrónico')
+    .refine(val => val.includes('@'), { message: 'El correo debe incluir "@"' })
+    .refine(isValidEmailDomain, { 
+      message: 'Ingresa un dominio válido (ej: .com, .co, .com.co, .edu.co, .gov.co, .org)' 
+    }),
+  clientPhone: z.string()
+    .trim()
+    .refine(val => {
+      const digits = val.replace(/\D/g, '')
+      return digits.length === 10
+    }, { message: 'El número de celular debe tener exactamente 10 dígitos (Ej. 3158610110)' })
+    .refine(val => {
+      const digits = val.replace(/\D/g, '')
+      return digits.startsWith('3')
+    }, { message: 'El celular debe comenzar por 3 (Ej. 3158610110)' }),
   acceptTerms: z.literal(true, {
     errorMap: () => ({ message: "Debes aceptar los Términos y Condiciones" }),
   } as any),
@@ -35,6 +75,8 @@ export default function BookingClient({ clinic, services, professionals, appoint
   const { executeRecaptcha } = useGoogleReCaptcha()
   const [step, setStep] = useState(1)
   
+  const isAutomotive = clinic?.business_type === 'automotriz'
+
   // Soporte de múltiples servicios seleccionados
   const [selectedServices, setSelectedServices] = useState<any[]>([])
   const [selectedProfessional, setSelectedProfessional] = useState<any>(null)
@@ -93,7 +135,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
     return () => clearInterval(timer)
   }, [step])
 
-  const { register, handleSubmit, getValues, formState: { errors } } = useForm<BookingFormData>({
+  const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema)
   })
 
@@ -236,6 +278,14 @@ export default function BookingClient({ clinic, services, professionals, appoint
     const endTime = new Date(startTime.getTime() + totalDuration * 60000)
 
     const formData = getValues()
+    const cleanPhone = formData.clientPhone.replace(/\D/g, '')
+    const cleanPlate = formData.vehiclePlate ? formData.vehiclePlate.trim().toUpperCase().replace(/[\s-]/g, '') : ''
+    const formattedPlate = cleanPlate.length === 6 ? `${cleanPlate.slice(0, 3)}-${cleanPlate.slice(3)}` : cleanPlate
+
+    const finalClientName = formattedPlate 
+      ? `${formData.clientName} (Placa: ${formattedPlate})`
+      : formData.clientName
+
     const servicesNamesList = selectedServices.map(s => s.name).join(', ')
 
     const result = await createAppointment({
@@ -244,9 +294,9 @@ export default function BookingClient({ clinic, services, professionals, appoint
       serviceIds: selectedServices.map(s => s.id),
       serviceNames: servicesNamesList,
       totalPrice: totalPrice,
-      clientName: formData.clientName,
-      clientEmail: formData.clientEmail,
-      clientPhone: formData.clientPhone,
+      clientName: finalClientName,
+      clientEmail: formData.clientEmail.trim().toLowerCase(),
+      clientPhone: cleanPhone,
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       staffId: selectedProfessional?.id || null
@@ -258,15 +308,16 @@ export default function BookingClient({ clinic, services, professionals, appoint
       toast.error(result.message || 'Código incorrecto o expirado')
     } else {
       toast.success('¡Cita agendada con éxito! Redirigiendo a WhatsApp...')
-      window.location.href = generateWhatsAppLink(formData.clientName)
+      window.location.href = generateWhatsAppLink(formData.clientName, formattedPlate)
     }
   }
 
-  // Generar enlace wa.me con desglose de servicios
-  const generateWhatsAppLink = (clientName: string) => {
+  // Generar enlace wa.me con desglose de servicios y placa si aplica
+  const generateWhatsAppLink = (clientName: string, plate?: string) => {
     const formattedDate = format(selectedDate, 'dd/MM/yyyy')
     const servicesText = selectedServices.map(s => s.name).join(' + ')
-    const message = `Hola, acabo de agendar una cita en ${clinic.name} para: ${servicesText} (Duración estimada: ${totalDuration} min, Total: $${totalPrice.toLocaleString('es-CO')}) el día ${formattedDate} a las ${selectedTime}. Mi nombre es ${clientName}.`
+    const plateText = plate ? ` | Vehículo Placa: ${plate}` : ''
+    const message = `Hola, acabo de agendar una cita en ${clinic.name} para: ${servicesText}${plateText} (Duración estimada: ${totalDuration} min, Total: $${totalPrice.toLocaleString('es-CO')}) el día ${formattedDate} a las ${selectedTime}. Mi nombre es ${clientName}.`
     const encodedMessage = encodeURIComponent(message)
     const phone = clinic.phone?.replace(/[^0-9]/g, '') || ''
     return `https://wa.me/${phone}?text=${encodedMessage}`
@@ -663,7 +714,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
             </motion.div>
           )}
 
-          {/* PASO 4: DATOS DEL CLIENTE Y RESUMEN MULTI-SERVICIO */}
+          {/* PASO 4: DATOS DEL CLIENTE, PLACA DEL VEHÍCULO Y VALIDACIÓN ESTRICTA */}
           {step === 4 && (
             <motion.div
               key="step4"
@@ -706,51 +757,88 @@ export default function BookingClient({ clinic, services, professionals, appoint
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                {/* Nombre Completo */}
                 <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Nombre Completo</label>
                   <div className="relative">
                     <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       {...register('clientName')}
-                      placeholder="Tu nombre completo"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all ${errors.clientName ? 'border-red-500' : 'border-gray-200'}`}
+                      placeholder="Tu nombre y apellido"
+                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all text-sm ${errors.clientName ? 'border-red-500' : 'border-gray-200'}`}
                     />
                   </div>
                   {errors.clientName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientName.message}</p>}
                 </div>
 
+                {/* Placa del Vehículo (Especial para talleres y automotriz) */}
+                {isAutomotive && (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Placa del Vehículo <span className="text-brand font-bold">(3 letras y 3 números)</span>
+                    </label>
+                    <div className="relative">
+                      <Car className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        {...register('vehiclePlate')}
+                        maxLength={7}
+                        placeholder="Ej. ABC123"
+                        onChange={(e) => {
+                          const val = e.target.value.toUpperCase()
+                          setValue('vehiclePlate', val)
+                        }}
+                        className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl font-mono uppercase tracking-wider font-bold focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all text-sm ${errors.vehiclePlate ? 'border-red-500' : 'border-gray-200'}`}
+                      />
+                    </div>
+                    {errors.vehiclePlate && <p className="text-red-500 text-xs mt-1 ml-1">{errors.vehiclePlate.message}</p>}
+                  </div>
+                )}
+
+                {/* Correo Electrónico con Validación de Dominios */}
                 <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Correo Electrónico (Para confirmación)</label>
                   <div className="relative">
                     <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       {...register('clientEmail')}
+                      type="email"
                       placeholder="tu@correo.com"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all ${errors.clientEmail ? 'border-red-500' : 'border-gray-200'}`}
+                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all text-sm ${errors.clientEmail ? 'border-red-500' : 'border-gray-200'}`}
                     />
                   </div>
                   {errors.clientEmail && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientEmail.message}</p>}
                 </div>
 
+                {/* Teléfono / Celular (Validación de 10 dígitos) */}
                 <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Número de Celular / WhatsApp (10 dígitos)</label>
                   <div className="relative">
                     <Phone className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       {...register('clientPhone')}
-                      placeholder="Tu teléfono / WhatsApp (Ej. 3158610110)"
-                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all ${errors.clientPhone ? 'border-red-500' : 'border-gray-200'}`}
+                      type="tel"
+                      maxLength={10}
+                      placeholder="Ej. 3158610110"
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '')
+                        setValue('clientPhone', val)
+                      }}
+                      className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/5 focus:border-brand transition-all text-sm ${errors.clientPhone ? 'border-red-500' : 'border-gray-200'}`}
                     />
                   </div>
                   {errors.clientPhone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.clientPhone.message}</p>}
                 </div>
 
+                {/* Términos y Condiciones */}
                 <div className="flex items-start gap-2 pt-2">
                   <input
                     type="checkbox"
                     id="acceptTerms"
                     {...register('acceptTerms')}
-                    className="mt-1 w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand"
+                    className="mt-1 w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand cursor-pointer"
                   />
-                  <label htmlFor="acceptTerms" className="text-xs text-gray-500 leading-tight">
-                    He leído y acepto los <a href="/terminos" target="_blank" className="underline hover:text-brand">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-brand">Política de Privacidad</a>. Entiendo que AgendaClick es solo un intermediario tecnológico.
+                  <label htmlFor="acceptTerms" className="text-xs text-gray-500 leading-tight cursor-pointer">
+                    He leído y acepto los <a href="/terminos" target="_blank" className="underline hover:text-brand">Términos y Condiciones</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-brand">Política de Privacidad</a>. Entiendo que AgendaClick es un intermediario tecnológico.
                   </label>
                 </div>
                 {errors.acceptTerms && <p className="text-red-500 text-xs ml-1">{errors.acceptTerms.message}</p>}
@@ -758,7 +846,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full mt-4 bg-brand hover:brightness-95 text-white py-4 rounded-xl font-medium disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-md"
+                  className="w-full mt-4 bg-brand hover:brightness-95 text-white py-4 rounded-xl font-bold disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-md"
                 >
                   {isSubmitting ? 'Enviando código...' : 'Enviar código de verificación'}
                 </button>
