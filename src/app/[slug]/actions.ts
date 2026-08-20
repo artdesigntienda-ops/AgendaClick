@@ -120,6 +120,9 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
 export async function createAppointment(data: {
   clinicId: string
   serviceId: string
+  serviceIds?: string[]
+  serviceNames?: string
+  totalPrice?: number
   clientName: string
   clientEmail: string
   clientPhone: string
@@ -167,19 +170,25 @@ export async function createAppointment(data: {
   }
 
   // 2. Guardar en la DB (usamos admin para saltar RLS, ya que la legitimidad fue validada por el OTP)
+  const appointmentPayload: any = {
+    clinic_id: data.clinicId,
+    service_id: data.serviceId,
+    staff_id: data.staffId,
+    client_name: data.clientName,
+    client_email: data.clientEmail,
+    client_phone: data.clientPhone,
+    start_time: data.startTime,
+    end_time: data.endTime,
+    status: 'confirmed' // El OTP valida la intención, así que entra como confirmado
+  }
+
+  if (data.totalPrice !== undefined && data.totalPrice !== null) {
+    appointmentPayload.total_price = data.totalPrice
+  }
+
   const { data: newApp, error } = await getSupabaseAdmin()
     .from('appointments')
-    .insert({
-      clinic_id: data.clinicId,
-      service_id: data.serviceId,
-      staff_id: data.staffId,
-      client_name: data.clientName,
-      client_email: data.clientEmail,
-      client_phone: data.clientPhone,
-      start_time: data.startTime,
-      end_time: data.endTime,
-      status: 'confirmed' // El OTP valida la intención, así que entra como confirmado
-    })
+    .insert(appointmentPayload)
     .select('id')
     .maybeSingle()
 
@@ -206,8 +215,8 @@ export async function createAppointment(data: {
     .eq('id', data.serviceId)
     .maybeSingle()
 
-  const serviceName = serviceInfo?.name || 'Cita'
-  const clinicName = clinicInfo?.name || 'Estética'
+  const serviceName = data.serviceNames || serviceInfo?.name || 'Cita'
+  const clinicName = clinicInfo?.name || 'AgendaClick'
   
   // Generar archivo de calendario (.ics)
   const appointmentUid = `${Date.now()}@agendaclick.com`
