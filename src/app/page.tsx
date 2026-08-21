@@ -23,12 +23,25 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-black selection:text-white overflow-hidden">
       
+      {/* TOP ANNOUNCEMENT BAR: PROGRAMA DE DISTRIBUIDORES */}
+      <div className="fixed top-0 w-full bg-gradient-to-r from-gray-950 via-emerald-950 to-gray-950 text-white z-50 py-1.5 px-4 text-center border-b border-emerald-500/30 shadow-sm flex items-center justify-center gap-2 text-xs">
+        <span className="bg-emerald-500 text-black font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+          Oportunidad
+        </span>
+        <span className="text-gray-200">
+          ¿Quieres generar ingresos pasivos? Conviértete en <strong>Distribuidor Oficial</strong> y gana hasta el <strong>25% mensual</strong> por cada negocio.
+        </span>
+        <Link href="/socios" className="font-bold text-emerald-400 hover:text-emerald-300 underline underline-offset-2 ml-1 transition-colors">
+          Gana con nosotros →
+        </Link>
+      </div>
+
       {/* NAVBAR */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed top-0 w-full bg-white/70 backdrop-blur-lg border-b border-black/5 z-50 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]"
+        className="fixed top-8 w-full bg-white/80 backdrop-blur-lg border-b border-black/5 z-40 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]"
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -42,6 +55,10 @@ export default function LandingPage() {
             <a href="#segmentos" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Segmentos</a>
             <a href="#funciones" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Características</a>
             <a href="#precios" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Planes</a>
+            <Link href="/socios" className="text-sm font-bold text-emerald-700 hover:text-emerald-900 transition-colors relative py-1 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              Socios & Ventas
+            </Link>
             <Link href="/documentacion" className="text-sm font-semibold text-gray-600 hover:text-black transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-black after:transition-all hover:after:w-full">Documentación</Link>
           </div>
 
@@ -59,7 +76,7 @@ export default function LandingPage() {
       {/* MAIN CONTENT LANDMARK */}
       <main>
         {/* HERO SECTION */}
-      <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="pt-36 pb-20 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div 
           initial="hidden"
           animate="visible"

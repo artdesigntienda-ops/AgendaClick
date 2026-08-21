@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Calendar, Settings, LogOut, Users, Menu, X, DollarSign, Copy, CreditCard } from 'lucide-react'
+import { Calendar, Settings, LogOut, Users, Menu, X, DollarSign, Copy, CreditCard, Sparkles, Briefcase } from 'lucide-react'
 import { toast } from 'sonner'
 import { getSegmentConfig } from '@/lib/segment-icons'
 
@@ -174,6 +174,10 @@ export default function Sidebar({ clinic, role, businessType, themeColors }: {
               <Link id="tour-billing" onClick={() => setIsOpen(false)} href="/dashboard/billing" className="sidebar-link animate-fade-in-right anim-delay-600 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200">
                 <CreditCard className="w-4 h-4" />
                 Facturación
+              </Link>
+              <Link id="tour-partners" onClick={() => setIsOpen(false)} href="/dashboard/partners" className="sidebar-link animate-fade-in-right anim-delay-700 flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors duration-200 border-t border-current/10 mt-2 pt-3">
+                <Sparkles className="w-4 h-4 text-emerald-500" />
+                Socios & Ventas
               </Link>
             </>
           )}
