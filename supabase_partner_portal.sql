@@ -9,7 +9,7 @@ ADD COLUMN IF NOT EXISTS referred_by_partner_id UUID REFERENCES public.profiles(
 -- 2. Agregar columnas de socio/distribuidor en profiles
 ALTER TABLE public.profiles 
 ADD COLUMN IF NOT EXISTS partner_code TEXT UNIQUE,
-ADD COLUMN IF NOT EXISTS partner_commission_rate NUMERIC DEFAULT 25.0,
+ADD COLUMN IF NOT EXISTS partner_commission_rate NUMERIC DEFAULT 60.0,
 ADD COLUMN IF NOT EXISTS bank_payout_info JSONB;
 
 -- 3. Asignar códigos de socio iniciales a perfiles existentes si no tienen

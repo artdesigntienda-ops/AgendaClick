@@ -36,7 +36,7 @@ export async function getPartnerData() {
 
   // Generar partner_code si no tiene
   const partnerCode = profile?.partner_code || `SOCIO-${user.id.slice(0, 6).toUpperCase()}`
-  const commissionRate = profile?.partner_commission_rate || 25.0
+  const commissionRate = profile?.partner_commission_rate || 60.0
 
   // 2. Obtener negocios referidos
   const adminClient = createAdminClient()

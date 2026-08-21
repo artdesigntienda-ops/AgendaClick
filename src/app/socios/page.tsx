@@ -36,7 +36,7 @@ export default function SociosLandingPage() {
   // Calculadora de comisiones
   const [clientCount, setClientCount] = useState<number>(20)
   const averagePlanPrice = 115000 // Plan Negocio promedio ($115.000 COP)
-  const commissionRate = 0.25 // 25% comisión
+  const commissionRate = 0.60 // 60% comisión recurrente
   const monthlyEarnings = Math.round(clientCount * averagePlanPrice * commissionRate)
   const yearlyEarnings = monthlyEarnings * 12
 
@@ -81,7 +81,7 @@ export default function SociosLandingPage() {
           </motion.div>
 
           <motion.h1 variants={fadeInUp} className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            Gana hasta el <span className="bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent">25% Mensual Recurrente</span> por cada negocio que recomiendes
+            Gana hasta el <span className="bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent">60% Mensual Recurrente</span> por cada negocio que recomiendes
           </motion.h1>
 
           <motion.p variants={fadeInUp} className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -107,7 +107,7 @@ export default function SociosLandingPage() {
           {/* BADGES DE CONFIANZA */}
           <motion.div variants={fadeInUp} className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-10 border-t border-white/10 text-left">
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-              <p className="text-emerald-400 font-extrabold text-xl">25% Fijo</p>
+              <p className="text-emerald-400 font-extrabold text-xl">60% Fijo</p>
               <p className="text-xs text-gray-400">Comisión recurrente mensual</p>
             </div>
             <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
@@ -273,7 +273,7 @@ export default function SociosLandingPage() {
               </div>
               <h3 className="text-lg font-bold mb-2">Cobra tus Comisiones</h3>
               <p className="text-sm text-gray-400">
-                Recibe el 25% de cada pago mensual procesado por tus clientes directamente en tu cuenta bancaria o Nequi.
+                Recibe el 60% de cada pago mensual procesado por tus clientes directamente en tu cuenta bancaria o Nequi.
               </p>
             </div>
 

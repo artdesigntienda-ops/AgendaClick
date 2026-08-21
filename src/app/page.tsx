@@ -29,7 +29,7 @@ export default function LandingPage() {
           Oportunidad
         </span>
         <span className="text-gray-200">
-          ¿Quieres generar ingresos pasivos? Conviértete en <strong>Distribuidor Oficial</strong> y gana hasta el <strong>25% mensual</strong> por cada negocio.
+          ¿Quieres generar ingresos pasivos? Conviértete en <strong>Distribuidor Oficial</strong> y gana hasta el <strong>60% mensual</strong> por cada negocio.
         </span>
         <Link href="/socios" className="font-bold text-emerald-400 hover:text-emerald-300 underline underline-offset-2 ml-1 transition-colors">
           Gana con nosotros →
