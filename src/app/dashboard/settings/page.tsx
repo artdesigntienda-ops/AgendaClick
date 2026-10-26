@@ -112,8 +112,16 @@ export default async function SettingsPage() {
     }
 
     // Legal information, Terms and Habeas Data
+    const isFormalizedRaw = formData.get('is_formalized') as string
+    const isFormalized = isFormalizedRaw === 'true'
+    const hasWebsiteRaw = formData.get('has_website') as string
+    const hasWebsite = hasWebsiteRaw === 'true'
+
     const legalBusinessName = formData.get('legal_business_name') as string
     const legalNit = formData.get('legal_nit') as string
+    const responsibleName = formData.get('responsible_name') as string
+    const responsibleId = formData.get('responsible_id') as string
+
     const legalTermsUrl = formData.get('legal_terms_url') as string
     const legalPrivacyUrl = formData.get('legal_privacy_url') as string
     const legalCustomTermsText = formData.get('legal_custom_terms_text') as string
@@ -121,10 +129,14 @@ export default async function SettingsPage() {
 
     schedule = schedule || (existingClinic?.schedule as any) || {}
     schedule.legal = {
-      business_legal_name: legalBusinessName?.trim() || null,
-      nit: legalNit?.trim() || null,
-      terms_url: legalTermsUrl?.trim() || null,
-      privacy_url: legalPrivacyUrl?.trim() || null,
+      is_formalized: isFormalized,
+      has_website: hasWebsite,
+      business_legal_name: isFormalized ? (legalBusinessName?.trim() || null) : null,
+      nit: isFormalized ? (legalNit?.trim() || null) : null,
+      responsible_name: !isFormalized ? (responsibleName?.trim() || null) : null,
+      responsible_id: !isFormalized ? (responsibleId?.trim() || null) : null,
+      terms_url: (isFormalized && hasWebsite) ? (legalTermsUrl?.trim() || null) : null,
+      privacy_url: (isFormalized && hasWebsite) ? (legalPrivacyUrl?.trim() || null) : null,
       custom_terms_text: legalCustomTermsText?.trim() || null,
       data_treatment_policy: legalDataPolicy?.trim() || null,
     }

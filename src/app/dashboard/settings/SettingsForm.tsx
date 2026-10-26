@@ -9,13 +9,19 @@ import ScheduleManager from '@/components/ScheduleManager'
 import { 
   Building, 
   Palette, 
-  Sliders, 
+  Share2, 
+  Calendar, 
+  CreditCard, 
+  Scale, 
   MessageCircle, 
   Copy, 
   Check, 
   Sparkles,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  User,
+  Briefcase,
+  ShieldCheck
 } from 'lucide-react'
 
 const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
@@ -148,8 +154,50 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
 
   const [coverPreview, setCoverPreview] = useState<string | null>(clinic?.cover_image_url || null)
   const [logoPreview, setLogoPreview] = useState<string | null>(clinic?.logo_url || null)
-  const [activeTab, setActiveTab] = useState<'basic' | 'design' | 'advanced'>('basic')
+  const [activeTab, setActiveTab] = useState<'basic' | 'design' | 'social' | 'integrations' | 'legal'>('basic')
   const [isCopied, setIsCopied] = useState(false)
+
+  // Estado para la sección Legal
+  const [isFormalized, setIsFormalized] = useState<boolean>(() => {
+    if (clinic?.schedule?.legal?.is_formalized !== undefined) {
+      return !!clinic.schedule.legal.is_formalized
+    }
+    return !!(clinic?.schedule?.legal?.nit || clinic?.schedule?.legal?.business_legal_name)
+  })
+
+  const [hasWebsite, setHasWebsite] = useState<boolean>(() => {
+    if (clinic?.schedule?.legal?.has_website !== undefined) {
+      return !!clinic.schedule.legal.has_website
+    }
+    return !!(clinic?.schedule?.legal?.terms_url || clinic?.schedule?.legal?.privacy_url)
+  })
+
+  const [responsibleName, setResponsibleName] = useState(
+    clinic?.schedule?.legal?.responsible_name || profile?.name || clinic?.name || ''
+  )
+  const [responsibleId, setResponsibleId] = useState(
+    clinic?.schedule?.legal?.responsible_id || ''
+  )
+  const [legalBusinessName, setLegalBusinessName] = useState(
+    clinic?.schedule?.legal?.business_legal_name || ''
+  )
+  const [legalNit, setLegalNit] = useState(
+    clinic?.schedule?.legal?.nit || ''
+  )
+  const [legalTermsUrl, setLegalTermsUrl] = useState(
+    clinic?.schedule?.legal?.terms_url || ''
+  )
+  const [legalPrivacyUrl, setLegalPrivacyUrl] = useState(
+    clinic?.schedule?.legal?.privacy_url || ''
+  )
+  const [customTermsText, setCustomTermsText] = useState(
+    clinic?.schedule?.legal?.custom_terms_text || 
+    'Las citas deben cancelarse o reprogramarse con al menos 2 horas de anticipación. Se agradece puntualidad (tolerancia máxima de 15 minutos de retraso). AgendaClick no cobra penalidades por cancelación.'
+  )
+  const [dataPolicyText, setDataPolicyText] = useState(
+    clinic?.schedule?.legal?.data_treatment_policy || 
+    'Autorizo el tratamiento de mis datos personales únicamente para la gestión, recordatorio, confirmación y control de citas conforme a la Ley 1581 de 2012 de Habeas Data. En ningún momento mis datos serán compartidos con terceros.'
+  )
 
   const [staffName, setStaffName] = useState(profile?.name || '')
   const [isSavingStaff, setIsSavingStaff] = useState(false)
@@ -403,7 +451,7 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
       </div>
 
       {/* Selector de Pestañas Simplificado */}
-      <div className="flex border-b border-gray-200 gap-1 sm:gap-4 overflow-x-auto no-scrollbar py-0.5">
+      <div className="flex border-b border-gray-200 gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
         <button
           type="button"
           onClick={() => setActiveTab('basic')}
@@ -430,15 +478,39 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('advanced')}
+          onClick={() => setActiveTab('social')}
           className={`pb-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
-            activeTab === 'advanced' 
+            activeTab === 'social' 
               ? 'border-black text-black' 
               : 'border-transparent text-gray-400 hover:text-gray-700'
           }`}
         >
-          <Sliders className="w-4 h-4 shrink-0" />
-          3. Opciones Avanzadas
+          <Share2 className="w-4 h-4 shrink-0" />
+          3. Redes Sociales
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('integrations')}
+          className={`pb-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
+            activeTab === 'integrations' 
+              ? 'border-black text-black' 
+              : 'border-transparent text-gray-400 hover:text-gray-700'
+          }`}
+        >
+          <Calendar className="w-4 h-4 shrink-0" />
+          4. Pagos y Calendario
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('legal')}
+          className={`pb-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
+            activeTab === 'legal' 
+              ? 'border-black text-black' 
+              : 'border-transparent text-gray-400 hover:text-gray-700'
+          }`}
+        >
+          <Scale className="w-4 h-4 shrink-0" />
+          5. Legal & Políticas
         </button>
       </div>
 
@@ -956,22 +1028,27 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
         </div>
       </div>
 
-      {/* PESTAÑA 3: REDES Y OPCIONES AVANZADAS */}
-      <div className={activeTab === 'advanced' ? 'space-y-6' : 'hidden'}>
-        {/* Redes Sociales */}
+      {/* PESTAÑA 3: REDES SOCIALES */}
+      <div className={activeTab === 'social' ? 'space-y-6' : 'hidden'}>
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Redes Sociales (Firma para Correos)</h2>
-          <p className="text-xs text-gray-500 mb-4">Estos enlaces se incluirán en los correos de confirmación invitando a tus clientes a seguirte.</p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <Share2 className="w-5 h-5 text-pink-600 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">Redes Sociales de tu Negocio</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-5">
+            Estos enlaces se mostrarán en tu página de reservas y en los correos automáticos de confirmación para que tus clientes te sigan.
+          </p>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Instagram</label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full">
+              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full focus-within:border-black">
                 <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
                 <input 
                   name="instagram" 
                   defaultValue={clinic?.instagram_url || ''}
                   placeholder="usuario" 
-                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none" 
+                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white" 
                 />
               </div>
             </div>
@@ -981,18 +1058,18 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                 name="facebook" 
                 defaultValue={clinic?.facebook_url || ''}
                 placeholder="Enlace o nombre de página" 
-                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black" 
+                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
               />
             </div>
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">TikTok</label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full">
+              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full focus-within:border-black">
                 <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
                 <input 
                   name="tiktok" 
                   defaultValue={clinic?.tiktok_url || ''}
                   placeholder="usuario" 
-                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none" 
+                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white" 
                 />
               </div>
             </div>
@@ -1002,30 +1079,39 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                 name="youtube" 
                 defaultValue={clinic?.youtube_url || ''}
                 placeholder="Enlace del canal" 
-                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black" 
+                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
               />
             </div>
           </div>
         </div>
+      </div>
 
+      {/* PESTAÑA 4: CONEXIONES (PAGOS Y CALENDARIO) */}
+      <div className={activeTab === 'integrations' ? 'space-y-6' : 'hidden'}>
         {/* Pasarela de Pagos */}
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">💳 Cobro de Citas en Línea (Pasarela de Pagos)</h2>
-          <div className="bg-gray-50 border border-gray-200 p-5 rounded-2xl space-y-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <CreditCard className="w-5 h-5 text-blue-600 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">Cobro de Citas en Línea (Pasarela de Pagos)</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">
+            Permite que tus clientes paguen sus servicios antes de asistir mediante Wompi, ePayco o MercadoPago.
+          </p>
+          <div className="bg-gray-50 border border-gray-200 p-4 sm:p-5 rounded-2xl space-y-3">
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-              ¿Quieres recibir pagos online de tus clientes al agendar? Activamos pasarelas colombianas como <strong>Wompi, ePayco o MercadoPago</strong> de forma 100% segura para tu portal.
+              ¿Quieres recibir pagos online de tus clientes al agendar? Activamos pasarelas colombianas de forma 100% segura para tu portal.
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
               <a 
                 href="https://wa.me/573239306599?text=Hola%20Nexora%20Digital,%20me%20gustar%C3%ADa%20solicitar%20la%20integraci%C3%B3n%20segura%20de%20la%20pasarela%20de%20pagos%20de%20citas%20para%20mi%20portal%20de%20AgendaClick."
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs text-xs"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs text-xs"
               >
                 <MessageCircle className="w-4 h-4" />
                 Contactar Soporte para Integrar Pagos
               </a>
-              <span className="text-[11px] text-gray-400 max-w-xs">
+              <span className="text-[11px] text-gray-400">
                 La integración es realizada directamente por nuestro equipo para garantizar la seguridad de tus cuentas bancarias.
               </span>
             </div>
@@ -1034,90 +1120,332 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
 
         {/* Sincronización con Google Calendar */}
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Sincronización con Google Calendar</h2>
-          <p className="text-xs text-gray-500 mb-4">Sincroniza tus citas de AgendaClick en tu calendario personal de Google automáticamente.</p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <Calendar className="w-5 h-5 text-emerald-600 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">Sincronización con Google Calendar</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">
+            Sincroniza tus citas de AgendaClick en tu calendario personal de Google automáticamente para evitar cruces de horario.
+          </p>
           <GoogleCalendarSync 
             profile={profile} 
             isDisconnecting={isDisconnectingCalendar} 
             onDisconnect={handleDisconnectCalendar} 
           />
         </div>
+      </div>
 
-        {/* Términos Legales */}
+      {/* PESTAÑA 5: INFORMACIÓN LEGAL Y POLÍTICAS */}
+      <div className={activeTab === 'legal' ? 'space-y-6' : 'hidden'}>
+        <input type="hidden" name="is_formalized" value={isFormalized ? 'true' : 'false'} />
+        <input type="hidden" name="has_website" value={hasWebsite ? 'true' : 'false'} />
+
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">⚖️ Información Legal y Habeas Data</h2>
-          <p className="text-xs text-gray-500 mb-4">Configura los términos de servicio y tratamiento de datos para cumplir con la Ley 1581 de Habeas Data.</p>
-          <div className="space-y-4">
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Razón Social / Nombre Legal</label>
-                  <input
-                    type="text"
-                    name="legal_business_name"
-                    defaultValue={clinic?.schedule?.legal?.business_legal_name || ''}
-                    placeholder="Ej. Inversiones Estética Integral S.A.S."
-                    className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">NIT / RUT</label>
-                  <input
-                    type="text"
-                    name="legal_nit"
-                    defaultValue={clinic?.schedule?.legal?.nit || ''}
-                    placeholder="Ej. 901.234.567-8"
-                    className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
-                  />
-                </div>
-              </div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <Scale className="w-5 h-5 text-indigo-600 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">Información Legal y Habeas Data</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-5">
+            Configura la identidad legal de tu negocio y las políticas de cancelación para tus clientes con total claridad y respaldo de la Ley 1581.
+          </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Enlace a Términos (URL externa)</label>
-                  <input
-                    type="url"
-                    name="legal_terms_url"
-                    defaultValue={clinic?.schedule?.legal?.terms_url || ''}
-                    placeholder="https://tuempresa.com/terminos"
-                    className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
-                  />
+          {/* Pregunta Clave: ¿Formalizado o Independiente? */}
+          <div className="mb-6">
+            <label className="block text-xs sm:text-sm font-bold text-gray-900 mb-2.5">
+              ¿Tu negocio está registrado ante Cámara de Comercio?
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Opción 1: No formalizado / Independiente */}
+              <button
+                type="button"
+                onClick={() => setIsFormalized(false)}
+                className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                  !isFormalized 
+                    ? 'border-blue-600 bg-blue-50/70 shadow-xs' 
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-blue-600 shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold text-gray-900">
+                      Soy Independiente / Sin Cámara de Comercio
+                    </span>
+                  </div>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    !isFormalized ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
+                  }`}>
+                    {!isFormalized && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Enlace a Política de Privacidad (URL externa)</label>
-                  <input
-                    type="url"
-                    name="legal_privacy_url"
-                    defaultValue={clinic?.schedule?.legal?.privacy_url || ''}
-                    placeholder="https://tuempresa.com/privacidad"
-                    className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
-                  />
+                <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed">
+                  Para profesionales independientes, estilistas, barberos, consultores o negocios que operan a título personal sin empresa formal constituida.
+                </p>
+                <span className="inline-block text-[10px] font-bold text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full w-fit">
+                  ⚡ Recomendado para la mayoría de negocios
+                </span>
+              </button>
+
+              {/* Opción 2: Empresa formalizada */}
+              <button
+                type="button"
+                onClick={() => setIsFormalized(true)}
+                className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                  isFormalized 
+                    ? 'border-indigo-600 bg-indigo-50/70 shadow-xs' 
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-indigo-600 shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold text-gray-900">
+                      Sí, somos Empresa Formalizada (S.A.S. / NIT)
+                    </span>
+                  </div>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    isFormalized ? 'border-indigo-600 bg-indigo-600' : 'border-gray-300'
+                  }`}>
+                    {isFormalized && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Términos del Servicio y Cancelación</label>
-                <textarea
-                  name="legal_custom_terms_text"
-                  rows={2}
-                  defaultValue={clinic?.schedule?.legal?.custom_terms_text || ''}
-                  placeholder="Ej. Las citas deben cancelarse con al menos 2 horas de anticipación..."
-                  className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Tratamiento de Datos Personales (Habeas Data)</label>
-                <textarea
-                  name="legal_data_policy"
-                  rows={2}
-                  defaultValue={clinic?.schedule?.legal?.data_treatment_policy || ''}
-                  placeholder="Ej. Al agendar, autorizo el tratamiento de mis datos personales conforme a la Ley 1581 de 2012..."
-                  className="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:ring-black focus:border-black"
-                />
-              </div>
+                <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed">
+                  Para personas jurídicas registradas en Cámara de Comercio con Razón Social, NIT y representante legal.
+                </p>
+                <span className="inline-block text-[10px] font-bold text-indigo-700 bg-indigo-100/70 px-2.5 py-0.5 rounded-full w-fit">
+                  🏢 Sociedades, Clínicas & Franquicias
+                </span>
+              </button>
             </div>
           </div>
+
+          {/* SUB-MENÚ A: PARA NEGOCIOS INDEPENDIENTES / SIN CÁMARA DE COMERCIO */}
+          {!isFormalized && (
+            <div className="space-y-4 animate-fade-in-up">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-emerald-900 leading-relaxed">
+                  <span className="font-bold">¡Tranquilo(a)! No necesitas Cámara de Comercio ni página web para usar AgendaClick.</span>
+                  <p className="mt-0.5 text-emerald-800">
+                    AgendaClick genera automáticamente los términos legales y la cláusula de protección de datos (Habeas Data Ley 1581) a tu nombre o nombre comercial. Tus clientes estarán 100% informados y protegidos al agendar.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Nombre del Responsable del Negocio *
+                    </label>
+                    <input
+                      type="text"
+                      name="responsible_name"
+                      value={responsibleName}
+                      onChange={(e) => setResponsibleName(e.target.value)}
+                      placeholder="Ej. Diana Marcela Rodríguez"
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                    />
+                    <p className="text-[11px] text-gray-500 mt-1">Este nombre aparecerá en la política de datos y términos de tus clientes.</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Cédula o RUT Personal (Opcional)
+                    </label>
+                    <input
+                      type="text"
+                      name="responsible_id"
+                      value={responsibleId}
+                      onChange={(e) => setResponsibleId(e.target.value)}
+                      placeholder="Ej. C.C. 1.085.123.456"
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                    />
+                    <p className="text-[11px] text-gray-500 mt-1">Para mayor transparencia con tus clientes al momento de agendar.</p>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-gray-700">
+                      Regla de Cancelación y Puntualidad para tus Clientes
+                    </label>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setCustomTermsText('Las citas deben cancelarse o reprogramarse con al menos 2 horas de anticipación. Se agradece puntualidad (tolerancia máxima de 15 minutos). AgendaClick no cobra penalidades por cancelación.')}
+                      className="text-[11px] font-medium bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      ⏱️ 2 horas antes (Estándar)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCustomTermsText('Las citas deben cancelarse o reprogramarse con al menos 24 horas de anticipación para permitir ceder el espacio a otro cliente. Tolerancia de 10 minutos.')}
+                      className="text-[11px] font-medium bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      📅 24 horas antes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCustomTermsText('Sin penalidad por cancelación. Si no puedes asistir, por favor avísanos por WhatsApp lo antes posible para liberar tu turno.')}
+                      className="text-[11px] font-medium bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      🤝 Flexible / Sin penalidad
+                    </button>
+                  </div>
+                  <textarea
+                    name="legal_custom_terms_text"
+                    rows={2}
+                    value={customTermsText}
+                    onChange={(e) => setCustomTermsText(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl p-3 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Tratamiento de Datos Personales (Habeas Data Automático)
+                  </label>
+                  <textarea
+                    name="legal_data_policy"
+                    rows={2}
+                    value={dataPolicyText}
+                    onChange={(e) => setDataPolicyText(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl p-3 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                  />
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    Con este texto tus clientes autorizan el uso de su celular y nombre exclusivamente para la reserva, cumpliendo la Ley 1581 de 2012.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SUB-MENÚ B: PARA EMPRESAS FORMALIZADAS (CÁMARA DE COMERCIO / S.A.S. / NIT) */}
+          {isFormalized && (
+            <div className="space-y-4 animate-fade-in-up">
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Razón Social Registrada en Cámara de Comercio *
+                    </label>
+                    <input
+                      type="text"
+                      name="legal_business_name"
+                      value={legalBusinessName}
+                      onChange={(e) => setLegalBusinessName(e.target.value)}
+                      placeholder="Ej. Inversiones Estética Integral S.A.S."
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      NIT de la Empresa *
+                    </label>
+                    <input
+                      type="text"
+                      name="legal_nit"
+                      value={legalNit}
+                      onChange={(e) => setLegalNit(e.target.value)}
+                      placeholder="Ej. 901.234.567-8"
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                    />
+                  </div>
+                </div>
+
+                {/* Pregunta sobre si tiene sitio web externo */}
+                <div className="pt-2 border-t border-gray-200">
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                    ¿Tu empresa ya tiene una página web propia con sus propios términos y privacidad?
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-800">
+                      <input 
+                        type="radio" 
+                        name="has_website_radio" 
+                        checked={!hasWebsite} 
+                        onChange={() => setHasWebsite(false)} 
+                        className="text-black focus:ring-black"
+                      />
+                      No tengo página web (Usar los términos integrados en AgendaClick)
+                    </label>
+                    <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-800">
+                      <input 
+                        type="radio" 
+                        name="has_website_radio" 
+                        checked={hasWebsite} 
+                        onChange={() => setHasWebsite(true)} 
+                        className="text-black focus:ring-black"
+                      />
+                      Sí, tengo página web externa
+                    </label>
+                  </div>
+                </div>
+
+                {/* Si tiene página web externa */}
+                {hasWebsite ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Enlace a Términos del Servicio (URL externa)
+                      </label>
+                      <input
+                        type="url"
+                        name="legal_terms_url"
+                        value={legalTermsUrl}
+                        onChange={(e) => setLegalTermsUrl(e.target.value)}
+                        placeholder="https://tuempresa.com/terminos"
+                        className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Enlace a Política de Privacidad (URL externa)
+                      </label>
+                      <input
+                        type="url"
+                        name="legal_privacy_url"
+                        value={legalPrivacyUrl}
+                        onChange={(e) => setLegalPrivacyUrl(e.target.value)}
+                        placeholder="https://tuempresa.com/privacidad"
+                        className="w-full border border-gray-300 rounded-xl px-3 py-2 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  /* Si NO tiene página web externa, usar los textareas integrados */
+                  <div className="space-y-4 pt-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Términos del Servicio y Cancelación para Clientes
+                      </label>
+                      <textarea
+                        name="legal_custom_terms_text"
+                        rows={2}
+                        value={customTermsText}
+                        onChange={(e) => setCustomTermsText(e.target.value)}
+                        className="w-full border border-gray-300 rounded-xl p-3 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Tratamiento de Datos Personales (Habeas Data)
+                      </label>
+                      <textarea
+                        name="legal_data_policy"
+                        rows={2}
+                        value={dataPolicyText}
+                        onChange={(e) => setDataPolicyText(e.target.value)}
+                        className="w-full border border-gray-300 rounded-xl p-3 bg-white text-xs sm:text-sm focus:ring-black focus:border-black"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1127,17 +1455,29 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
           {activeTab !== 'basic' && (
             <button
               type="button"
-              onClick={() => setActiveTab(activeTab === 'advanced' ? 'design' : 'basic')}
+              onClick={() => {
+                const TAB_KEYS: Array<'basic' | 'design' | 'social' | 'integrations' | 'legal'> = [
+                  'basic', 'design', 'social', 'integrations', 'legal'
+                ]
+                const idx = TAB_KEYS.indexOf(activeTab)
+                if (idx > 0) setActiveTab(TAB_KEYS[idx - 1])
+              }}
               className="px-4 py-2.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               Paso Anterior
             </button>
           )}
-          {activeTab !== 'advanced' && (
+          {activeTab !== 'legal' && (
             <button
               type="button"
-              onClick={() => setActiveTab(activeTab === 'basic' ? 'design' : 'advanced')}
+              onClick={() => {
+                const TAB_KEYS: Array<'basic' | 'design' | 'social' | 'integrations' | 'legal'> = [
+                  'basic', 'design', 'social', 'integrations', 'legal'
+                ]
+                const idx = TAB_KEYS.indexOf(activeTab)
+                if (idx < TAB_KEYS.length - 1) setActiveTab(TAB_KEYS[idx + 1])
+              }}
               className="px-4 py-2.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               Paso Siguiente

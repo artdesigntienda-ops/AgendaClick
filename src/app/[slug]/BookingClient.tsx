@@ -930,24 +930,24 @@ export default function BookingClient({ clinic, services, professionals, appoint
                     He leído y acepto los{' '}
                     {legalInfo?.terms_url ? (
                       <a href={legalInfo.terms_url} target="_blank" rel="noreferrer" className="font-semibold text-gray-800 underline hover:text-brand">
-                        Términos de {legalInfo?.business_legal_name || clinic.name}
+                        Términos de {legalInfo?.business_legal_name || legalInfo?.responsible_name || clinic.name}
                       </a>
-                    ) : legalInfo?.custom_terms_text ? (
+                    ) : (
                       <button type="button" onClick={() => setShowTermsModal(true)} className="font-semibold text-gray-800 underline hover:text-brand inline p-0 m-0">
-                        Términos de {legalInfo?.business_legal_name || clinic.name}
+                        Términos de {legalInfo?.business_legal_name || legalInfo?.responsible_name || clinic.name}
                       </button>
-                    ) : null}
-                    {((legalInfo?.terms_url || legalInfo?.custom_terms_text) && (legalInfo?.privacy_url || legalInfo?.data_treatment_policy)) && ', la '}
+                    )}
+                    {', la '}
                     {legalInfo?.privacy_url ? (
                       <a href={legalInfo.privacy_url} target="_blank" rel="noreferrer" className="font-semibold text-gray-800 underline hover:text-brand">
                         Política de Privacidad
                       </a>
-                    ) : legalInfo?.data_treatment_policy ? (
+                    ) : (
                       <button type="button" onClick={() => setShowPrivacyModal(true)} className="font-semibold text-gray-800 underline hover:text-brand inline p-0 m-0">
                         Tratamiento de Datos (Habeas Data)
                       </button>
-                    ) : null}
-                    {(legalInfo?.terms_url || legalInfo?.custom_terms_text || legalInfo?.privacy_url || legalInfo?.data_treatment_policy) && ', así como los '}
+                    )}
+                    {', así como los '}
                     <a href="/terminos" target="_blank" className="underline hover:text-brand">Términos de Servicio</a> y la <a href="/privacidad" target="_blank" className="underline hover:text-brand">Política de Privacidad</a> de AgendaClick (proveedor tecnológico).
                   </label>
                 </div>
@@ -1048,11 +1048,24 @@ export default function BookingClient({ clinic, services, professionals, appoint
       
       {/* Legal transparency footer */}
       <div className="py-4 px-6 text-center border-t border-gray-100 bg-gray-50/50 rounded-b-2xl space-y-1.5">
-        {(legalInfo?.business_legal_name || legalInfo?.nit) && (
-          <p className="text-[11px] text-gray-500 font-medium">
-            ⚖️ <strong>{legalInfo?.business_legal_name || clinic.name}</strong>
-            {legalInfo?.nit ? ` • NIT / ID: ${legalInfo.nit}` : ''}
-          </p>
+        {legalInfo?.is_formalized ? (
+          (legalInfo?.business_legal_name || legalInfo?.nit) && (
+            <p className="text-[11px] text-gray-500 font-medium">
+              ⚖️ <strong>{legalInfo?.business_legal_name || clinic.name}</strong>
+              {legalInfo?.nit ? ` • NIT: ${legalInfo.nit}` : ''}
+            </p>
+          )
+        ) : (
+          (legalInfo?.responsible_name || legalInfo?.responsible_id) ? (
+            <p className="text-[11px] text-gray-500 font-medium">
+              ⚖️ Responsable: <strong>{legalInfo?.responsible_name || clinic.name}</strong>
+              {legalInfo?.responsible_id ? ` • Identificación: ${legalInfo.responsible_id}` : ''}
+            </p>
+          ) : (
+            <p className="text-[11px] text-gray-500 font-medium">
+              ⚖️ <strong>{clinic.name}</strong>
+            </p>
+          )
         )}
         <p className="text-xs text-gray-400">
           Powered by AgendaClick, una solución de <a href="https://jaisonrodriguez.github.io/nexora-digital-portal/" target="_blank" rel="noreferrer" className="font-bold hover:text-black transition-colors">Nexora Digital</a>
@@ -1065,7 +1078,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[80vh] flex flex-col animate-fade-in-up">
             <div className="flex items-center justify-between border-b pb-3">
               <h3 className="text-base font-bold text-gray-900">
-                Términos del Servicio • {legalInfo?.business_legal_name || clinic.name}
+                Términos del Servicio • {legalInfo?.business_legal_name || legalInfo?.responsible_name || clinic.name}
               </h3>
               <button
                 type="button"
@@ -1076,7 +1089,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
               </button>
             </div>
             <div className="text-xs text-gray-600 leading-relaxed overflow-y-auto pr-1 space-y-2 flex-1 whitespace-pre-wrap">
-              {legalInfo?.custom_terms_text || 'No se han especificado términos adicionales para este negocio.'}
+              {legalInfo?.custom_terms_text || 'Las citas deben cancelarse o reprogramarse con al menos 2 horas de anticipación. Se agradece puntualidad (tolerancia de 15 minutos). AgendaClick no cobra penalidades por cancelación.'}
             </div>
             <div className="border-t pt-3 flex justify-end">
               <button
@@ -1097,7 +1110,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[80vh] flex flex-col animate-fade-in-up">
             <div className="flex items-center justify-between border-b pb-3">
               <h3 className="text-base font-bold text-gray-900">
-                Tratamiento de Datos • {legalInfo?.business_legal_name || clinic.name}
+                Tratamiento de Datos • {legalInfo?.business_legal_name || legalInfo?.responsible_name || clinic.name}
               </h3>
               <button
                 type="button"
@@ -1108,7 +1121,7 @@ export default function BookingClient({ clinic, services, professionals, appoint
               </button>
             </div>
             <div className="text-xs text-gray-600 leading-relaxed overflow-y-auto pr-1 space-y-2 flex-1 whitespace-pre-wrap">
-              {legalInfo?.data_treatment_policy || 'Autorizo a esta empresa el tratamiento de mis datos personales para la prestación y confirmación del servicio conforme a las leyes aplicables de protección de datos (Habeas Data).'}
+              {legalInfo?.data_treatment_policy || 'Autorizo el tratamiento de mis datos personales únicamente para la gestión, recordatorio, confirmación y control de citas conforme a la Ley 1581 de 2012 de Habeas Data. En ningún momento mis datos serán compartidos con terceros.'}
             </div>
             <div className="border-t pt-3 flex justify-end">
               <button
