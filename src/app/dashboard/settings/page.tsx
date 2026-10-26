@@ -132,10 +132,13 @@ export default async function SettingsPage() {
     const state = formData.get('state') as string
     const city = formData.get('city') as string
     const neighborhood = formData.get('neighborhood') as string
-    const instagram = formData.get('instagram') as string
-    const facebook = formData.get('facebook') as string
-    const tiktok = formData.get('tiktok') as string
-    const youtube = formData.get('youtube') as string
+
+    const hasSocialMedia = formData.get('has_social_media') !== 'false'
+    const instagram = hasSocialMedia ? ((formData.get('instagram') as string)?.trim() || null) : null
+    const facebook = hasSocialMedia ? ((formData.get('facebook') as string)?.trim() || null) : null
+    const tiktok = hasSocialMedia ? ((formData.get('tiktok') as string)?.trim() || null) : null
+    const youtube = hasSocialMedia ? ((formData.get('youtube') as string)?.trim() || null) : null
+
     const brandColor = formData.get('brand_color') as string || '#10b981'
     const headerTextColor = formData.get('header_text_color') as string || '#ffffff'
     const fontFamily = formData.get('font_family') as string || 'Outfit'
@@ -225,10 +228,11 @@ export default async function SettingsPage() {
     }
     const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3 MB
 
+    const hasLogo = formData.get('has_logo') !== 'false'
     const logoFile = formData.get('logo') as File
-    let logoUrl = existingClinic?.logo_url
+    let logoUrl = hasLogo ? existingClinic?.logo_url : null
 
-    if (logoFile && logoFile.size > 0 && logoFile.size <= MAX_FILE_SIZE) {
+    if (hasLogo && logoFile && logoFile.size > 0 && logoFile.size <= MAX_FILE_SIZE) {
       const ext = ALLOWED_MIME_TYPES[logoFile.type]
       if (ext) {
         const fileName = `${user.id}-logo-${Date.now()}.${ext}`
@@ -246,10 +250,11 @@ export default async function SettingsPage() {
     }
 
     // Manejo seguro de la subida de la imagen de portada
+    const hasCover = formData.get('has_cover') !== 'false'
     const coverFile = formData.get('cover_image') as File
-    let coverUrl = existingClinic?.cover_image_url
+    let coverUrl = hasCover ? existingClinic?.cover_image_url : null
 
-    if (coverFile && coverFile.size > 0 && coverFile.size <= MAX_FILE_SIZE) {
+    if (hasCover && coverFile && coverFile.size > 0 && coverFile.size <= MAX_FILE_SIZE) {
       const ext = ALLOWED_MIME_TYPES[coverFile.type]
       if (ext) {
         const fileName = `${user.id}-cover-${Date.now()}.${ext}`

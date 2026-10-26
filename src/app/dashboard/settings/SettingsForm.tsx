@@ -199,6 +199,18 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
     'Autorizo el tratamiento de mis datos personales únicamente para la gestión, recordatorio, confirmación y control de citas conforme a la Ley 1581 de 2012 de Habeas Data. En ningún momento mis datos serán compartidos con terceros.'
   )
 
+  const [hasSocialMedia, setHasSocialMedia] = useState<boolean>(() => 
+    !!(clinic?.instagram_url || clinic?.facebook_url || clinic?.tiktok_url || clinic?.youtube_url)
+  )
+
+  const [hasLogo, setHasLogo] = useState<boolean>(() => 
+    !!clinic?.logo_url
+  )
+
+  const [hasCover, setHasCover] = useState<boolean>(() => 
+    !!clinic?.cover_image_url
+  )
+
   const [staffName, setStaffName] = useState(profile?.name || '')
   const [isSavingStaff, setIsSavingStaff] = useState(false)
   const [isDisconnectingCalendar, setIsDisconnectingCalendar] = useState(false)
@@ -782,35 +794,126 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
       {/* PESTAÑA 2: LOGO, COLORES Y DISEÑO */}
       <div className={activeTab === 'design' ? 'space-y-6' : 'hidden'}>
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Logo e Imágenes</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Logo e Imágenes de tu Negocio</h2>
+          <p className="text-xs text-gray-500 mb-5">
+            Personaliza cómo se verá tu negocio. Si no cuentas con imágenes, marca la casilla correspondiente para continuar sin complicaciones.
+          </p>
+
           <div className="space-y-4">
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">Logotipo (Cuadrado o Circular recomendado)</label>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-full object-cover border bg-white shadow-xs shrink-0" />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold border border-gray-200 uppercase shrink-0">
-                    {name ? name.charAt(0) : 'N'}
-                  </div>
-                )}
-                <input type="file" name="logo" accept="image/*" onChange={handleLogoChange} className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer max-w-full" />
+            {/* Control Logotipo */}
+            <div className="bg-gray-50/80 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-gray-900">
+                    Logotipo del Negocio
+                  </label>
+                  <p className="text-[11px] sm:text-xs text-gray-500">
+                    ¿Cuentas con un archivo de logotipo para tu negocio?
+                  </p>
+                </div>
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-white cursor-pointer hover:bg-gray-50 shadow-xs shrink-0 select-none">
+                  <input
+                    type="checkbox"
+                    checked={!hasLogo}
+                    onChange={(e) => {
+                      const noLogo = e.target.checked
+                      setHasLogo(!noLogo)
+                      if (noLogo) setLogoPreview(null)
+                    }}
+                    className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-gray-800">
+                    No tengo archivo de logo
+                  </span>
+                </label>
               </div>
+
+              <input type="hidden" name="has_logo" value={hasLogo ? 'true' : 'false'} />
+
+              {hasLogo ? (
+                <div className="pt-2 border-t border-gray-200/80">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-full object-cover border bg-white shadow-xs shrink-0" />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold border border-gray-200 uppercase shrink-0">
+                        {name ? name.charAt(0) : 'N'}
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <input type="file" name="logo" accept="image/*" onChange={handleLogoChange} className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer max-w-full" />
+                      <p className="text-[11px] text-gray-400">Recomendado: Cuadrado o circular (JPG, PNG o WEBP, máx 3MB).</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-gray-200/80 flex items-center gap-3 text-xs text-gray-600 bg-white/90 p-3 rounded-xl border border-dashed border-gray-300">
+                  <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm shrink-0">
+                    {name ? name.charAt(0).toUpperCase() : 'N'}
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-900 block">Usando inicial automática: &quot;{name ? name.charAt(0).toUpperCase() : 'N'}&quot;</span>
+                    <span className="text-gray-500 text-[11px]">Se verá moderna, limpia y profesional sobre el color corporativo que elijas abajo.</span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">Imagen de Portada (Fondo del Encabezado)</label>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                {coverPreview ? (
-                  <img src={coverPreview} alt="Portada" className="w-24 h-16 rounded-xl object-cover border shadow-xs shrink-0" />
-                ) : (
-                  <div className="w-24 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center border border-gray-200 shrink-0">
-                    Sin Portada
-                  </div>
-                )}
-                <input type="file" name="cover_image" accept="image/*" onChange={handleCoverChange} className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer max-w-full" />
+            {/* Control Imagen de Portada */}
+            <div className="bg-gray-50/80 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-gray-900">
+                    Foto de Portada (Fondo del Encabezado)
+                  </label>
+                  <p className="text-[11px] sm:text-xs text-gray-500">
+                    ¿Cuentas con una foto horizontal para el fondo superior de tu página?
+                  </p>
+                </div>
+                <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-white cursor-pointer hover:bg-gray-50 shadow-xs shrink-0 select-none">
+                  <input
+                    type="checkbox"
+                    checked={!hasCover}
+                    onChange={(e) => {
+                      const noCover = e.target.checked
+                      setHasCover(!noCover)
+                      if (noCover) setCoverPreview(null)
+                    }}
+                    className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-gray-800">
+                    No tengo foto de portada
+                  </span>
+                </label>
               </div>
-              <p className="text-[11px] sm:text-xs text-gray-500 mt-1">Sube una imagen horizontal (paisaje) para mostrar como fondo en tu página de reservas.</p>
+
+              <input type="hidden" name="has_cover" value={hasCover ? 'true' : 'false'} />
+
+              {hasCover ? (
+                <div className="pt-2 border-t border-gray-200/80">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    {coverPreview ? (
+                      <img src={coverPreview} alt="Portada" className="w-24 h-16 rounded-xl object-cover border shadow-xs shrink-0" />
+                    ) : (
+                      <div className="w-24 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center border border-gray-200 shrink-0">
+                        Sin Portada
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <input type="file" name="cover_image" accept="image/*" onChange={handleCoverChange} className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer max-w-full" />
+                      <p className="text-[11px] text-gray-400">Recomendado: Imagen horizontal (paisaje, máx 3MB).</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-gray-200/80 flex items-center gap-3 text-xs text-gray-600 bg-white/90 p-3 rounded-xl border border-dashed border-gray-300">
+                  <div className="w-12 h-8 rounded-lg bg-gradient-to-r from-gray-800 to-black shrink-0" />
+                  <div>
+                    <span className="font-semibold text-gray-900 block">Fondo corporativo limpio</span>
+                    <span className="text-gray-500 text-[11px]">Tu cabecera usará el color de fondo seleccionado abajo sin distracciones visuales.</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -1039,50 +1142,117 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
             Estos enlaces se mostrarán en tu página de reservas y en los correos automáticos de confirmación para que tus clientes te sigan.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Instagram</label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full focus-within:border-black">
-                <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
-                <input 
-                  name="instagram" 
-                  defaultValue={clinic?.instagram_url || ''}
-                  placeholder="usuario" 
-                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white" 
-                />
+          <input type="hidden" name="has_social_media" value={hasSocialMedia ? 'true' : 'false'} />
+
+          {/* Pregunta si cuenta con redes sociales */}
+          <div className="mb-6 p-4 rounded-2xl border-2 transition-all bg-gray-50/80 border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-xs sm:text-sm font-bold text-gray-900 block">
+                  ¿Cuentas con redes sociales de tu negocio?
+                </span>
+                <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                  Si tus clientes te contactan solo por WhatsApp o no usas redes, marca la casilla para continuar directamente.
+                </p>
               </div>
-            </div>
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Facebook</label>
-              <input 
-                name="facebook" 
-                defaultValue={clinic?.facebook_url || ''}
-                placeholder="Enlace o nombre de página" 
-                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
-              />
-            </div>
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">TikTok</label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full focus-within:border-black">
-                <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
-                <input 
-                  name="tiktok" 
-                  defaultValue={clinic?.tiktok_url || ''}
-                  placeholder="usuario" 
-                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white" 
+
+              <label className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border bg-white cursor-pointer hover:bg-gray-50 shadow-xs shrink-0 select-none">
+                <input
+                  type="checkbox"
+                  checked={!hasSocialMedia}
+                  onChange={(e) => setHasSocialMedia(!e.target.checked)}
+                  className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer"
                 />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">YouTube</label>
-              <input 
-                name="youtube" 
-                defaultValue={clinic?.youtube_url || ''}
-                placeholder="Enlace del canal" 
-                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
-              />
+                <span className="text-xs font-semibold text-gray-800">
+                  No tengo redes sociales por ahora
+                </span>
+              </label>
             </div>
           </div>
+
+          {!hasSocialMedia ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                  <Check className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-950">
+                    ¡Perfecto! No necesitas redes sociales para agendar citas
+                  </h4>
+                  <p className="text-xs text-emerald-800 mt-0.5">
+                    Tus clientes te contactarán y reservarán directamente mediante tu enlace web y WhatsApp. Haz clic abajo para continuar al siguiente paso.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('integrations')}
+                className="w-full sm:w-auto px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Continuar al Siguiente Paso</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Instagram</label>
+                  <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full focus-within:border-black">
+                    <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
+                    <input 
+                      name="instagram" 
+                      defaultValue={clinic?.instagram_url || ''}
+                      placeholder="usuario" 
+                      className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Facebook</label>
+                  <input 
+                    name="facebook" 
+                    defaultValue={clinic?.facebook_url || ''}
+                    placeholder="Enlace o nombre de página" 
+                    className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">TikTok</label>
+                  <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full focus-within:border-black">
+                    <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
+                    <input 
+                      name="tiktok" 
+                      defaultValue={clinic?.tiktok_url || ''}
+                      placeholder="usuario" 
+                      className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">YouTube</label>
+                  <input 
+                    name="youtube" 
+                    defaultValue={clinic?.youtube_url || ''}
+                    placeholder="Enlace del canal" 
+                    className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('integrations')}
+                  className="px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Continuar a Pasarelas de Pago</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1354,31 +1524,28 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                   </div>
                 </div>
 
-                {/* Pregunta sobre si tiene sitio web externo */}
+                {/* Pregunta sobre si cuenta con página web propia */}
                 <div className="pt-2 border-t border-gray-200">
-                  <label className="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                    ¿Tu empresa ya tiene una página web propia con sus propios términos y privacidad?
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-800">
-                      <input 
-                        type="radio" 
-                        name="has_website_radio" 
-                        checked={!hasWebsite} 
-                        onChange={() => setHasWebsite(false)} 
-                        className="text-black focus:ring-black"
+                  <div className="p-4 rounded-2xl border transition-all bg-white border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <span className="text-xs sm:text-sm font-bold text-gray-900 block">
+                        ¿Tu empresa cuenta con página web propia?
+                      </span>
+                      <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                        Si no tienes página web externa, AgendaClick genera los términos legales y la política de protección de datos de forma automática.
+                      </p>
+                    </div>
+
+                    <label className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border bg-gray-50 hover:bg-gray-100 cursor-pointer shadow-xs shrink-0 select-none">
+                      <input
+                        type="checkbox"
+                        checked={!hasWebsite}
+                        onChange={(e) => setHasWebsite(!e.target.checked)}
+                        className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer"
                       />
-                      No tengo página web (Usar los términos integrados en AgendaClick)
-                    </label>
-                    <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-800">
-                      <input 
-                        type="radio" 
-                        name="has_website_radio" 
-                        checked={hasWebsite} 
-                        onChange={() => setHasWebsite(true)} 
-                        className="text-black focus:ring-black"
-                      />
-                      Sí, tengo página web externa
+                      <span className="text-xs font-semibold text-gray-800">
+                        No tengo página web propia
+                      </span>
                     </label>
                   </div>
                 </div>
