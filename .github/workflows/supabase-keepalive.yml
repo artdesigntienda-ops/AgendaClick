@@ -1,0 +1,29 @@
+name: Supabase Inactivity Keep-Alive
+
+on:
+  schedule:
+    # Se ejecuta automáticamente cada 3 días a las 12:00 UTC (7:00 AM hora de Colombia)
+    - cron: '0 12 */3 * *'
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub si se desea
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping AgendaClick Keep-Alive Endpoint
+        run: |
+          echo "Pinging AgendaClick keep-alive endpoint..."
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" "https://agendaclick.com.co/api/cron/keep-alive")
+          echo "$RESPONSE"
+
+      - name: Direct Ping to Supabase PostgREST API
+        run: |
+          echo "Pinging Supabase directly..."
+          SUPABASE_URL="https://ywwksvsrqyatilbplssk.supabase.co/rest/v1/clinics?select=id&limit=1"
+          ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+          
+          if [ -n "$ANON_KEY" ]; then
+            curl -s -H "apikey: $ANON_KEY" -H "Authorization: Bearer $ANON_KEY" "$SUPABASE_URL"
+          else
+            echo "Direct anon key not set in GitHub secrets, keep-alive was triggered via Vercel endpoint above."
+          fi
