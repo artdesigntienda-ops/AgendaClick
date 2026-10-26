@@ -314,7 +314,14 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
   }, [clinic?.phone])
 
   const [countryCode, setCountryCode] = useState(clinic?.country || 'CO')
-  const [stateCode, setStateCode] = useState(clinic?.state || '')
+  const [stateCode, setStateCode] = useState(() => {
+    if (!clinic?.state) return ''
+    const states = State.getStatesOfCountry(clinic?.country || 'CO')
+    const match = states.find(
+      s => s.isoCode === clinic.state || s.name.toLowerCase() === clinic.state.toLowerCase()
+    )
+    return match ? match.isoCode : clinic.state
+  })
   const [cityName, setCityName] = useState(clinic?.city || '')
   const [neighborhood, setNeighborhood] = useState(clinic?.neighborhood || '')
 
@@ -372,10 +379,36 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
     e.preventDefault()
     if (isSubmitting) return
 
+    if (!name.trim()) {
+      setActiveTab('basic')
+      toast.error('Por favor escribe el nombre de tu negocio.')
+      return
+    }
+
+    if (!phoneNumber.trim()) {
+      setActiveTab('basic')
+      toast.error('Por favor escribe el número de WhatsApp de contacto.')
+      return
+    }
+
+    if (isBookable) {
+      const ownerInput = e.currentTarget.elements.namedItem('owner_name') as HTMLInputElement
+      if (!ownerInput?.value?.trim()) {
+        setActiveTab('basic')
+        toast.error('Por favor ingresa tu nombre público para recibir reservas.')
+        return
+      }
+    }
+
     setIsSubmitting(true)
     const formData = new FormData(e.currentTarget)
     formData.set('phone', `${phonePrefix}${phoneNumber}`)
     formData.set('country', countryCode)
+
+    // Garantizar que state y city se guarden de forma robusta
+    const selectedStateObj = availableStates.find(s => s.isoCode === stateCode)
+    formData.set('state', selectedStateObj ? selectedStateObj.name : (stateCode || ''))
+    formData.set('city', cityName || '')
     
     try {
       await saveAction(formData)
@@ -390,7 +423,7 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
   if (profile?.role === 'staff') {
     return (
       <div className="space-y-6">
-        <form onSubmit={handleStaffSubmit} className="space-y-6">
+        <form onSubmit={handleStaffSubmit} noValidate className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre Público</label>
             <input 
@@ -431,14 +464,14 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
             profile={profile} 
             isDisconnecting={isDisconnectingCalendar} 
             onDisconnect={handleDisconnectCalendar} 
-          />
+            />
         </div>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       
       {/* Banner de Asistencia Concierge WhatsApp */}
       <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-white border border-blue-200 rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
