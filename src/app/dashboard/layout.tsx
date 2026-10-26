@@ -73,19 +73,24 @@ export default async function DashboardLayout({
 
   let clinic = null
   let clinicId = profile?.clinic_id
+  const adminClient = createAdminClient()
 
-  if (!clinicId && profile?.role === 'owner') {
-    const { data } = await supabase
+  if (clinicId) {
+    const { data } = await adminClient
       .from('clinics')
-      .select('name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
-      .eq('owner_id', user.id)
+      .select('id, name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
+      .eq('id', clinicId)
       .maybeSingle()
     clinic = data
-  } else if (clinicId) {
-    const { data } = await supabase
+  }
+
+  if (!clinic && profile?.role === 'owner') {
+    const { data } = await adminClient
       .from('clinics')
-      .select('name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
-      .eq('id', clinicId)
+      .select('id, name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
     clinic = data
   }

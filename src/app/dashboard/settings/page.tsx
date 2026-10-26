@@ -207,7 +207,7 @@ export default async function SettingsPage() {
     const ownerName = formData.get('owner_name') as string
     
     // Update owner profile
-    await supabase.from('profiles').update({
+    await adminClient.from('profiles').update({
       is_bookable: isBookable,
       name: ownerName || (user.email ? user.email.split('@')[0] : 'Admin')
     }).eq('id', user.id)
@@ -344,8 +344,7 @@ export default async function SettingsPage() {
         .eq('id', user.id)
     }
 
-    revalidatePath('/', 'layout')
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'layout')
     revalidatePath('/dashboard/settings')
     revalidatePath('/dashboard/services')
     revalidatePath(`/${slug}`)
