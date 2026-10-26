@@ -220,13 +220,13 @@ export default async function SettingsPage() {
     const latitude = latitudeRaw ? parseFloat(latitudeRaw) : null
     const longitude = longitudeRaw ? parseFloat(longitudeRaw) : null
     
-    // Manejo seguro de la subida del logo (Validación de tipo MIME y tamaño máx 3MB)
+    // Manejo seguro de la subida del logo (Validación de tipo MIME y tamaño máx 10MB)
     const ALLOWED_MIME_TYPES: Record<string, string> = {
       'image/jpeg': 'jpg',
       'image/png': 'png',
       'image/webp': 'webp'
     }
-    const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3 MB
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
     const hasLogo = formData.get('has_logo') !== 'false'
     const logoFile = formData.get('logo') as File
@@ -236,12 +236,12 @@ export default async function SettingsPage() {
       const ext = ALLOWED_MIME_TYPES[logoFile.type]
       if (ext) {
         const fileName = `${user.id}-logo-${Date.now()}.${ext}`
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await adminClient.storage
           .from('logos')
           .upload(fileName, logoFile, { contentType: logoFile.type, upsert: true })
           
         if (!uploadError) {
-          const { data: publicUrlData } = supabase.storage
+          const { data: publicUrlData } = adminClient.storage
             .from('logos')
             .getPublicUrl(fileName)
           logoUrl = publicUrlData.publicUrl
@@ -258,12 +258,12 @@ export default async function SettingsPage() {
       const ext = ALLOWED_MIME_TYPES[coverFile.type]
       if (ext) {
         const fileName = `${user.id}-cover-${Date.now()}.${ext}`
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await adminClient.storage
           .from('logos')
           .upload(fileName, coverFile, { contentType: coverFile.type, upsert: true })
           
         if (!uploadError) {
-          const { data: publicUrlData } = supabase.storage
+          const { data: publicUrlData } = adminClient.storage
             .from('logos')
             .getPublicUrl(fileName)
           coverUrl = publicUrlData.publicUrl

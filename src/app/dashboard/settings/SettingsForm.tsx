@@ -352,6 +352,11 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('La imagen del logo no debe superar los 10 MB')
+        e.target.value = ''
+        return
+      }
       setLogoPreview(URL.createObjectURL(file))
     }
   }
@@ -359,6 +364,11 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('La foto de portada no debe superar los 10 MB')
+        e.target.value = ''
+        return
+      }
       setCoverPreview(URL.createObjectURL(file))
     }
   }

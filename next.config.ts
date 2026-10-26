@@ -41,6 +41,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['googleapis'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   async headers() {
     return [
       {
