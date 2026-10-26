@@ -252,13 +252,13 @@ export default async function SettingsPage() {
         src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
         strategy="afterInteractive"
       />
-      <h1 className="text-2xl font-semibold mb-6">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
         {profile?.role === 'staff'
           ? 'Mi Perfil Profesional'
           : (clinic ? 'Edición de mi Perfil' : 'Creación del Perfil de mi Negocio')}
       </h1>
 
-      <div className="bg-white border rounded-lg p-6 max-w-2xl shadow-sm">
+      <div className="bg-white border rounded-2xl p-3.5 sm:p-6 max-w-2xl shadow-sm overflow-hidden">
         <Suspense fallback={<div>Cargando...</div>}>
           <SettingsForm clinic={clinic} profile={profile} saveAction={saveSettings} />
         </Suspense>

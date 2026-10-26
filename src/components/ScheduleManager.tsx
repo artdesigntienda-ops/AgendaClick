@@ -78,59 +78,64 @@ export default function ScheduleManager({ initialSchedule }: { initialSchedule?:
         {(Object.keys(DAYS_ES) as Array<keyof typeof DAYS_ES>).map((day) => {
           const config = schedule[day] as DaySchedule
           return (
-            <div key={day} className="p-4 flex flex-col md:flex-row md:items-center gap-4 transition-colors hover:bg-gray-100">
-              <div className="w-32 flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={config.isOpen}
-                  onChange={(e) => updateDay(day, 'isOpen', e.target.checked)}
-                  className="w-5 h-5 rounded text-black focus:ring-black border-gray-300"
-                />
-                <span className={`font-medium ${config.isOpen ? 'text-gray-900' : 'text-gray-400'}`}>
-                  {DAYS_ES[day]}
-                </span>
+            <div key={day} className="p-3 sm:p-4 flex flex-col md:flex-row md:items-center gap-2.5 sm:gap-4 transition-colors hover:bg-gray-100">
+              <div className="w-full sm:w-32 flex items-center justify-between sm:justify-start gap-3">
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.isOpen}
+                    onChange={(e) => updateDay(day, 'isOpen', e.target.checked)}
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded text-black focus:ring-black border-gray-300"
+                  />
+                  <span className={`text-xs sm:text-sm font-bold ${config.isOpen ? 'text-gray-900' : 'text-gray-400'}`}>
+                    {DAYS_ES[day]}
+                  </span>
+                </label>
+                {!config.isOpen && (
+                  <span className="sm:hidden text-xs text-gray-400 italic">Cerrado</span>
+                )}
               </div>
 
               {config.isOpen ? (
-                <div className="flex-1 flex flex-wrap items-center gap-4 animate-fade-in-right">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">De</span>
+                <div className="flex-1 flex flex-wrap items-center gap-2 sm:gap-3 animate-fade-in-right">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-xs text-gray-500">De</span>
                     <input
                       type="time"
                       value={config.openTime}
                       onChange={(e) => updateDay(day, 'openTime', e.target.value)}
-                      className="border rounded-md px-2 py-1 text-sm focus:ring-black focus:border-black"
+                      className="border border-gray-300 rounded-lg px-1.5 sm:px-2 py-1 text-xs focus:ring-black focus:border-black bg-white"
                     />
-                    <span className="text-sm text-gray-500">a</span>
+                    <span className="text-xs text-gray-500">a</span>
                     <input
                       type="time"
                       value={config.closeTime}
                       onChange={(e) => updateDay(day, 'closeTime', e.target.value)}
-                      className="border rounded-md px-2 py-1 text-sm focus:ring-black focus:border-black"
+                      className="border border-gray-300 rounded-lg px-1.5 sm:px-2 py-1 text-xs focus:ring-black focus:border-black bg-white"
                     />
                   </div>
                   
-                  <div className="w-px h-6 bg-gray-300 hidden md:block"></div>
+                  <div className="w-px h-5 bg-gray-300 hidden md:block"></div>
                   
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-amber-600 bg-amber-50 px-2 py-1 rounded-md">Almuerzo:</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="text-[11px] sm:text-xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md font-medium">Almuerzo:</span>
                     <input
                       type="time"
                       value={config.breakStart}
                       onChange={(e) => updateDay(day, 'breakStart', e.target.value)}
-                      className="border rounded-md px-2 py-1 text-sm focus:ring-amber-500 focus:border-amber-500"
+                      className="border border-gray-300 rounded-lg px-1.5 sm:px-2 py-1 text-xs focus:ring-amber-500 focus:border-amber-500 bg-white"
                     />
-                    <span className="text-sm text-gray-500">-</span>
+                    <span className="text-xs text-gray-500">-</span>
                     <input
                       type="time"
                       value={config.breakEnd}
                       onChange={(e) => updateDay(day, 'breakEnd', e.target.value)}
-                      className="border rounded-md px-2 py-1 text-sm focus:ring-amber-500 focus:border-amber-500"
+                      className="border border-gray-300 rounded-lg px-1.5 sm:px-2 py-1 text-xs focus:ring-amber-500 focus:border-amber-500 bg-white"
                     />
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 text-gray-400 text-sm italic">Cerrado</div>
+                <div className="hidden sm:block flex-1 text-gray-400 text-xs italic">Cerrado</div>
               )}
             </div>
           )

@@ -381,21 +381,21 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
     <form onSubmit={handleSubmit} className="space-y-6">
       
       {/* Banner de Asistencia Concierge WhatsApp */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-white border border-blue-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-3">
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-white border border-blue-200 rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
             <Sparkles className="w-5 h-5 text-yellow-300" />
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-gray-900">¿Prefieres que lo configuremos por ti gratis?</h3>
-            <p className="text-xs text-gray-600">Si no conoces de sistemas, envíanos tu lista o fotos a WhatsApp y te lo dejamos listo en 10 minutos.</p>
+          <div className="min-w-0">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900">¿Prefieres que lo configuremos por ti gratis?</h3>
+            <p className="text-[11px] sm:text-xs text-gray-600">Si no conoces de sistemas, envíanos tu lista o fotos a WhatsApp y te lo dejamos listo en 10 minutos.</p>
           </div>
         </div>
         <a
           href="https://wa.me/573239306599?text=Hola%2C%20quiero%20ayuda%20para%20configurar%20mi%20negocio%20en%20AgendaClick"
           target="_blank"
           rel="noreferrer"
-          className="shrink-0 bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5"
+          className="w-full sm:w-auto justify-center shrink-0 bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-xs inline-flex items-center gap-1.5"
         >
           <MessageCircle className="w-4 h-4" />
           Pedir ayuda por WhatsApp
@@ -403,69 +403,69 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
       </div>
 
       {/* Selector de Pestañas Simplificado */}
-      <div className="flex border-b border-gray-200 gap-1 sm:gap-4 overflow-x-auto">
+      <div className="flex border-b border-gray-200 gap-1 sm:gap-4 overflow-x-auto no-scrollbar py-0.5">
         <button
           type="button"
           onClick={() => setActiveTab('basic')}
-          className={`pb-3 px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+          className={`pb-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'basic' 
               ? 'border-black text-black' 
               : 'border-transparent text-gray-400 hover:text-gray-700'
           }`}
         >
-          <Building className="w-4 h-4" />
-          1. Datos Básicos del Negocio
+          <Building className="w-4 h-4 shrink-0" />
+          1. Datos Básicos
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('design')}
-          className={`pb-3 px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+          className={`pb-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'design' 
               ? 'border-black text-black' 
               : 'border-transparent text-gray-400 hover:text-gray-700'
           }`}
         >
-          <Palette className="w-4 h-4" />
-          2. Logo y Colores (Opcional)
+          <Palette className="w-4 h-4 shrink-0" />
+          2. Logo y Colores
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('advanced')}
-          className={`pb-3 px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+          className={`pb-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-b-2 transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'advanced' 
               ? 'border-black text-black' 
               : 'border-transparent text-gray-400 hover:text-gray-700'
           }`}
         >
-          <Sliders className="w-4 h-4" />
-          3. Redes y Opciones Avanzadas
+          <Sliders className="w-4 h-4 shrink-0" />
+          3. Opciones Avanzadas
         </button>
       </div>
 
       {/* PESTAÑA 1: DATOS BÁSICOS DEL NEGOCIO */}
       <div className={activeTab === 'basic' ? 'space-y-6' : 'hidden'}>
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Datos Principales del Negocio</h2>
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Datos Principales del Negocio</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-1">Nombre del Negocio *</label>
+              <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-1">Nombre del Negocio *</label>
               <input 
                 name="name" 
                 required 
                 value={name} 
                 onChange={handleNameChange}
                 placeholder="Ej. Barbería Don Carlos, Diana Nails Studio" 
-                className="w-full border rounded-xl px-4 py-2.5 text-sm focus:ring-black focus:border-black" 
+                className="w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2.5 text-xs sm:text-sm focus:ring-black focus:border-black" 
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-1">
+              <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-1">
                 Enlace web de tu negocio (para tus clientes) *
               </label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 focus-within:border-black focus-within:ring-1 focus-within:ring-black">
-                <span className="inline-flex items-center px-3.5 bg-gray-50 text-gray-500 text-xs sm:text-sm font-medium border-r border-gray-200">
-                  {typeof window !== 'undefined' ? window.location.host : 'agendaclick.com'}/
+              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 focus-within:border-black focus-within:ring-1 focus-within:ring-black w-full">
+                <span className="inline-flex items-center px-2.5 sm:px-3.5 bg-gray-50 text-gray-500 text-xs sm:text-sm font-medium border-r border-gray-200 shrink-0">
+                  agendaclick.com.co/
                 </span>
                 <input 
                   name="slug" 
@@ -473,7 +473,7 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="mi-negocio" 
-                  className="flex-1 min-w-0 block w-full px-3 py-2 text-sm focus:outline-none bg-white font-mono" 
+                  className="flex-1 min-w-0 block w-full px-2.5 sm:px-3 py-2 text-xs sm:text-sm focus:outline-none bg-white font-mono" 
                 />
                 {slug && (
                   <button
@@ -485,7 +485,7 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                       toast.success('¡Enlace copiado!')
                       setTimeout(() => setIsCopied(false), 2000)
                     }}
-                    className="px-3 bg-gray-50 hover:bg-gray-100 text-gray-600 border-l border-gray-200 text-xs font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
+                    className="px-2.5 sm:px-3 bg-gray-50 hover:bg-gray-100 text-gray-600 border-l border-gray-200 text-xs font-bold inline-flex items-center gap-1 transition-colors cursor-pointer shrink-0"
                     title="Copiar enlace"
                   >
                     {isCopied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -493,24 +493,24 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                   </button>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Este es el enlace que tus clientes abrirán desde WhatsApp o Instagram para agendar sus citas.</p>
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-1">Este es el enlace que tus clientes abrirán desde WhatsApp o Instagram para agendar sus citas.</p>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-1">WhatsApp de Contacto (Notificaciones y Reservas) *</label>
-              <div className="flex gap-2">
+              <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-1">WhatsApp de Contacto (Notificaciones y Reservas) *</label>
+              <div className="flex gap-2 w-full">
                 <select 
                   value={phonePrefix}
                   onChange={handlePhonePrefixChange}
-                  className="border rounded-xl px-2 py-2 bg-white focus:ring-black focus:border-black text-sm w-36"
+                  className="shrink-0 border border-gray-300 rounded-xl px-2 py-2 bg-white focus:ring-black focus:border-black text-xs sm:text-sm w-28 sm:w-36"
                 >
-                  <option value="+57">🇨🇴 +57 (Colombia)</option>
-                  <option value="+52">🇲🇽 +52 (México)</option>
-                  <option value="+34">🇪🇸 +34 (España)</option>
-                  <option value="+1">🇺🇸 +1 (USA)</option>
-                  <option value="+54">🇦🇷 +54 (Argentina)</option>
-                  <option value="+56">🇨🇱 +56 (Chile)</option>
-                  <option value="+51">🇵🇪 +51 (Perú)</option>
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+52">🇲🇽 +52</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+54">🇦🇷 +54</option>
+                  <option value="+56">🇨🇱 +56</option>
+                  <option value="+51">🇵🇪 +51</option>
                 </select>
                 <input 
                   type="tel"
@@ -518,18 +518,18 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="300 123 4567" 
-                  className="flex-1 border rounded-xl px-4 py-2 text-sm focus:ring-black focus:border-black" 
+                  className="flex-1 min-w-0 w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black" 
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-1">Categoría de tu Negocio</label>
+              <label className="block text-xs sm:text-sm font-bold text-gray-800 mb-1">Categoría de tu Negocio</label>
               <select 
                 name="business_type" 
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2.5 bg-white focus:ring-black focus:border-black text-sm"
+                className="w-full max-w-full border border-gray-300 rounded-xl px-2.5 sm:px-3 py-2.5 bg-white focus:ring-black focus:border-black text-xs sm:text-sm truncate"
               >
                 <option value="belleza">💅 Estética y Belleza (Peluquerías, Barberías, Cejas, Uñas)</option>
                 <option value="bienestar">🧘 Spas y Bienestar (Masajes, Terapias, Yoga, Relajación)</option>
@@ -604,32 +604,32 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
 
         {/* Tu Perfil como Profesional */}
         <div className="border-b pb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Tu Perfil como Profesional</h2>
-          <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl space-y-4">
-            <label className="flex items-center gap-3 cursor-pointer">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Tu Perfil como Profesional</h2>
+          <div className="bg-blue-50 border border-blue-100 p-3.5 sm:p-4 rounded-xl space-y-3">
+            <label className="flex items-start gap-3 cursor-pointer">
               <input 
                 type="checkbox" 
                 name="is_bookable" 
-                className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black"
+                className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black mt-0.5 shrink-0"
                 checked={isBookable}
                 onChange={(e) => setIsBookable(e.target.checked)}
               />
-              <span className="text-sm font-semibold text-blue-900">
+              <span className="text-xs sm:text-sm font-semibold text-blue-900 leading-snug">
                 Yo también atiendo clientes (Quiero aparecer en la lista de profesionales para recibir reservas)
               </span>
             </label>
             
             {isBookable && (
-              <div className="pl-8">
-                <label className="block text-sm font-medium text-blue-900 mb-1">Tu Nombre Público</label>
+              <div className="pt-2 sm:pl-8">
+                <label className="block text-xs sm:text-sm font-medium text-blue-900 mb-1">Tu Nombre Público</label>
                 <input 
                   name="owner_name" 
                   defaultValue={profile?.name || ''} 
                   placeholder="Ej. Dra. María o Estilista Juan" 
                   required={isBookable}
-                  className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-black focus:border-black bg-white" 
+                  className="w-full min-w-0 border border-blue-200 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black bg-white" 
                 />
-                <p className="text-xs text-blue-700 mt-1">Así te verán los clientes al agendar.</p>
+                <p className="text-[11px] sm:text-xs text-blue-700 mt-1">Así te verán los clientes al agendar.</p>
               </div>
             )}
           </div>
@@ -713,32 +713,32 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
           <h2 className="text-lg font-bold text-gray-900 mb-4">Logo e Imágenes</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Logotipo (Cuadrado o Circular recomendado)</label>
-              <div className="flex items-center gap-4">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">Logotipo (Cuadrado o Circular recomendado)</label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-full object-cover border bg-white shadow-xs" />
+                  <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-full object-cover border bg-white shadow-xs shrink-0" />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold border border-gray-200 uppercase">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl font-bold border border-gray-200 uppercase shrink-0">
                     {name ? name.charAt(0) : 'N'}
                   </div>
                 )}
-                <input type="file" name="logo" accept="image/*" onChange={handleLogoChange} className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer" />
+                <input type="file" name="logo" accept="image/*" onChange={handleLogoChange} className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer max-w-full" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Imagen de Portada (Fondo del Encabezado)</label>
-              <div className="flex items-center gap-4">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">Imagen de Portada (Fondo del Encabezado)</label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 {coverPreview ? (
-                  <img src={coverPreview} alt="Portada" className="w-24 h-16 rounded-xl object-cover border shadow-xs" />
+                  <img src={coverPreview} alt="Portada" className="w-24 h-16 rounded-xl object-cover border shadow-xs shrink-0" />
                 ) : (
-                  <div className="w-24 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center border border-gray-200">
+                  <div className="w-24 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center border border-gray-200 shrink-0">
                     Sin Portada
                   </div>
                 )}
-                <input type="file" name="cover_image" accept="image/*" onChange={handleCoverChange} className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer" />
+                <input type="file" name="cover_image" accept="image/*" onChange={handleCoverChange} className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer max-w-full" />
               </div>
-              <p className="text-xs text-gray-500 mt-1">Sube una imagen horizontal (paisaje) para mostrar como fondo en tu página de reservas.</p>
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-1">Sube una imagen horizontal (paisaje) para mostrar como fondo en tu página de reservas.</p>
             </div>
 
             <div>
@@ -964,45 +964,45 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
           <p className="text-xs text-gray-500 mb-4">Estos enlaces se incluirán en los correos de confirmación invitando a tus clientes a seguirte.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300">
-                <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-sm border-r">@</span>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Instagram</label>
+              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full">
+                <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
                 <input 
                   name="instagram" 
                   defaultValue={clinic?.instagram_url || ''}
                   placeholder="usuario" 
-                  className="flex-1 px-3 py-2 text-sm focus:outline-none" 
+                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none" 
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Facebook</label>
               <input 
                 name="facebook" 
                 defaultValue={clinic?.facebook_url || ''}
                 placeholder="Enlace o nombre de página" 
-                className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-black focus:border-black" 
+                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black" 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
-              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300">
-                <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-sm border-r">@</span>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">TikTok</label>
+              <div className="flex rounded-xl shadow-xs overflow-hidden border border-gray-300 w-full">
+                <span className="inline-flex items-center px-3 bg-gray-50 text-gray-500 text-xs sm:text-sm border-r shrink-0">@</span>
                 <input 
                   name="tiktok" 
                   defaultValue={clinic?.tiktok_url || ''}
                   placeholder="usuario" 
-                  className="flex-1 px-3 py-2 text-sm focus:outline-none" 
+                  className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm focus:outline-none" 
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">YouTube</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">YouTube</label>
               <input 
                 name="youtube" 
                 defaultValue={clinic?.youtube_url || ''}
                 placeholder="Enlace del canal" 
-                className="w-full border rounded-xl px-4 py-2 text-sm focus:ring-black focus:border-black" 
+                className="w-full min-w-0 border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm focus:ring-black focus:border-black" 
               />
             </div>
           </div>

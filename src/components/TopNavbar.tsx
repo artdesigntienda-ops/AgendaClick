@@ -64,11 +64,12 @@ export default function TopNavbar({ profile }: { profile?: any }) {
 
         <button 
           onClick={startTour}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs md:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black border border-gray-200 rounded-full transition-all shadow-sm"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs md:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 hover:text-black border border-gray-200 rounded-full transition-all shadow-sm shrink-0"
           title="Tutorial AgendaClick"
         >
           <PlayCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Tutorial AgendaClick</span>
+          <span className="hidden sm:inline">Tutorial AgendaClick</span>
+          <span className="sm:hidden text-xs">Tutorial</span>
         </button>
 
         <a 
