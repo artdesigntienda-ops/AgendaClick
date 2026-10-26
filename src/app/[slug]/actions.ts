@@ -147,6 +147,38 @@ export async function createAppointment(data: {
 }, otpCode: string) {
   const supabase = await createClient()
 
+  // 0. Validar existencia y suscripción activa o prueba vigente del negocio
+  const { data: clinicInfo } = await getSupabaseAdmin()
+    .from('clinics')
+    .select('id, name, owner_id, subscription_status, subscription_ends_at')
+    .eq('id', data.clinicId)
+    .maybeSingle()
+
+  if (!clinicInfo) {
+    return { error: true, message: 'Negocio no encontrado.' }
+  }
+
+  const now = new Date()
+  const endsAt = clinicInfo.subscription_ends_at ? new Date(clinicInfo.subscription_ends_at) : null
+  const isExpired = endsAt ? now > endsAt : false
+  if (clinicInfo.subscription_status !== 'active' && (clinicInfo.subscription_status !== 'trial' || isExpired)) {
+    return { error: true, message: 'Las reservas en línea para este negocio se encuentran temporalmente pausadas.' }
+  }
+
+  // 0.5 Validar que el profesional asignado pertenece a este negocio
+  if (data.staffId) {
+    const { data: staffMember } = await getSupabaseAdmin()
+      .from('profiles')
+      .select('id')
+      .eq('id', data.staffId)
+      .eq('clinic_id', data.clinicId)
+      .maybeSingle()
+
+    if (!staffMember) {
+      return { error: true, message: 'El profesional seleccionado no pertenece a este negocio.' }
+    }
+  }
+
   // 1. Validar OTP
   const normalizedEmail = data.clientEmail.trim().toLowerCase()
   const { data: verifications, error: otpError } = await getSupabaseAdmin()
@@ -184,21 +216,36 @@ export async function createAppointment(data: {
     return { error: true, message: 'Lo sentimos, este horario acaba de ser ocupado. Por favor elige otro.' }
   }
 
+  // 1.8 Calcular el precio total de forma segura desde la base de datos (Anti-Tampering)
+  const serviceIdsToQuery = data.serviceIds && data.serviceIds.length > 0
+    ? data.serviceIds
+    : [data.serviceId]
+
+  const { data: dbServices } = await getSupabaseAdmin()
+    .from('services')
+    .select('id, price, name')
+    .in('id', serviceIdsToQuery)
+    .eq('clinic_id', data.clinicId)
+
+  let calculatedTotalPrice = 0
+  let calculatedServiceNames = ''
+  if (dbServices && dbServices.length > 0) {
+    calculatedTotalPrice = dbServices.reduce((sum, s) => sum + (Number(s.price) || 0), 0)
+    calculatedServiceNames = dbServices.map(s => s.name).join(', ')
+  }
+
   // 2. Guardar en la DB (usamos admin para saltar RLS, ya que la legitimidad fue validada por el OTP)
   const appointmentPayload: any = {
     clinic_id: data.clinicId,
     service_id: data.serviceId,
-    staff_id: data.staffId,
+    staff_id: data.staffId || null,
     client_name: data.clientName,
     client_email: data.clientEmail,
     client_phone: data.clientPhone,
     start_time: data.startTime,
     end_time: data.endTime,
-    status: 'confirmed' // El OTP valida la intención, así que entra como confirmado
-  }
-
-  if (data.totalPrice !== undefined && data.totalPrice !== null) {
-    appointmentPayload.total_price = data.totalPrice
+    status: 'confirmed',
+    total_price: calculatedTotalPrice
   }
 
   const { data: newApp, error } = await getSupabaseAdmin()
@@ -217,20 +264,8 @@ export async function createAppointment(data: {
   // Borramos el OTP que ya se usó para evitar reusos (fire and forget)
   getSupabaseAdmin().from('otp_verifications').delete().eq('id', verifications[0].id).then()
 
-  // 3. Obtener info de la clínica y del dueño / profesional
-  const { data: clinicInfo } = await supabase
-    .from('clinics')
-    .select('name, owner_id')
-    .eq('id', data.clinicId)
-    .maybeSingle()
-
-  const { data: serviceInfo } = await supabase
-    .from('services')
-    .select('name')
-    .eq('id', data.serviceId)
-    .maybeSingle()
-
-  const serviceName = data.serviceNames || serviceInfo?.name || 'Cita'
+  // 3. Obtener info del servicio si no vino en dbServices
+  const serviceName = calculatedServiceNames || data.serviceNames || 'Cita'
   const clinicName = clinicInfo?.name || 'AgendaClick'
   
   // Buscar el perfil adecuado (profesional asignado o dueño de la clínica) que tenga Google Calendar conectado

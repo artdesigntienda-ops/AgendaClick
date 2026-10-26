@@ -41,13 +41,22 @@ export default async function ServicesPage() {
 
     if (!clinic) return
 
-    await supabase.from('services').insert({
+    const name = (formData.get('name') as string)?.trim()
+    const duration = parseInt(formData.get('duration') as string) || 30
+    const price = parseFloat(formData.get('price') as string) || 0
+
+    if (!name) return
+
+    const { error: insertErr } = await supabase.from('services').insert({
       clinic_id: clinic.id,
-      name: formData.get('name'),
-      duration_minutes: parseInt(formData.get('duration') as string),
-      price: parseFloat(formData.get('price') as string),
-      description: formData.get('description')
+      name,
+      duration_minutes: duration,
+      price
     })
+
+    if (insertErr) {
+      console.error('Error adding service:', insertErr)
+    }
 
     revalidatePath('/dashboard/services')
   }

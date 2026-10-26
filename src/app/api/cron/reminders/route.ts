@@ -7,9 +7,10 @@ export async function GET(req: Request) {
   try {
     const cronSecret = process.env.CRON_SECRET
     const authHeader = req.headers.get('authorization')
+    const isVercelCron = req.headers.get('x-vercel-cron') === '1'
 
-    // Seguridad Fail-Closed: Debe estar configurado CRON_SECRET y coincidir con el header Bearer
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    // Seguridad Fail-Closed: Autorizado por Vercel Cron automático o mediante header Bearer
+    if (!isVercelCron && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

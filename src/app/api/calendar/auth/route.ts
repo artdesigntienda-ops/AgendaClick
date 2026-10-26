@@ -25,7 +25,11 @@ export async function GET(request: Request) {
   ]
 
   // Generar state criptográfico con ID del usuario y firma HMAC para prevenir ataques CSRF
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || 'oauth_calendar_state_secret'
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!secret) {
+    console.error('[Google Calendar Auth] Falta SUPABASE_SERVICE_ROLE_KEY')
+    return NextResponse.redirect(new URL('/dashboard/settings?error=ConfigError', request.url))
+  }
   const signature = crypto.createHmac('sha256', secret).update(user.id).digest('hex')
   const state = `${user.id}:${signature}`
 

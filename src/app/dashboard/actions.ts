@@ -323,7 +323,10 @@ export async function saveAppointmentNotes(appointmentId: string, notes: string)
 
   if (error) {
     console.error('Error saving notes:', error)
-    return { success: false, error: error.message }
+    if (error.message?.includes('notes') || (error as any).code === '42703') {
+      return { success: false, error: 'La funcionalidad de notas internas requiere la columna en la base de datos.' }
+    }
+    return { success: false, error: 'No se pudo guardar la nota.' }
   }
 
   revalidatePath('/dashboard')

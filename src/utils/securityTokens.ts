@@ -1,14 +1,24 @@
 import * as crypto from 'crypto'
 
-const CANCEL_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || 'agendaclick_fallback_secret_key'
+function getCancelSecret(): string {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('[Security] Falta SUPABASE_SERVICE_ROLE_KEY para operaciones criptográficas seguras.')
+    }
+    return 'dev_build_only_key_not_for_prod'
+  }
+  return secret
+}
 
-// Clave simétrica de 256 bits para cifrado en reposo (AES-256-GCM)
-const ENCRYPTION_KEY = crypto.createHash('sha256').update(CANCEL_SECRET).digest()
+function getEncryptionKey(): Buffer {
+  return crypto.createHash('sha256').update(getCancelSecret()).digest()
+}
 
 export function generateCancellationHash(appointmentId: string, clientEmail: string): string {
   const normalizedEmail = (clientEmail || '').trim().toLowerCase()
   return crypto
-    .createHmac('sha256', CANCEL_SECRET)
+    .createHmac('sha256', getCancelSecret())
     .update(`${appointmentId}:${normalizedEmail}`)
     .digest('hex')
 }
@@ -33,7 +43,7 @@ export function encryptSensitiveToken(text?: string | null): string | null {
   if (text.startsWith('enc:v1:')) return text
 
   const iv = crypto.randomBytes(12) // 96-bit IV para GCM
-  const cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY, iv)
+  const cipher = crypto.createCipheriv('aes-256-gcm', getEncryptionKey(), iv)
   let encrypted = cipher.update(text, 'utf8', 'hex')
   encrypted += cipher.final('hex')
   const authTag = cipher.getAuthTag().toString('hex')
@@ -56,7 +66,7 @@ export function decryptSensitiveToken(ciphertext?: string | null): string | null
     const authTag = Buffer.from(parts[3], 'hex')
     const encryptedText = parts[4]
 
-    const decipher = crypto.createDecipheriv('aes-256-gcm', ENCRYPTION_KEY, iv)
+    const decipher = crypto.createDecipheriv('aes-256-gcm', getEncryptionKey(), iv)
     decipher.setAuthTag(authTag)
     let decrypted = decipher.update(encryptedText, 'hex', 'utf8')
     decrypted += decipher.final('utf8')

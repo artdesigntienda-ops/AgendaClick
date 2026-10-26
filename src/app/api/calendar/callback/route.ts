@@ -27,10 +27,21 @@ export async function GET(request: Request) {
   }
 
   const [stateUserId, stateSignature] = state.split(':')
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || 'oauth_calendar_state_secret'
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!secret) {
+    console.error('[Google Calendar Callback] Falta SUPABASE_SERVICE_ROLE_KEY')
+    return NextResponse.redirect(new URL('/dashboard/settings?error=ConfigError', request.url))
+  }
   const expectedSignature = crypto.createHmac('sha256', secret).update(stateUserId).digest('hex')
 
-  if (stateUserId !== user.id || stateSignature !== expectedSignature) {
+  const sigBuffer = Buffer.from(stateSignature, 'hex')
+  const expBuffer = Buffer.from(expectedSignature, 'hex')
+
+  if (
+    stateUserId !== user.id ||
+    sigBuffer.length !== expBuffer.length ||
+    !crypto.timingSafeEqual(sigBuffer, expBuffer)
+  ) {
     console.error('[Google Calendar Callback] State no coincide con el usuario autenticado (posible ataque CSRF)')
     return NextResponse.redirect(new URL('/dashboard/settings?error=StateMismatch', request.url))
   }

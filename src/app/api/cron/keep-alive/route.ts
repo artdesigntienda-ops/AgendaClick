@@ -36,7 +36,6 @@ export async function GET(req: Request) {
         {
           status: 'error',
           message: 'Error al consultar Supabase',
-          error: error.message,
           latencyMs,
           timestamp: new Date().toISOString()
         },
@@ -44,8 +43,14 @@ export async function GET(req: Request) {
       )
     }
 
+    // El mantenimiento de base de datos solo se ejecuta si la petición incluye autenticación CRON válida
+    const cronSecret = process.env.CRON_SECRET
+    const authHeader = req.headers.get('authorization')
+    const isVercelCron = req.headers.get('x-vercel-cron') === '1'
+    const isAuthorized = isVercelCron || (cronSecret && authHeader === `Bearer ${cronSecret}`)
+
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (serviceKey) {
+    if (serviceKey && isAuthorized) {
       try {
         const adminSupabase = createClient(supabaseUrl, serviceKey, {
           auth: { persistSession: false }
@@ -62,7 +67,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       status: 'healthy',
-      message: 'Supabase keep-alive ping exitoso y mantenimiento de base de datos ejecutado.',
+      message: 'Supabase keep-alive ping exitoso.',
       recordsFound: data?.length || 0,
       latencyMs,
       timestamp: new Date().toISOString()
@@ -72,7 +77,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         status: 'error',
-        message: err?.message || 'Error inesperado en keep-alive',
+        message: 'Error inesperado en keep-alive',
         latencyMs: Date.now() - startTime,
         timestamp: new Date().toISOString()
       },

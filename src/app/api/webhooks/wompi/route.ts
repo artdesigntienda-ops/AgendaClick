@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import * as crypto from 'crypto'
-import { getPlanById } from '@/config/plans'
+import { getPlanById, calculateProratedAmount } from '@/config/plans'
 
 export async function POST(req: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
       // 3. IDEMPOTENCIA ESTRICTA: Evitar reprocesar la misma transacción
       const { data: existingClinic } = await supabase
         .from('clinics')
-        .select('id, wompi_subscription_id, plan_type, subscription_ends_at')
+        .select('id, wompi_subscription_id, plan_type, subscription_ends_at, subscription_status')
         .eq('id', clinicId)
         .maybeSingle()
 
@@ -109,10 +109,21 @@ export async function POST(req: Request) {
         return NextResponse.json({ received: true, message: 'Transaction already processed' })
       }
 
-      // 4. VALIDACIÓN DE MONTO MÍNIMO
-      if (amountInCents < 100000) { // Menos de 1,000 COP es inválido en Wompi
-        console.error(`[Wompi Webhook] Monto sospechoso o insuficiente: ${amountInCents} centavos`)
-        return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
+      // 4. VALIDACIÓN DE MONTO EXACTO / PRORRATEADO (Anti-Bypass Financiero)
+      const period = (billingPeriod === 'annual' ? 'annual' : 'monthly') as 'monthly' | 'annual'
+      const { finalPrice } = calculateProratedAmount(
+        plan.id,
+        period,
+        existingClinic.plan_type,
+        existingClinic.subscription_ends_at,
+        existingClinic.subscription_status === 'active'
+      )
+      const expectedAmountInCents = finalPrice * 100
+
+      // Si el monto pagado es menor al precio calculado (con margen de 100 centavos / 1 COP por redondeo), rechazar
+      if (amountInCents < (expectedAmountInCents - 100)) {
+        console.error(`[Wompi Webhook] Monto insuficiente o manipulado para clínica ${clinicId}. Esperado: ${expectedAmountInCents} centavos, Recibido: ${amountInCents} centavos`)
+        return NextResponse.json({ error: 'Insufficient payment amount' }, { status: 400 })
       }
 
       // 5. CALCULAR FECHA DE VENCIMIENTO

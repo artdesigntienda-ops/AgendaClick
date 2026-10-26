@@ -185,11 +185,25 @@ export async function registerClientByPartner(formData: FormData) {
   let secureTempPassword: string | null = null
   const { data: existingUser } = await adminClient
     .from('profiles')
-    .select('id')
+    .select('id, clinic_id')
     .eq('email', email)
     .maybeSingle()
 
   if (existingUser) {
+    if (existingUser.clinic_id) {
+      return { success: false, error: 'Este correo ya pertenece a un negocio activo en AgendaClick.' }
+    }
+
+    const { data: existingClinic } = await adminClient
+      .from('clinics')
+      .select('id, name')
+      .eq('owner_id', existingUser.id)
+      .maybeSingle()
+
+    if (existingClinic) {
+      return { success: false, error: `Este correo ya es dueño del negocio "${existingClinic.name}".` }
+    }
+
     clientUserId = existingUser.id
   } else {
     // Generar contraseña temporal segura única por cliente
