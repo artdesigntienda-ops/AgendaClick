@@ -68,13 +68,43 @@ export default async function ClientsCRMPage() {
     appointmentsQuery = appointmentsQuery.eq('staff_id', user.id)
   }
 
-  const { data: appointments } = await appointmentsQuery
+  let appointments: any = null
+  const { data: initialAppointments, error: queryError } = await appointmentsQuery
+
+  if (!queryError) {
+    appointments = initialAppointments
+  } else if (queryError && queryError.code === '42703') {
+    // Fallback si la columna 'notes' aún no existe en el esquema
+    let fallbackQuery = supabase
+      .from('appointments')
+      .select(`
+        id,
+        client_name,
+        client_email,
+        client_phone,
+        start_time,
+        service_id,
+        services:service_id ( name ),
+        staff_id,
+        profiles:staff_id ( name )
+      `)
+      .eq('clinic_id', clinicId)
+      .neq('status', 'cancelled')
+      .order('start_time', { ascending: false })
+
+    if (!isOwner) {
+      fallbackQuery = fallbackQuery.eq('staff_id', user.id)
+    }
+
+    const fallbackRes = await fallbackQuery
+    appointments = fallbackRes.data
+  }
 
   // Procesar para obtener el "último contacto" y el historial de cada cliente
   const clientsMap: Record<string, any> = {}
 
   if (appointments) {
-    appointments.forEach(app => {
+    appointments.forEach((app: any) => {
       const key = app.client_email?.toLowerCase().trim()
       if (!key) return
 
