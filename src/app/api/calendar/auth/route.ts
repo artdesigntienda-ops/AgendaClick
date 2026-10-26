@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { google } from 'googleapis'
 import { createClient } from '@/utils/supabase/server'
+import crypto from 'crypto'
 
 export async function GET(request: Request) {
   const supabase = await createClient()
@@ -23,10 +24,16 @@ export async function GET(request: Request) {
     'https://www.googleapis.com/auth/calendar.events'
   ]
 
+  // Generar state criptográfico con ID del usuario y firma HMAC para prevenir ataques CSRF
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || 'oauth_calendar_state_secret'
+  const signature = crypto.createHmac('sha256', secret).update(user.id).digest('hex')
+  const state = `${user.id}:${signature}`
+
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // Necesario para obtener refresh_token
     prompt: 'consent', // Forzamos que siempre pregunte para garantizar el refresh_token
     scope: scopes,
+    state
   })
 
   return NextResponse.redirect(url)

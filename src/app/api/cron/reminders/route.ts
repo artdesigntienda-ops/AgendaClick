@@ -3,12 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 // Ruta protegida por un token secreto de Vercel Cron
-// o abierta si no configuras el token, pero se recomienda protegerla
 export async function GET(req: Request) {
   try {
+    const cronSecret = process.env.CRON_SECRET
     const authHeader = req.headers.get('authorization')
-    // Vercel manda un Bearer token definido en CRON_SECRET (opcional)
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+
+    // Seguridad Fail-Closed: Debe estar configurado CRON_SECRET y coincidir con el header Bearer
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -46,16 +47,16 @@ export async function GET(req: Request) {
 
       if (owner && owner.email) {
         await resend.emails.send({
-          from: 'AgendaClick <soporte@agendaclick.com>',
+          from: 'AgendaClick <no-reply@agendaclick.com.co>',
           to: [owner.email],
           subject: 'Recordatorio: Tu suscripción vence en 3 días',
           html: `
             <div style="font-family: sans-serif; color: #000;">
-              <h2>Hola, dueño de ${clinic.name}</h2>
-              <p>Te recordamos que tu suscripción a AgendaClick se renovará automáticamente en <strong>3 días</strong>.</p>
-              <p>Asegúrate de contar con saldo disponible en tu método de pago registrado para que no pierdas acceso al control de tu negocio y tus reservas no se detengan.</p>
+              <h2>Hola, administrador de ${clinic.name}</h2>
+              <p>Te recordamos que tu suscripción a AgendaClick vencerá en <strong>3 días</strong>.</p>
+              <p>Asegúrate de renovar tu plan a tiempo para no perder el acceso a la gestión de tu agenda y continuar recibiendo citas en línea.</p>
               <br/>
-              <p>Si deseas cambiar de plan o revisar tu facturación, visita tu panel de control: <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/dashboard/billing">Ir a Facturación</a></p>
+              <p>Para renovar o cambiar tu plan, ingresa a Facturación: <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/dashboard/billing">Ir a Facturación</a></p>
               <br/>
               <p>Gracias por confiar en nosotros,</p>
               <p><strong>El equipo de AgendaClick</strong></p>
@@ -69,6 +70,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: true, emailsSent })
   } catch (err: any) {
     console.error('Cron Error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Internal cron error' }, { status: 500 })
   }
 }

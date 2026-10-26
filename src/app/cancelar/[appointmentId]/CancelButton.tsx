@@ -5,7 +5,17 @@ import { cancelAppointmentFromClient } from '@/app/[slug]/actions'
 import { XCircle, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-export default function CancelButton({ appointmentId, initialStatus, clinicName }: { appointmentId: string, initialStatus: string, clinicName: string }) {
+export default function CancelButton({ 
+  appointmentId, 
+  initialStatus, 
+  clinicName,
+  token
+}: { 
+  appointmentId: string
+  initialStatus: string
+  clinicName: string
+  token?: string
+}) {
   const [status, setStatus] = useState(initialStatus) // 'pending' | 'confirmed' | 'cancelled'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -14,7 +24,7 @@ export default function CancelButton({ appointmentId, initialStatus, clinicName 
     setLoading(true)
     setError(null)
     try {
-      const res = await cancelAppointmentFromClient(appointmentId)
+      const res = await cancelAppointmentFromClient(appointmentId, token)
       if (res.success) {
         setStatus('cancelled')
       } else {

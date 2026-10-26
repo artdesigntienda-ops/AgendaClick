@@ -3,6 +3,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { Resend } from 'resend'
+import * as crypto from 'crypto'
 
 export async function getPartnerData() {
   const supabase = await createClient()
@@ -180,6 +182,7 @@ export async function registerClientByPartner(formData: FormData) {
 
   // 1. Crear o buscar usuario para el cliente
   let clientUserId = null
+  let secureTempPassword: string | null = null
   const { data: existingUser } = await adminClient
     .from('profiles')
     .select('id')
@@ -189,10 +192,11 @@ export async function registerClientByPartner(formData: FormData) {
   if (existingUser) {
     clientUserId = existingUser.id
   } else {
-    // Generar UUID determinista o crear usuario auth
+    // Generar contraseña temporal segura única por cliente
+    secureTempPassword = `${crypto.randomBytes(6).toString('hex')}Ac9!`
     const { data: newAuthUser, error: authErr } = await adminClient.auth.admin.createUser({
       email,
-      password: 'AgendaClick2026!',
+      password: secureTempPassword,
       email_confirm: true,
       user_metadata: { name: ownerName }
     })
@@ -256,6 +260,33 @@ export async function registerClientByPartner(formData: FormData) {
     .from('profiles')
     .update({ clinic_id: newClinic.id })
     .eq('id', clientUserId)
+
+  // 5. Enviar correo de bienvenida con credenciales si fue usuario nuevo
+  if (secureTempPassword && process.env.RESEND_API_KEY) {
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      await resend.emails.send({
+        from: 'AgendaClick <no-reply@agendaclick.com.co>',
+        to: email,
+        subject: `Bienvenido a AgendaClick - Tu cuenta para ${businessName}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2>¡Hola ${ownerName}!</h2>
+            <p>Tu negocio <strong>${businessName}</strong> ha sido dado de alta en AgendaClick con 14 días de prueba gratis.</p>
+            <p>Tus credenciales de acceso iniciales son:</p>
+            <div style="background: #f4f4f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+              <p style="margin: 0;"><strong>Usuario:</strong> ${email}</p>
+              <p style="margin: 8px 0 0 0;"><strong>Contraseña temporal:</strong> ${secureTempPassword}</p>
+            </div>
+            <p>Inicia sesión aquí: <a href="https://agendaclick.com.co/login">Iniciar Sesión</a></p>
+            <p style="color: #71717a; font-size: 13px;">Te recomendamos cambiar tu contraseña una vez ingreses a tu panel.</p>
+          </div>
+        `
+      })
+    } catch (e) {
+      console.error('Error enviando credenciales al cliente referido:', e)
+    }
+  }
 
   revalidatePath('/dashboard/partners')
   return { 

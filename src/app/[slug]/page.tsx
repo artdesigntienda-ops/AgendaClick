@@ -40,10 +40,34 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  // Buscar el negocio por slug
+  // Buscar el negocio por slug (Seleccionando solo campos públicos para no exponer PII ni datos de suscripción)
   const { data: clinic, error: clinicError } = await supabase
     .from('clinics')
-    .select('*')
+    .select(`
+      id,
+      name,
+      slug,
+      business_type,
+      slogan,
+      address,
+      city,
+      phone,
+      latitude,
+      longitude,
+      brand_color,
+      header_text_color,
+      font_family,
+      booking_bg_color,
+      booking_text_color,
+      booking_card_color,
+      logo_url,
+      cover_image_url,
+      instagram_url,
+      facebook_url,
+      tiktok_url,
+      youtube_url,
+      schedule
+    `)
     .eq('slug', slug)
     .maybeSingle()
 

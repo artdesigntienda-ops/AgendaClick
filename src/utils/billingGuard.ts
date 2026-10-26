@@ -33,15 +33,20 @@ export async function requireActiveSubscription() {
       .maybeSingle()
 
     if (clinic) {
-      // Check if subscription has ended
-      if (clinic.subscription_ends_at) {
-        const endsAt = new Date(clinic.subscription_ends_at)
-        const now = new Date()
-        
-        if (now > endsAt && clinic.subscription_status !== 'active') {
-          // Si está vencida y no está activa
-          redirect('/dashboard/billing')
-        }
+      const now = new Date()
+      const endsAt = clinic.subscription_ends_at ? new Date(clinic.subscription_ends_at) : null
+
+      // Si está en periodo de prueba y aún no vence, permitir
+      if (clinic.subscription_status === 'trial' && endsAt && now <= endsAt) {
+        return
+      }
+
+      // Si la fecha venció o no está activo, bloquear y redirigir a facturación
+      const isExpired = endsAt ? now > endsAt : true
+      const isNotActive = clinic.subscription_status !== 'active'
+
+      if (isExpired || isNotActive) {
+        redirect('/dashboard/billing')
       }
     }
   }

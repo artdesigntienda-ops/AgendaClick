@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 import { google } from 'googleapis'
 import { createClient } from '@/utils/supabase/server'
+import crypto from 'crypto'
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const code = url.searchParams.get('code')
+  const state = url.searchParams.get('state')
   
   if (!code) {
     return NextResponse.redirect(new URL('/dashboard/settings?error=NoCode', request.url))
@@ -17,6 +19,21 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // VALIDACIÓN ANTI-CSRF DEL PARÁMETRO STATE
+  if (!state || !state.includes(':')) {
+    console.error('[Google Calendar Callback] Falta el parámetro state o está malformado')
+    return NextResponse.redirect(new URL('/dashboard/settings?error=InvalidState', request.url))
+  }
+
+  const [stateUserId, stateSignature] = state.split(':')
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || 'oauth_calendar_state_secret'
+  const expectedSignature = crypto.createHmac('sha256', secret).update(stateUserId).digest('hex')
+
+  if (stateUserId !== user.id || stateSignature !== expectedSignature) {
+    console.error('[Google Calendar Callback] State no coincide con el usuario autenticado (posible ataque CSRF)')
+    return NextResponse.redirect(new URL('/dashboard/settings?error=StateMismatch', request.url))
+  }
+
   try {
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -27,8 +44,6 @@ export async function GET(request: Request) {
     const { tokens } = await oauth2Client.getToken(code)
     oauth2Client.setCredentials(tokens)
 
-    // Si Google no nos da un refresh_token, significa que el usuario ya había dado permiso antes
-    // pero no forzamos el prompt=consent. En nuestra ruta de auth sí lo forzamos.
     if (!tokens.refresh_token) {
       console.warn('No se recibió refresh_token. El usuario necesita revocar permisos en su cuenta de Google.')
     }
@@ -51,7 +66,6 @@ export async function GET(request: Request) {
     }
 
     // Guardar tokens y calendarId en Supabase
-    // Solo guardamos el refresh_token si viene en la respuesta, de lo contrario mantenemos el anterior
     const updateData: any = {
       google_calendar_id: calendarId
     }

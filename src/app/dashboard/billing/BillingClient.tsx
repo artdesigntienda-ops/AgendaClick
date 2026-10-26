@@ -4,78 +4,11 @@ import { useState, useEffect } from 'react'
 import { Check, AlertCircle, CreditCard, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateWompiSignature } from './actions'
-
-const PLANS = [
-  {
-    id: 'independiente',
-    name: 'Independiente',
-    priceCOP: 35000,
-    limit: 1,
-    badge: '1 Profesional / Bahía',
-    target: 'Ideal para personas que trabajan solas en su propio consultorio o espacio.',
-    features: [
-      '1 Profesional / Bahía / Cancha',
-      'Agendamiento 24/7 con código OTP de seguridad',
-      'Selección de 1 servicio por cita',
-      'Enlace y confirmación directa a WhatsApp',
-      'Página de reservas pública personalizada',
-      'Soporte estándar por correo'
-    ]
-  },
-  {
-    id: 'boutique',
-    name: 'Profesional',
-    priceCOP: 75000,
-    limit: 4,
-    badge: 'Hasta 4 Profesionales',
-    target: 'Para negocios con equipo que necesitan agendar múltiples servicios.',
-    features: [
-      'Hasta 4 Profesionales / Técnicos / Bahías',
-      '✨ Agendamiento Multi-Servicio Simultáneo',
-      '🚗 Campos Especiales (Placa, Marcas, Odómetro)',
-      '📅 Sincronización Google Calendar por empleado',
-      '🎨 Personalización de Marca (Colores y Logotipo)',
-      '⚡ Soporte prioritario por WhatsApp'
-    ]
-  },
-  {
-    id: 'salon',
-    name: 'Negocio',
-    priceCOP: 125000,
-    limit: 8,
-    badge: '🚀 MÁS POPULAR / MEJOR VALOR',
-    target: 'Para empresas consolidadas, talleres, clínicas y spas con equipo.',
-    features: [
-      'Hasta 8 Profesionales / Técnicos / Bahías',
-      'Todo lo del Plan Profesional',
-      '💰 Módulo de Finanzas y Comisiones de Empleados',
-      '🏷️ Marca Blanca 100% (Sin logo de AgendaClick)',
-      '📊 Exportación de Base de Clientes a Excel / CSV',
-      '💳 Habilitado para cobros y anticipos en línea',
-      '⭐ Soporte VIP Inmediato 24/7'
-    ]
-  },
-  {
-    id: 'elite',
-    name: 'Élite',
-    priceCOP: 199000,
-    limit: 999,
-    badge: 'Capacidad Ilimitada',
-    target: 'Para grandes concesionarios, franquicias y centros de alto volumen.',
-    features: [
-      '🚀 Staff, Técnicos y Bahías Ilimitadas (999+)',
-      'Todo lo del Plan Negocio',
-      '🏢 Soporte Multi-Sede y Múltiples Ubicaciones',
-      '🤝 Onboarding y Configuración VIP Asistida',
-      '📞 Asesor y Línea de Atención Dedicada',
-      '🛡️ Garantía de Disponibilidad y SLA 99.9%'
-    ]
-  }
-]
+import { PLANS, calculateProratedAmount, PlanConfig } from '@/config/plans'
 
 export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }: { clinic: any, currentStaffCount: number, wompiPubKey: string }) {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
 
   useEffect(() => {
     // Cargar script de Wompi si no está ya presente
@@ -87,8 +20,6 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
     script.async = true
     document.body.appendChild(script)
   }, [])
-
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
 
   const endsAt = clinic.subscription_ends_at ? new Date(clinic.subscription_ends_at) : null
   const now = new Date()
@@ -107,7 +38,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
   const currentPlanObj = PLANS.find(p => p.id === clinic.plan_type) || PLANS[0]
   const currentPlanIsAnnual = daysLeft > 31
 
-  const handleSubscribe = async (plan: typeof PLANS[0], finalPrice: number) => {
+  const handleSubscribe = async (plan: PlanConfig) => {
     if (currentStaffCount > plan.limit) {
       toast.error(`No puedes elegir este plan porque tienes ${currentStaffCount} profesionales activos. Debes eliminar algunos primero.`)
       return
@@ -121,43 +52,35 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
     setIsProcessing(plan.id)
 
     try {
-      const reference = `SUB_${clinic.id}_${plan.id}_${billingPeriod}_${Date.now()}`
-      const amountInCents = finalPrice * 100
+      // 1. Obtener referencia, monto validado y firma calculada estrictamente en el backend
+      const res = await generateWompiSignature(plan.id, billingPeriod)
 
-      // Generar firma de integridad en el servidor
-      const res = await generateWompiSignature(reference, amountInCents, 'COP')
-      
-      if (res.error) {
-        toast.error(res.message || 'Error al generar la firma de Wompi.')
+      if (res.error || !res.hash || !res.reference || !res.amountInCents) {
+        toast.error(res.message || 'Error al generar la transacción de Wompi.')
         setIsProcessing(null)
         return
       }
 
-      const signature = res.hash
-
       const config: any = {
         currency: 'COP',
-        amountInCents: amountInCents,
-        reference: reference,
+        amountInCents: res.amountInCents,
+        reference: res.reference,
         publicKey: wompiPubKey,
-        redirectUrl: `${window.location.origin}/dashboard/billing/success`
-      }
-
-      if (signature) {
-        config.signature = { integrity: signature }
+        redirectUrl: `${window.location.origin}/dashboard/billing?status=completed`,
+        signature: { integrity: res.hash }
       }
 
       // @ts-ignore
-      const checkout = new WidgetCheckout(config)
+      const checkout = new window.WidgetCheckout(config)
 
       checkout.open(function (result: any) {
         setIsProcessing(null)
-        const transaction = result.transaction
-        if (transaction.status === 'APPROVED') {
+        const transaction = result?.transaction
+        if (transaction?.status === 'APPROVED') {
           toast.success('¡Suscripción aprobada! Tu plan se actualizará en unos segundos.')
           setTimeout(() => window.location.reload(), 3000)
         } else {
-          toast.error('El pago no fue aprobado. Estado: ' + transaction.status)
+          toast.error('El pago no fue aprobado. Estado: ' + (transaction?.status || 'Cancelado'))
         }
       })
     } catch (error: any) {
@@ -177,8 +100,8 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
           </h2>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/70 text-sm">
             <span>Estado: 
-              <strong className={`ml-1 ${clinic.subscription_status === 'active' ? 'text-green-400' : clinic.subscription_status === 'trial' ? 'text-yellow-400' : 'text-red-400'}`}>
-                {clinic.subscription_status.toUpperCase()}
+              <strong className={`ml-1 ${clinic.subscription_status === 'active' && daysLeft > 0 ? 'text-green-400' : clinic.subscription_status === 'trial' && daysLeft > 0 ? 'text-yellow-400' : 'text-red-400'}`}>
+                {clinic.subscription_status === 'active' && daysLeft > 0 ? 'ACTIVO' : clinic.subscription_status === 'trial' && daysLeft > 0 ? 'PRUEBA' : 'VENCIDO'}
               </strong>
             </span>
             <span className="hidden sm:inline">•</span>
@@ -189,7 +112,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
           </p>
         </div>
         
-        {clinic.subscription_status !== 'active' && (
+        {(clinic.subscription_status !== 'active' || daysLeft <= 0) && (
           <div className="bg-white/10 px-4 py-3 rounded-xl border border-white/20 flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-yellow-400" />
             <p className="text-sm text-white/90">Añade un método de pago para no perder acceso.</p>
@@ -220,25 +143,16 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {PLANS.map((plan) => {
           const isCurrent = clinic.plan_type === plan.id
-          const basePrice = billingPeriod === 'monthly' ? plan.priceCOP : Math.floor(plan.priceCOP * 12 * 0.9)
-          
-          // Calcular prorrateo si es un upgrade activo
-          const isUpgrade = clinic.subscription_status === 'active' && clinic.plan_type !== plan.id
-          let unusedCredit = 0
-          let finalPrice = basePrice
+          const { basePrice, unusedCredit, finalPrice } = calculateProratedAmount(
+            plan.id,
+            billingPeriod,
+            clinic.plan_type,
+            clinic.subscription_ends_at,
+            clinic.subscription_status === 'active'
+          )
 
-          if (isUpgrade && daysLeft > 0) {
-            const currentDailyRate = currentPlanIsAnnual 
-              ? (currentPlanObj.priceCOP * 12 * 0.9) / 365 
-              : currentPlanObj.priceCOP / 30
-            const maxDays = currentPlanIsAnnual ? 365 : 30
-            const creditDays = Math.min(daysLeft, maxDays)
-            unusedCredit = Math.floor(creditDays * currentDailyRate)
-            finalPrice = Math.max(1000, basePrice - unusedCredit) // Mínimo de 1,000 COP para Wompi
-          }
-
-          const showSuscrito = isCurrent && clinic.subscription_status === 'active' && billingPeriod === (currentPlanIsAnnual ? 'annual' : 'monthly')
-
+          const isUpgrade = clinic.subscription_status === 'active' && clinic.plan_type !== plan.id && daysLeft > 0
+          const showSuscrito = isCurrent && clinic.subscription_status === 'active' && daysLeft > 0 && billingPeriod === (currentPlanIsAnnual ? 'annual' : 'monthly')
           const isFeatured = plan.id === 'salon'
 
           return (
@@ -283,7 +197,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
                 )}
               </div>
 
-              {/* Desglose de Prorrateo Premium */}
+              {/* Desglose de Prorrateo */}
               {isUpgrade && unusedCredit > 0 && (
                 <div className="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-800 rounded-2xl p-4 border-2 border-emerald-500/20 shadow-md space-y-2 mb-5">
                   <div className="absolute top-0 right-0 bg-emerald-800 text-white text-[9px] font-black px-2 py-0.5 rounded-bl-xl uppercase tracking-wider">
@@ -306,7 +220,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
                       <span className="font-semibold">${basePrice.toLocaleString('es-CO')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Saldo a favor ({Math.min(daysLeft, currentPlanIsAnnual ? 365 : 30)} días):</span>
+                      <span>Saldo a favor:</span>
                       <span className="font-semibold">-${unusedCredit.toLocaleString('es-CO')}</span>
                     </div>
                   </div>
@@ -327,7 +241,7 @@ export default function BillingClient({ clinic, currentStaffCount, wompiPubKey }
               </ul>
 
               <button
-                onClick={() => handleSubscribe(plan, finalPrice)}
+                onClick={() => handleSubscribe(plan)}
                 disabled={showSuscrito || isProcessing !== null}
                 className={`w-full py-3.5 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-200 text-sm sm:text-base ${
                   showSuscrito

@@ -56,7 +56,18 @@ export default async function ServicesPage() {
     'use server'
     const id = formData.get('id')
     const supabase = await createClient()
-    await supabase.from('services').delete().eq('id', id)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data: clinic } = await supabase
+      .from('clinics')
+      .select('id')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+
+    if (!clinic) return
+
+    await supabase.from('services').delete().eq('id', id).eq('clinic_id', clinic.id)
     revalidatePath('/dashboard/services')
   }
 

@@ -1,21 +1,30 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/server'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar, Clock, AlertTriangle, ShieldAlert, CheckCircle2 } from 'lucide-react'
 import CancelButton from './CancelButton'
+import { verifyCancellationHash } from '@/utils/securityTokens'
 
 const supabaseAdmin = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export default async function CancelPage({ params }: { params: Promise<{ appointmentId: string }> }) {
+export default async function CancelPage({ 
+  params,
+  searchParams
+}: { 
+  params: Promise<{ appointmentId: string }>
+  searchParams: Promise<{ token?: string }>
+}) {
   const { appointmentId } = await params
+  const { token } = await searchParams
 
   // 1. Obtener los detalles de la cita y la clínica
   const { data: appointment, error: getError } = await supabaseAdmin
     .from('appointments')
-    .select('*, services(name), clinics(name)')
+    .select('*, services(name), clinics(name, owner_id)')
     .eq('id', appointmentId)
     .maybeSingle()
 
@@ -27,6 +36,44 @@ export default async function CancelPage({ params }: { params: Promise<{ appoint
           <h1 className="text-2xl font-bold text-gray-900">Enlace Inválido</h1>
           <p className="text-gray-500">
             No encontramos ninguna cita asociada a este enlace. Por favor verifica que la dirección esté correcta.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // 2. VALIDACIÓN CRÍTICA DE AUTORIZACIÓN (Anti-IDOR)
+  const isTokenValid = verifyCancellationHash(appointment.id, appointment.client_email, token)
+  let isAuthorizedBusinessUser = false
+
+  if (!isTokenValid) {
+    const sessionClient = await createClient()
+    const { data: { user } } = await sessionClient.auth.getUser()
+    if (user) {
+      if (appointment.clinics?.owner_id === user.id) {
+        isAuthorizedBusinessUser = true
+      } else {
+        const { data: staffMember } = await sessionClient
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .eq('clinic_id', appointment.clinic_id)
+          .maybeSingle()
+        if (staffMember) {
+          isAuthorizedBusinessUser = true
+        }
+      }
+    }
+  }
+
+  if (!isTokenValid && !isAuthorizedBusinessUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-xl border border-red-100 text-center space-y-4">
+          <ShieldAlert className="w-16 h-16 text-red-500 mx-auto" />
+          <h1 className="text-2xl font-bold text-gray-900">Enlace No Autorizado</h1>
+          <p className="text-gray-500 text-sm">
+            Este enlace de cancelación no contiene un token de seguridad válido o ha expirado. Por favor utiliza el enlace directo recibido en tu correo electrónico.
           </p>
         </div>
       </div>
@@ -100,19 +147,15 @@ export default async function CancelPage({ params }: { params: Promise<{ appoint
                 </div>
               </div>
 
-              {/* Botón de Cancelación */}
+              {/* Botón de Confirmación */}
               <CancelButton 
                 appointmentId={appointment.id} 
                 initialStatus={appointment.status} 
-                clinicName={clinicName} 
+                clinicName={clinicName}
+                token={token}
               />
             </>
           )}
-        </div>
-
-        {/* Footer simple */}
-        <div className="text-center mt-8 text-xs text-gray-400">
-          <span>Si cancelas por error, deberás agendar una nueva cita en la web.</span>
         </div>
       </div>
     </div>

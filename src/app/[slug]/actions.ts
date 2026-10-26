@@ -7,6 +7,7 @@ import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { google } from 'googleapis'
+import { generateCancellationHash, verifyCancellationHash } from '@/utils/securityTokens'
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY!)
@@ -73,6 +74,20 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
     return { success: false, error: 'La validación de seguridad (reCAPTCHA) falló. Por favor recarga la página e intenta nuevamente.' }
   }
   
+  // 1.5 Rate Limiting: Evitar spam de códigos al mismo correo (mínimo 60 segundos)
+  const normalizedEmail = email.trim().toLowerCase()
+  const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString()
+  const { data: recentOtp } = await getSupabaseAdmin()
+    .from('otp_verifications')
+    .select('id')
+    .eq('email', normalizedEmail)
+    .gt('created_at', oneMinuteAgo)
+    .limit(1)
+
+  if (recentOtp && recentOtp.length > 0) {
+    return { success: false, error: 'Por favor espera 1 minuto antes de solicitar otro código de seguridad.' }
+  }
+
   // Generar código de 6 dígitos
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
   
@@ -82,7 +97,7 @@ export async function sendOtpCode(email: string, clientName: string, recaptchaTo
 
   // Guardar en base de datos
   const { error } = await getSupabaseAdmin().from('otp_verifications').insert({
-    email: email.trim().toLowerCase(),
+    email: normalizedEmail,
     otp_code: otpCode,
     expires_at: expiresAt.toISOString()
   })
@@ -324,7 +339,8 @@ export async function createAppointment(data: {
       })
     }
 
-    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}`
+    const cancelToken = generateCancellationHash(appointmentId, data.clientEmail)
+    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}?token=${cancelToken}`
 
     // 5. Enviar correo a la Clienta
     await resend.emails.send({
@@ -362,7 +378,7 @@ export async function createAppointment(data: {
   return { success: true }
 }
 
-export async function cancelAppointmentFromClient(appointmentId: string) {
+export async function cancelAppointmentFromClient(appointmentId: string, token?: string) {
   const supabase = getSupabaseAdmin()
 
   // 1. Obtener la cita y los datos de la clínica
@@ -375,6 +391,36 @@ export async function cancelAppointmentFromClient(appointmentId: string) {
   if (getError || !appointment) {
     console.error('Error fetching appointment for cancellation:', getError)
     return { success: false, error: 'No se encontró la cita especificada.' }
+  }
+
+  // 1.5 VALIDACIÓN CRÍTICA DE AUTORIZACIÓN (Anti-IDOR):
+  // Verificar token criptográfico del cliente O sesión activa del negocio
+  const isTokenValid = verifyCancellationHash(appointment.id, appointment.client_email, token)
+  let isAuthorizedBusinessUser = false
+
+  if (!isTokenValid) {
+    const sessionClient = await createClient()
+    const { data: { user } } = await sessionClient.auth.getUser()
+    if (user) {
+      if (appointment.clinics?.owner_id === user.id) {
+        isAuthorizedBusinessUser = true
+      } else {
+        const { data: staffMember } = await sessionClient
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .eq('clinic_id', appointment.clinic_id)
+          .maybeSingle()
+        if (staffMember) {
+          isAuthorizedBusinessUser = true
+        }
+      }
+    }
+  }
+
+  if (!isTokenValid && !isAuthorizedBusinessUser) {
+    console.warn(`[Seguridad] Intento no autorizado de cancelar cita ID: ${appointmentId}`)
+    return { success: false, error: 'Enlace de cancelación no válido o expirado.' }
   }
 
   // Si ya está cancelada, no volvemos a enviar correos

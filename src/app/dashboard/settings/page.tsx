@@ -58,7 +58,16 @@ export default async function SettingsPage() {
 
     const name = formData.get('name') as string
     const phone = formData.get('phone') as string
-    const slug = formData.get('slug') as string
+    const rawSlug = formData.get('slug') as string
+
+    // Sanitización y validación de slug contra rutas del sistema
+    const RESERVED_SLUGS = ['api', 'dashboard', 'login', 'cancelar', 'socios', 'privacidad', 'terminos', 'docs', 'documentacion', 'auth', 'admin']
+    let slug = rawSlug
+      ? rawSlug.toLowerCase().trim().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+      : ''
+    if (RESERVED_SLUGS.includes(slug)) {
+      slug = `${slug}-app`
+    }
     const businessType = formData.get('business_type') as string
     const slogan = formData.get('slogan') as string
     const country = formData.get('country') as string
@@ -138,43 +147,52 @@ export default async function SettingsPage() {
     const latitude = latitudeRaw ? parseFloat(latitudeRaw) : null
     const longitude = longitudeRaw ? parseFloat(longitudeRaw) : null
     
-    // Manejo de la subida del logo
+    // Manejo seguro de la subida del logo (Validación de tipo MIME y tamaño máx 3MB)
+    const ALLOWED_MIME_TYPES: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp'
+    }
+    const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3 MB
+
     const logoFile = formData.get('logo') as File
     let logoUrl = existingClinic?.logo_url
 
-    if (logoFile && logoFile.size > 0) {
-      const fileExt = logoFile.name.split('.').pop()
-      const fileName = `${user.id}-logo-${Math.random()}.${fileExt}`
-      
-      const { error: uploadError } = await supabase.storage
-        .from('logos')
-        .upload(fileName, logoFile)
-        
-      if (!uploadError) {
-        const { data: publicUrlData } = supabase.storage
+    if (logoFile && logoFile.size > 0 && logoFile.size <= MAX_FILE_SIZE) {
+      const ext = ALLOWED_MIME_TYPES[logoFile.type]
+      if (ext) {
+        const fileName = `${user.id}-logo-${Date.now()}.${ext}`
+        const { error: uploadError } = await supabase.storage
           .from('logos')
-          .getPublicUrl(fileName)
-        logoUrl = publicUrlData.publicUrl
+          .upload(fileName, logoFile, { contentType: logoFile.type, upsert: true })
+          
+        if (!uploadError) {
+          const { data: publicUrlData } = supabase.storage
+            .from('logos')
+            .getPublicUrl(fileName)
+          logoUrl = publicUrlData.publicUrl
+        }
       }
     }
 
-    // Manejo de la subida de la imagen de portada
+    // Manejo seguro de la subida de la imagen de portada
     const coverFile = formData.get('cover_image') as File
     let coverUrl = existingClinic?.cover_image_url
 
-    if (coverFile && coverFile.size > 0) {
-      const fileExt = coverFile.name.split('.').pop()
-      const fileName = `${user.id}-cover-${Math.random()}.${fileExt}`
-      
-      const { error: uploadError } = await supabase.storage
-        .from('logos') // Usaremos el mismo bucket de logos para mayor facilidad
-        .upload(fileName, coverFile)
-        
-      if (!uploadError) {
-        const { data: publicUrlData } = supabase.storage
+    if (coverFile && coverFile.size > 0 && coverFile.size <= MAX_FILE_SIZE) {
+      const ext = ALLOWED_MIME_TYPES[coverFile.type]
+      if (ext) {
+        const fileName = `${user.id}-cover-${Date.now()}.${ext}`
+        const { error: uploadError } = await supabase.storage
           .from('logos')
-          .getPublicUrl(fileName)
-        coverUrl = publicUrlData.publicUrl
+          .upload(fileName, coverFile, { contentType: coverFile.type, upsert: true })
+          
+        if (!uploadError) {
+          const { data: publicUrlData } = supabase.storage
+            .from('logos')
+            .getPublicUrl(fileName)
+          coverUrl = publicUrlData.publicUrl
+        }
       }
     }
 

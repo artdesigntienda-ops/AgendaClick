@@ -71,11 +71,11 @@ export default function TopNavbar({ profile }: { profile?: any }) {
         </button>
 
         <a 
-          href="https://wa.me/573000000000" // Cambiar por número real de soporte
+          href="https://wa.me/573239306599" 
           target="_blank"
           rel="noreferrer"
           className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-          title="Soporte técnico"
+          title="Soporte técnico por WhatsApp"
         >
           <HelpCircle className="w-5 h-5" />
         </a>
