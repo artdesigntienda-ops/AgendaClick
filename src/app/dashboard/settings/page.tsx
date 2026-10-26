@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -13,17 +14,36 @@ export default async function SettingsPage() {
     redirect('/login')
   }
 
-  const { data: clinic } = await supabase
-    .from('clinics')
-    .select('*')
-    .eq('owner_id', user.id)
-    .maybeSingle()
+  const adminClient = createAdminClient()
 
-  const { data: profile } = await supabase
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .maybeSingle()
+
+  let clinic = null
+  let clinicId = profile?.clinic_id
+
+  if (clinicId) {
+    const { data } = await adminClient
+      .from('clinics')
+      .select('*')
+      .eq('id', clinicId)
+      .maybeSingle()
+    clinic = data
+  }
+
+  if (!clinic) {
+    const { data } = await adminClient
+      .from('clinics')
+      .select('*')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    clinic = data
+  }
 
   async function saveSettings(formData: FormData) {
     'use server'
@@ -31,16 +51,18 @@ export default async function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { data: profile } = await supabase
+    const adminClient = createAdminClient()
+
+    const { data: profile } = await adminClient
       .from('profiles')
-      .select('role')
+      .select('id, role, clinic_id')
       .eq('id', user.id)
       .maybeSingle()
 
     if (profile?.role === 'staff') {
       const staffName = formData.get('staff_name') as string
       if (staffName) {
-        await supabase
+        await adminClient
           .from('profiles')
           .update({ name: staffName })
           .eq('id', user.id)
@@ -50,23 +72,59 @@ export default async function SettingsPage() {
       return
     }
 
-    const { data: existingClinic } = await supabase
-      .from('clinics')
-      .select('id, logo_url, cover_image_url, schedule')
-      .eq('owner_id', user.id)
-      .maybeSingle()
+    let clinicId = profile?.clinic_id
+    let existingClinic = null
 
-    const name = formData.get('name') as string
+    if (clinicId) {
+      const { data } = await adminClient
+        .from('clinics')
+        .select('id, logo_url, cover_image_url, schedule, slug')
+        .eq('id', clinicId)
+        .maybeSingle()
+      existingClinic = data
+    }
+
+    if (!existingClinic) {
+      const { data } = await adminClient
+        .from('clinics')
+        .select('id, logo_url, cover_image_url, schedule, slug')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      existingClinic = data
+      if (existingClinic) clinicId = existingClinic.id
+    }
+
+    const name = (formData.get('name') as string)?.trim() || 'Mi Negocio'
     const phone = formData.get('phone') as string
     const rawSlug = formData.get('slug') as string
 
     // Sanitización y validación de slug contra rutas del sistema
     const RESERVED_SLUGS = ['api', 'dashboard', 'login', 'cancelar', 'socios', 'privacidad', 'terminos', 'docs', 'documentacion', 'auth', 'admin']
-    let slug = rawSlug
+    let baseSlug = rawSlug
       ? rawSlug.toLowerCase().trim().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
-      : ''
-    if (RESERVED_SLUGS.includes(slug)) {
-      slug = `${slug}-app`
+      : (name.toLowerCase().trim().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'mi-negocio')
+
+    if (RESERVED_SLUGS.includes(baseSlug)) {
+      baseSlug = `${baseSlug}-app`
+    }
+
+    // Verificar unicidad del slug en clinics
+    let slug = baseSlug
+    let counter = 1
+    while (true) {
+      const { data: slugExisting } = await adminClient
+        .from('clinics')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle()
+
+      if (!slugExisting || slugExisting.id === existingClinic?.id) {
+        break
+      }
+      counter++
+      slug = `${baseSlug}-${counter}`
     }
     const businessType = formData.get('business_type') as string
     const slogan = formData.get('slogan') as string
@@ -241,19 +299,50 @@ export default async function SettingsPage() {
     }
 
     if (existingClinic?.id) {
-      await supabase.from('clinics').update(payload).eq('id', existingClinic.id)
+      const { error: updateErr } = await adminClient
+        .from('clinics')
+        .update(payload)
+        .eq('id', existingClinic.id)
+
+      if (updateErr) {
+        console.error('Error updating clinic in settings:', updateErr)
+        throw new Error(updateErr.message)
+      }
     } else {
       // Al crear la clínica, dar 14 días de prueba
       const trialEndsAt = new Date()
       trialEndsAt.setDate(trialEndsAt.getDate() + 14)
-      await supabase.from('clinics').insert([{
-        ...payload,
-        subscription_status: 'trial',
-        subscription_ends_at: trialEndsAt.toISOString()
-      }])
+      const { data: newClinic, error: insertErr } = await adminClient
+        .from('clinics')
+        .insert([{
+          ...payload,
+          plan_type: 'independiente',
+          staff_limit: 1,
+          subscription_status: 'trial',
+          subscription_ends_at: trialEndsAt.toISOString()
+        }])
+        .select('id')
+        .single()
+
+      if (insertErr || !newClinic) {
+        console.error('Error inserting clinic in settings:', insertErr)
+        throw new Error(insertErr?.message || 'Error al crear el negocio')
+      }
+
+      // Vincular siempre la clínica creada al perfil del dueño
+      await adminClient
+        .from('profiles')
+        .update({
+          clinic_id: newClinic.id,
+          role: 'owner'
+        })
+        .eq('id', user.id)
     }
 
+    revalidatePath('/', 'layout')
+    revalidatePath('/dashboard')
     revalidatePath('/dashboard/settings')
+    revalidatePath('/dashboard/services')
     revalidatePath(`/${slug}`)
   }
 

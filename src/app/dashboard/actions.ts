@@ -375,20 +375,33 @@ export async function quickSetupClinic(data: QuickSetupInput) {
     .eq('id', user.id)
     .maybeSingle()
 
-  const rawSlug = slugify(data.name)
+  // Buscar si ya tiene una clínica
+  let clinicId = profile?.clinic_id
+  if (!clinicId) {
+    const { data: existingClinic } = await adminClient
+      .from('clinics')
+      .select('id')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (existingClinic) clinicId = existingClinic.id
+  }
+
+  const rawSlug = slugify(data.name) || 'mi-negocio'
   let candidateSlug = rawSlug
   let counter = 1
 
-  // Verificar unicidad del slug en clinics
+  // Verificar unicidad del slug en clinics (evita error 23505 unique constraint)
   while (true) {
     const { data: existing } = await adminClient
       .from('clinics')
-      .select('id, owner_id')
+      .select('id')
       .eq('slug', candidateSlug)
       .maybeSingle()
 
-    // Si no existe, o si pertenece al usuario actual, el slug es válido
-    if (!existing || existing.owner_id === user.id) {
+    // Si no existe, o si es la misma clínica que estamos editando, el slug es válido
+    if (!existing || existing.id === clinicId) {
       break
     }
     counter++
@@ -403,17 +416,6 @@ export async function quickSetupClinic(data: QuickSetupInput) {
     friday: { isOpen: true, openTime: '09:00', closeTime: '19:00', breakStart: null, breakEnd: null },
     saturday: { isOpen: true, openTime: '09:00', closeTime: '18:00', breakStart: null, breakEnd: null },
     sunday: { isOpen: false, openTime: '09:00', closeTime: '14:00', breakStart: null, breakEnd: null }
-  }
-
-  // Buscar si ya tiene una clínica
-  let clinicId = profile?.clinic_id
-  if (!clinicId) {
-    const { data: existingClinic } = await adminClient
-      .from('clinics')
-      .select('id')
-      .eq('owner_id', user.id)
-      .maybeSingle()
-    if (existingClinic) clinicId = existingClinic.id
   }
 
   const trialEndsAt = new Date()

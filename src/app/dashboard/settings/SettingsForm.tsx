@@ -368,8 +368,8 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
     try {
       await saveAction(formData)
       toast.success('Configuración guardada con éxito')
-    } catch (error) {
-      toast.error('Ocurrió un error al guardar')
+    } catch (error: any) {
+      toast.error(error?.message || 'Ocurrió un error al guardar')
     } finally {
       setIsSubmitting(false)
     }
