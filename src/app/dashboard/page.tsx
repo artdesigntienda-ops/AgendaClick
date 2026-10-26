@@ -20,7 +20,7 @@ export default async function DashboardOverview() {
   // 1. Obtener la clínica (o la clínica en la que trabaja si es staff)
   let { data: profile } = await supabase
     .from('profiles')
-    .select('role, clinic_id')
+    .select('role, clinic_id, google_refresh_token')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -29,7 +29,7 @@ export default async function DashboardOverview() {
     // 1. Buscar si el administrador ya pre-registró este correo
     const { data: existingEmailProfile } = await supabase
       .from('profiles')
-      .select('id, role, clinic_id')
+      .select('id, role, clinic_id, google_refresh_token')
       .eq('email', user.email)
       .maybeSingle()
 
@@ -40,7 +40,7 @@ export default async function DashboardOverview() {
         .from('profiles')
         .update({ id: user.id })
         .eq('id', existingEmailProfile.id)
-        .select('role, clinic_id')
+        .select('role, clinic_id, google_refresh_token')
         .maybeSingle()
 
       if (linkedProfile) {
@@ -61,7 +61,7 @@ export default async function DashboardOverview() {
           is_on_break: false,
           has_seen_tutorial: false
         }])
-        .select('role, clinic_id')
+        .select('role, clinic_id, google_refresh_token')
         .maybeSingle()
 
       if (newProfile) {
@@ -72,31 +72,36 @@ export default async function DashboardOverview() {
 
   let clinicId = profile?.clinic_id
   let clinicSlug = ''
+  let clinicData: any = null
+
+  const adminClient = createAdminClient()
 
   if (!clinicId && profile?.role === 'owner') {
-    const { data: clinic } = await supabase
+    const { data: clinic } = await adminClient
       .from('clinics')
-      .select('id, slug')
+      .select('id, name, slug, phone, business_type, schedule, subscription_status')
       .eq('owner_id', user.id)
       .limit(1)
       .maybeSingle()
     clinicId = clinic?.id
     clinicSlug = clinic?.slug || ''
+    clinicData = clinic
   } else if (clinicId) {
-    const { data: clinic } = await supabase
+    const { data: clinic } = await adminClient
       .from('clinics')
-      .select('slug')
+      .select('id, name, slug, phone, business_type, schedule, subscription_status')
       .eq('id', clinicId)
       .maybeSingle()
     clinicSlug = clinic?.slug || ''
+    clinicData = clinic
   }
 
   // 2. Fetch de citas para esta clínica, desde el inicio del año para permitir vistas semanales/mensuales/anuales
   let appointments: any[] = []
   let staffMembers: any[] = []
+  let servicesCount = 0
 
   if (clinicId) {
-    const adminClient = createAdminClient()
     const startOfYear = new Date(new Date().getFullYear(), 0, 1).toISOString()
     let aptsQuery = adminClient
       .from('appointments')
@@ -132,7 +137,17 @@ export default async function DashboardOverview() {
     if (staff) {
       staffMembers = staff
     }
+
+    // 4. Conteo de servicios
+    const { count } = await adminClient
+      .from('services')
+      .select('*', { count: 'exact', head: true })
+      .eq('clinic_id', clinicId)
+    servicesCount = count || 0
   }
+
+  const needsSetup = profile?.role === 'owner' && (!clinicId || !clinicSlug)
+  const hasGoogleCalendar = !!profile?.google_refresh_token
 
   return (
     <DashboardClient 
@@ -140,6 +155,11 @@ export default async function DashboardOverview() {
       clinicSlug={clinicSlug} 
       staff={staffMembers}
       clinicId={clinicId}
+      clinic={clinicData}
+      servicesCount={servicesCount}
+      hasGoogleCalendar={hasGoogleCalendar}
+      initialNeedsSetup={needsSetup}
+      userEmail={user.email}
     />
   )
 }

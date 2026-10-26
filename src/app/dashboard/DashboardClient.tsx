@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle } from 'lucide-react'
+import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle, Sparkles } from 'lucide-react'
+import { QuickSetupWizard } from './QuickSetupWizard'
+import { SetupProgressBar } from './SetupProgressBar'
 import { 
   format, 
   parseISO, 
@@ -58,14 +60,25 @@ export default function DashboardClient({
   appointments, 
   clinicSlug, 
   staff = [],
-  clinicId
+  clinicId,
+  clinic,
+  servicesCount = 0,
+  hasGoogleCalendar = false,
+  initialNeedsSetup = false,
+  userEmail
 }: { 
   appointments: Appointment[]
   clinicSlug?: string
   staff?: StaffMember[] 
   clinicId?: string
+  clinic?: any
+  servicesCount?: number
+  hasGoogleCalendar?: boolean
+  initialNeedsSetup?: boolean
+  userEmail?: string
 }) {
   const [mounted, setMounted] = useState(false)
+  const [isWizardOpen, setIsWizardOpen] = useState(initialNeedsSetup)
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   
@@ -418,6 +431,20 @@ export default function DashboardClient({
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8 relative">
+      <QuickSetupWizard 
+        isOpen={isWizardOpen} 
+        onClose={() => setIsWizardOpen(false)} 
+        userEmail={userEmail} 
+      />
+
+      {/* Barra de progreso de inicio amigable */}
+      <SetupProgressBar 
+        clinic={clinic} 
+        servicesCount={servicesCount} 
+        hasGoogleCalendar={hasGoogleCalendar}
+        onOpenQuickSetup={() => setIsWizardOpen(true)}
+      />
+
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tighter">Recepción & Agenda</h1>
@@ -429,8 +456,12 @@ export default function DashboardClient({
               Nueva Cita Manual
             </a>
           ) : (
-            <button disabled className="bg-gray-200 text-gray-400 px-6 py-3 font-medium cursor-not-allowed">
-              Configura tu negocio primero
+            <button 
+              onClick={() => setIsWizardOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-bold transition-all shadow-lg shadow-blue-500/20 text-center flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-yellow-300" />
+              Configurar negocio en 1 clic
             </button>
           )}
         </div>
