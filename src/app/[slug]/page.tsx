@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: `${clinic.name} - Reserva Online`,
       description: description,
       type: 'website',
-      url: `https://agendaclick.com/${slug}`,
+      url: `https://agendaclick.com.co/${slug}`,
       siteName: 'AgendaClick',
     },
     twitter: {
@@ -112,7 +112,7 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
     '@context': 'https://schema.org',
     '@type': schemaType,
     name: clinic.name,
-    url: `https://agendaclick.com/${clinic.slug}`,
+    url: `https://agendaclick.com.co/${clinic.slug}`,
     telephone: clinic.phone,
     address: clinic.address ? {
       "@type": "PostalAddress",
@@ -131,7 +131,7 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
       '@type': 'ReserveAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `https://agendaclick.com/${clinic.slug}`,
+        urlTemplate: `https://agendaclick.com.co/${clinic.slug}`,
         inLanguage: 'es-CO',
         actionPlatform: [
           'http://schema.org/DesktopWebPlatform',

@@ -13,7 +13,7 @@ export default function Sidebar({ clinic, role, businessType, themeColors }: {
   themeColors?: { sidebarColor?: string, sidebarTextColor?: string, accentColor?: string }
 }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [domain, setDomain] = useState('agendaclick.com')
+  const [domain, setDomain] = useState('agendaclick.com.co')
   const segmentConfig = getSegmentConfig(businessType)
 
   const sidebarBg = themeColors?.sidebarColor || '#ffffff'
