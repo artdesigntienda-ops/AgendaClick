@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaClick - Centro de Prospección Comercial</title>
+    <style>
+        :root {
+            --bg: #090d16;
+            --surface: #111827;
+            --surface-accent: #1e293b;
+            --border: #1f2937;
+            --primary: #3b82f6;
+            --whatsapp: #22c55e;
+            --whatsapp-hover: #16a34a;
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 30px 20px;
+        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        header {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { font-size: 24px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        
+        .filters-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 18px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        select, input[type="text"] {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            min-width: 180px;
+        }
+        select:focus, input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+        .counter-badge {
+            margin-left: auto;
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+        th {
+            background: #172033;
+            color: #94a3b8;
+            padding: 14px 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .biz-name { font-weight: 600; color: #fff; font-size: 14px; }
+        .biz-cat { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+        .biz-addr { color: #64748b; font-size: 12px; margin-top: 2px; }
+        .biz-sit { color: #cbd5e1; font-size: 12px; max-width: 280px; line-height: 1.4; }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-city { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+        .badge-niche { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); margin-left: 4px; }
+        .badge-phone { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .btn-wa {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--whatsapp);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            white-space: nowrap;
+        }
+        .btn-wa:hover {
+            background: var(--whatsapp-hover);
+            transform: translateY(-1px);
+        }
+        .text-bold { font-weight: 700; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🎯 AgendaClick — Centro de Prospección Multiciudad</h1>
+                <p class="subtitle">Prospectos calificados de Canchas Sintéticas, Odontología, Mascotas, Barberías y Spas en Colombia.</p>
+            </div>
+            <div class="counter-badge" id="counterBox">
+                Mostrando 30 de 30 prospectos
+            </div>
+        </header>
+
+        <!-- FILTROS EN TIEMPO REAL -->
+        <div class="filters-panel">
+            <div class="filter-group">
+                <label>Filtrar por Ciudad</label>
+                <select id="cityFilter" onchange="filtrar()">
+                    <option value="all">Todas las ciudades (5)</option>
+                    <option value="bogotá">Bogotá</option><option value="cali">Cali</option><option value="medellín">Medellín</option><option value="pasto">Pasto</option><option value="popayán">Popayán</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Filtrar por Nicho</label>
+                <select id="nicheFilter" onchange="filtrar()">
+                    <option value="all">Todos los nichos (5)</option>
+                    <option value="barberias">💈 Barberías y Salones</option><option value="canchas">⚽ Canchas Sintéticas</option><option value="odontologia">🦷 Odontología</option><option value="spas">✨ Spas y Estética</option><option value="veterinarias">🐾 Veterinarias</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1;">
+                <label>Búsqueda rápida</label>
+                <input type="text" id="searchInput" onkeyup="filtrar()" placeholder="Buscar por nombre, zona, dirección...">
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40">#</th>
+                        <th>Ciudad / Nicho</th>
+                        <th>Negocio</th>
+                        <th>Ubicación</th>
+                        <th>Contacto</th>
+                        <th>Dolor / Oportunidad Detectada</th>
+                        <th width="180">Acción Rápida</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsTableBody">
+                    
+        <tr data-city="pasto" data-niche="canchas" class="lead-row">
+            <td class="text-bold">1</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Canchas Sintéticas La Pasión del Fútbol</div>
+                <div class="biz-cat">Canchas Sintéticas Fútbol 5</div>
+            </td>
+            <td>
+                <div>Centro - Oriente</div>
+                <div class="biz-addr">Cra. 5 #13-54</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3116030335</span>
+            </td>
+            <td class="biz-sit">Alquiler de canchas por horas. Manejan reservas por llamadas y WhatsApp que saturan en tardes y fines de semana.</td>
+            <td><a href="https://wa.me/573116030335?text=%C2%A1Hola%20gente%20de%20Canchas%20Sint%C3%A9ticas%20La%20Pasi%C3%B3n%20del%20F%C3%BAtbol%2C%20un%20saludo%20en%20Pasto%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Centro%20-%20Oriente%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Canchas%20Sint%C3%A9ticas%20La%20Pasi%C3%B3n%20del%20F%C3%BAtbol%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="canchas" class="lead-row">
+            <td class="text-bold">2</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Canchas Sintéticas Tiro Libre</div>
+                <div class="biz-cat">Canchas Sintéticas / Complejo Deportivo</div>
+            </td>
+            <td>
+                <div>Chapal / Estadio Libertad</div>
+                <div class="biz-addr">Calle 12 #6-50 (Contiguo Estadio Libertad)</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3154201122</span>
+            </td>
+            <td class="biz-sit">Alto flujo por cercanía al estadio. Cruces frecuentes de horarios en torneos y partidos nocturnos.</td>
+            <td><a href="https://wa.me/573154201122?text=%C2%A1Hola%20gente%20de%20Canchas%20Sint%C3%A9ticas%20Tiro%20Libre%2C%20un%20saludo%20en%20Pasto%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Chapal%20/%20Estadio%20Libertad%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Canchas%20Sint%C3%A9ticas%20Tiro%20Libre%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="canchas" class="lead-row">
+            <td class="text-bold">3</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Canchas Sintéticas Hugool Popayán</div>
+                <div class="biz-cat">Canchas Sintéticas Fútbol 5 y 8</div>
+            </td>
+            <td>
+                <div>Norte / Bolívar</div>
+                <div class="biz-addr">Carrera 6A #10 Norte-1, Barrio Bolívar</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3023492940</span>
+            </td>
+            <td class="biz-sit">Complejo muy reconocido. Utilizan plataformas externas costosas; prospecto ideal para migración y ahorro del 50%.</td>
+            <td><a href="https://wa.me/573023492940?text=%C2%A1Hola%20equipo%20de%20Canchas%20Sint%C3%A9ticas%20Hugool%20Popay%C3%A1n%2C%20un%20saludo%20en%20Popay%C3%A1n%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AVeo%20su%20excelente%20complejo%20deportivo%20en%20Norte%20/%20Bol%C3%ADvar.%0A%0ALes%20escribo%20porque%20varios%20administradores%20de%20canchas%20sint%C3%A9ticas%20en%20Colombia%20nos%20comentan%20que%20est%C3%A1n%20pagando%20m%C3%A1s%20de%20%24150.000%20o%20%24250.000%20mensuales%20en%20plataformas%20de%20agendamiento%20que%20cobran%20de%20m%C3%A1s%20o%20tienen%20soporte%20lento.%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20ofrecemos%20la%20plataforma%20completa%20para%20que%20sus%20jugadores%20reserven%20su%20cancha%2024/7%2C%20elijan%20hora%20y%20confirmen%20turnos%20desde%20solo%20%2459.000%20COP%20al%20mes%2C%20con%20soporte%20directo%20en%20Colombia.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20mostrarles%20c%C3%B3mo%20ahorrar%20m%C3%A1s%20del%2050%25%20en%20su%20software%20de%20reservas%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="cali" data-niche="canchas" class="lead-row">
+            <td class="text-bold">4</td>
+            <td>
+                <span class="badge badge-city">📍 Cali</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Euforia Fútbol 5 Cali</div>
+                <div class="biz-cat">Canchas Sintéticas Fútbol 5</div>
+            </td>
+            <td>
+                <div>Comuna 17 (Sur de Cali)</div>
+                <div class="biz-addr">Calle 12A, Barrio Primero de Mayo / Santa Anita</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3137681332</span>
+            </td>
+            <td class="biz-sit">Tres canchas grandes sintéticas de alto tráfico. Demasiado tiempo administrativo confirmando transferencias de abonos.</td>
+            <td><a href="https://wa.me/573137681332?text=%C2%A1Hola%20gente%20de%20Euforia%20F%C3%BAtbol%205%20Cali%2C%20un%20saludo%20en%20Cali%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Comuna%2017%20%28Sur%20de%20Cali%29%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Euforia%20F%C3%BAtbol%205%20Cali%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="cali" data-niche="canchas" class="lead-row">
+            <td class="text-bold">5</td>
+            <td>
+                <span class="badge badge-city">📍 Cali</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Club Deportivo South Park Cali</div>
+                <div class="biz-cat">Complejo Deportivo y Canchas Sintéticas</div>
+            </td>
+            <td>
+                <div>Sur / Pance</div>
+                <div class="biz-addr">Sector Sur de Cali, Vía Pance</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3158904512</span>
+            </td>
+            <td class="biz-sit">Múltiples canchas de fútbol 5 y 7. Necesitan autogestión de reservas 24/7 para no perder clientes de noche.</td>
+            <td><a href="https://wa.me/573158904512?text=%C2%A1Hola%20gente%20de%20Club%20Deportivo%20South%20Park%20Cali%2C%20un%20saludo%20en%20Cali%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Sur%20/%20Pance%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Club%20Deportivo%20South%20Park%20Cali%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="medellín" data-niche="canchas" class="lead-row">
+            <td class="text-bold">6</td>
+            <td>
+                <span class="badge badge-city">📍 Medellín</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Elite del Fútbol Medellín</div>
+                <div class="biz-cat">Canchas Sintéticas Techadas</div>
+            </td>
+            <td>
+                <div>Centro / El Hueco</div>
+                <div class="biz-addr">Cra. 56B #49A-29 (Pisos 16 y 18, C.C. Elite de la Moda)</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3137217108</span>
+            </td>
+            <td class="biz-sit">Canchas con vista panorámica en pisos altos. Alta demanda ejecutiva después de las 6 PM.</td>
+            <td><a href="https://wa.me/573137217108?text=%C2%A1Hola%20gente%20de%20Elite%20del%20F%C3%BAtbol%20Medell%C3%ADn%2C%20un%20saludo%20en%20Medell%C3%ADn%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Centro%20/%20El%20Hueco%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Elite%20del%20F%C3%BAtbol%20Medell%C3%ADn%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="medellín" data-niche="canchas" class="lead-row">
+            <td class="text-bold">7</td>
+            <td>
+                <span class="badge badge-city">📍 Medellín</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Canchas San Ignacio Estadio</div>
+                <div class="biz-cat">Canchas Sintéticas Deportivas</div>
+            </td>
+            <td>
+                <div>Estadio / Laureles</div>
+                <div class="biz-addr">Diagonal a la Estación Metro Estadio</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3116063484</span>
+            </td>
+            <td class="biz-sit">Ubicación inmejorable en Laureles. Gestión de reservas telefónicas que saturan las líneas.</td>
+            <td><a href="https://wa.me/573116063484?text=%C2%A1Hola%20gente%20de%20Canchas%20San%20Ignacio%20Estadio%2C%20un%20saludo%20en%20Medell%C3%ADn%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Estadio%20/%20Laureles%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Canchas%20San%20Ignacio%20Estadio%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="bogotá" data-niche="canchas" class="lead-row">
+            <td class="text-bold">8</td>
+            <td>
+                <span class="badge badge-city">📍 Bogotá</span>
+                <span class="badge badge-niche">⚽ Canchas Sintéticas</span>
+            </td>
+            <td>
+                <div class="biz-name">Canchas Sintéticas Maracaná Bogotá</div>
+                <div class="biz-cat">Canchas Sintéticas Fútbol 5 y 8</div>
+            </td>
+            <td>
+                <div>Norte / Suba - Usaquén</div>
+                <div class="biz-addr">Autopista Norte # 224-60</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3103214589</span>
+            </td>
+            <td class="biz-sit">Complejo masivo de canchas para torneos empresariales. Requieren cobro y confirmación automática.</td>
+            <td><a href="https://wa.me/573103214589?text=%C2%A1Hola%20gente%20de%20Canchas%20Sint%C3%A9ticas%20Maracan%C3%A1%20Bogot%C3%A1%2C%20un%20saludo%20en%20Bogot%C3%A1%21%20%E2%9A%BD%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20complejo%20en%20Norte%20/%20Suba%20-%20Usaqu%C3%A9n%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20los%20clientes%20escriben%20a%20las%2010%20o%2011%20de%20la%20noche%20para%20apartar%20cancha%20del%20d%C3%ADa%20siguiente%2C%20o%20cuando%20se%20cruzan%20los%20partidos%20y%20llamadas%20los%20fines%20de%20semana%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20para%20que%20los%20futbolistas%20vean%20en%20tiempo%20real%20qu%C3%A9%20horas%20est%C3%A1n%20libres%20y%20aparten%20su%20cancha%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20WhatsApp%20o%20Instagram%2C%20sin%20que%20ustedes%20tengan%20que%20responder%20llamadas%20a%20medianoche.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20de%20c%C3%B3mo%20se%20ver%C3%ADa%20la%20reserva%20online%20de%20Canchas%20Sint%C3%A9ticas%20Maracan%C3%A1%20Bogot%C3%A1%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">9</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Clínica Odontológica Smile Pasto</div>
+                <div class="biz-cat">Clínica Odontológica Especializada</div>
+            </td>
+            <td>
+                <div>Centro / Valle de Atriz</div>
+                <div class="biz-addr">Edificio Calle Real Center (Cra. 25 # 20-65)</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3216425714</span>
+            </td>
+            <td class="biz-sit">Tratamientos de ortodoncia y diseño de sonrisa. Pacientes potenciales consultan de noche y recepcionista atiende hasta las 6 PM.</td>
+            <td><a href="https://wa.me/573216425714?text=%C2%A1Hola%20equipo%20de%20Cl%C3%ADnica%20Odontol%C3%B3gica%20Smile%20Pasto%2C%20un%20cordial%20saludo%20en%20Pasto%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Centro%20/%20Valle%20de%20Atriz.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Cl%C3%ADnica%20Odontol%C3%B3gica%20Smile%20Pasto%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">10</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Odontología Láser Pasto</div>
+                <div class="biz-cat">Odontología Integral y Estética</div>
+            </td>
+            <td>
+                <div>Maridíaz</div>
+                <div class="biz-addr">Calle 19 # 31C - 12, Edificio Net 31</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3147148692</span>
+            </td>
+            <td class="biz-sit">Procedimientos estéticos de alto valor. Necesitan citas sin inasistencias (*no-shows*) mediante recordatorios automatizados.</td>
+            <td><a href="https://wa.me/573147148692?text=%C2%A1Hola%20equipo%20de%20Odontolog%C3%ADa%20L%C3%A1ser%20Pasto%2C%20un%20cordial%20saludo%20en%20Pasto%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Marid%C3%ADaz.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Odontolog%C3%ADa%20L%C3%A1ser%20Pasto%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">11</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Montident IPS Clínica Odontológica</div>
+                <div class="biz-cat">IPS Odontológica</div>
+            </td>
+            <td>
+                <div>San Andrés</div>
+                <div class="biz-addr">Calle 17 # 29-84, Edificio Montilla</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3176445230</span>
+            </td>
+            <td class="biz-sit">Múltiples especialistas trabajando en sillones independientes. Requiere sincronización con Google Calendar.</td>
+            <td><a href="https://wa.me/573176445230?text=%C2%A1Hola%20equipo%20de%20Montident%20IPS%20Cl%C3%ADnica%20Odontol%C3%B3gica%2C%20un%20cordial%20saludo%20en%20Pasto%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20San%20Andr%C3%A9s.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Montident%20IPS%20Cl%C3%ADnica%20Odontol%C3%B3gica%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">12</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Dental.D Clínica Odontológica Popayán</div>
+                <div class="biz-cat">Clínica Odontológica Integral</div>
+            </td>
+            <td>
+                <div>Santa Clara</div>
+                <div class="biz-addr">Carrera 11 # 8N - 96, Barrio Santa Clara</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3216455224</span>
+            </td>
+            <td class="biz-sit">Consultas odontológicas y valoraciones. Buscan canal de agendamiento directo desde pauta y redes.</td>
+            <td><a href="https://wa.me/573216455224?text=%C2%A1Hola%20equipo%20de%20Dental.D%20Cl%C3%ADnica%20Odontol%C3%B3gica%20Popay%C3%A1n%2C%20un%20cordial%20saludo%20en%20Popay%C3%A1n%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Santa%20Clara.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Dental.D%20Cl%C3%ADnica%20Odontol%C3%B3gica%20Popay%C3%A1n%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">13</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Ortho-rident Clínica de Ortodoncia</div>
+                <div class="biz-cat">Clínica de Ortodoncia</div>
+            </td>
+            <td>
+                <div>Norte / Panamericana</div>
+                <div class="biz-addr">Carrera 9 # 18N - 65 (Avenida Panamericana)</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3137200481</span>
+            </td>
+            <td class="biz-sit">Gran volumen de controles mensuales de ortodoncia (15 a 20 min). Caos al coordinar horas por chat.</td>
+            <td><a href="https://wa.me/573137200481?text=%C2%A1Hola%20equipo%20de%20Ortho-rident%20Cl%C3%ADnica%20de%20Ortodoncia%2C%20un%20cordial%20saludo%20en%20Popay%C3%A1n%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Norte%20/%20Panamericana.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Ortho-rident%20Cl%C3%ADnica%20de%20Ortodoncia%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="cali" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">14</td>
+            <td>
+                <span class="badge badge-city">📍 Cali</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Oral Home Odontología Cali</div>
+                <div class="biz-cat">Centro Odontológico Especializado</div>
+            </td>
+            <td>
+                <div>Tequendama / Sector Médico</div>
+                <div class="biz-addr">Calle 5 # 38-25, Barrio Tequendama</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3164521098</span>
+            </td>
+            <td class="biz-sit">Sector médico de alta competencia. Pacientes exigen inmediatez para valorar citas sin llamar.</td>
+            <td><a href="https://wa.me/573164521098?text=%C2%A1Hola%20equipo%20de%20Oral%20Home%20Odontolog%C3%ADa%20Cali%2C%20un%20cordial%20saludo%20en%20Cali%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Tequendama%20/%20Sector%20M%C3%A9dico.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Oral%20Home%20Odontolog%C3%ADa%20Cali%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="bogotá" data-niche="odontologia" class="lead-row">
+            <td class="text-bold">15</td>
+            <td>
+                <span class="badge badge-city">📍 Bogotá</span>
+                <span class="badge badge-niche">🦷 Odontología</span>
+            </td>
+            <td>
+                <div class="biz-name">Dental Art Especialistas Bogotá</div>
+                <div class="biz-cat">Clínica Odontológica y Estética Dental</div>
+            </td>
+            <td>
+                <div>Chicó / Usaquén</div>
+                <div class="biz-addr">Carrera 15 # 104-33, Chicó Navarra</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3108745120</span>
+            </td>
+            <td class="biz-sit">Pacientes de estrato 4, 5 y 6 que valoran agendar online a medianoche o festivos con sincronización de calendario.</td>
+            <td><a href="https://wa.me/573108745120?text=%C2%A1Hola%20equipo%20de%20Dental%20Art%20Especialistas%20Bogot%C3%A1%2C%20un%20cordial%20saludo%20en%20Bogot%C3%A1%21%20%F0%9F%A6%B7%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Chic%C3%B3%20/%20Usaqu%C3%A9n.%20Quer%C3%ADa%20hacerles%20una%20consulta%20sobre%20su%20recepci%C3%B3n%3A%0A%0ALa%20recepcionista%20suele%20atender%20en%20horario%20de%20oficina%20%28hasta%20las%206%20PM%29%2C%20pero%20muchos%20pacientes%20buscan%20agendar%20una%20cita%20o%20valoraci%C3%B3n%20dental%20a%20las%209%20o%2010%20de%20la%20noche%20desde%20su%20celular...%20y%20si%20nadie%20responde%2C%20buscan%20otra%20cl%C3%ADnica.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20pacientes%20pueden%20agendar%20citas%20las%2024%20horas%2C%20seleccionar%20el%20especialista%20o%20procedimiento%20y%20recibir%20recordatorios%20autom%C3%A1ticos%20por%20correo%20y%20WhatsApp%20para%20evitar%20inasistencias%20%28%2Ano-shows%2A%29.%0A%0A%C2%BFLes%20gustar%C3%ADa%20que%20les%20configuremos%20una%20prueba%20gratuita%20para%20Dental%20Art%20Especialistas%20Bogot%C3%A1%20esta%20semana%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="veterinarias" class="lead-row">
+            <td class="text-bold">16</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">🐾 Veterinarias</span>
+            </td>
+            <td>
+                <div class="biz-name">VetBlu Clínica Veterinaria Pasto</div>
+                <div class="biz-cat">Clínica Veterinaria y Peluquería Canina</div>
+            </td>
+            <td>
+                <div>Sur - Occidente</div>
+                <div class="biz-addr">Carrera 33 # 8 - 141</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3236583064</span>
+            </td>
+            <td class="biz-sit">Atención médica y servicio de spa canino. Cruces continuos entre turnos de peluquería y consultas de rutina.</td>
+            <td><a href="https://wa.me/573236583064?text=%C2%A1Hola%20equipo%20de%20VetBlu%20Cl%C3%ADnica%20Veterinaria%20Pasto%2C%20un%20saludo%20especial%20en%20Pasto%21%20%F0%9F%90%BE%F0%9F%91%8B%0A%0AVeo%20los%20servicios%20que%20ofrecen%20en%20Sur%20-%20Occidente.%20Les%20hago%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20gestionan%20cuando%20se%20satura%20el%20WhatsApp%20con%20personas%20pidiendo%20turnos%20de%20ba%C3%B1o/peluquer%C3%ADa%20canina%20al%20mismo%20tiempo%20que%20atienden%20consultas%20veterinarias%20o%20emergencias%20en%20el%20consultorio%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20separamos%20autom%C3%A1ticamente%20los%20turnos%20de%20spa/peluquer%C3%ADa%20de%20las%20consultas%20m%C3%A9dicas%2C%20permitiendo%20que%20los%20due%C3%B1os%20de%20mascotas%20elijan%20d%C3%ADa%20y%20hora%20desde%20su%20celular%20con%20recordatorio%20autom%C3%A1tico.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20revisar%20una%20prueba%20sin%20costo%20adaptada%20a%20VetBlu%20Cl%C3%ADnica%20Veterinaria%20Pasto%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="veterinarias" class="lead-row">
+            <td class="text-bold">17</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">🐾 Veterinarias</span>
+            </td>
+            <td>
+                <div class="biz-name">Olfatos Pet Center Maridíaz</div>
+                <div class="biz-cat">Centro Canino y Veterinaria</div>
+            </td>
+            <td>
+                <div>Maridíaz</div>
+                <div class="biz-addr">Calle 18 # 34-09, Barrio Maridíaz</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3154331959</span>
+            </td>
+            <td class="biz-sit">Sede urbana con guardería y peluquería. Sábados con saturación de llamadas para apartar baño.</td>
+            <td><a href="https://wa.me/573154331959?text=%C2%A1Hola%20equipo%20de%20Olfatos%20Pet%20Center%20Marid%C3%ADaz%2C%20un%20saludo%20especial%20en%20Pasto%21%20%F0%9F%90%BE%F0%9F%91%8B%0A%0AVeo%20los%20servicios%20que%20ofrecen%20en%20Marid%C3%ADaz.%20Les%20hago%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20gestionan%20cuando%20se%20satura%20el%20WhatsApp%20con%20personas%20pidiendo%20turnos%20de%20ba%C3%B1o/peluquer%C3%ADa%20canina%20al%20mismo%20tiempo%20que%20atienden%20consultas%20veterinarias%20o%20emergencias%20en%20el%20consultorio%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20separamos%20autom%C3%A1ticamente%20los%20turnos%20de%20spa/peluquer%C3%ADa%20de%20las%20consultas%20m%C3%A9dicas%2C%20permitiendo%20que%20los%20due%C3%B1os%20de%20mascotas%20elijan%20d%C3%ADa%20y%20hora%20desde%20su%20celular%20con%20recordatorio%20autom%C3%A1tico.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20revisar%20una%20prueba%20sin%20costo%20adaptada%20a%20Olfatos%20Pet%20Center%20Marid%C3%ADaz%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="veterinarias" class="lead-row">
+            <td class="text-bold">18</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">🐾 Veterinarias</span>
+            </td>
+            <td>
+                <div class="biz-name">La Veterinaria Popayán</div>
+                <div class="biz-cat">Clínica Veterinaria</div>
+            </td>
+            <td>
+                <div>Bella Vista / Norte</div>
+                <div class="biz-addr">Transversal 9 # 62N 83, Barrio Bella Vista</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3012284396</span>
+            </td>
+            <td class="biz-sit">Consultas veterinarias y vacunación programada. Los dueños olvidan las fechas si no reciben recordatorio.</td>
+            <td><a href="https://wa.me/573012284396?text=%C2%A1Hola%20equipo%20de%20La%20Veterinaria%20Popay%C3%A1n%2C%20un%20saludo%20especial%20en%20Popay%C3%A1n%21%20%F0%9F%90%BE%F0%9F%91%8B%0A%0AVeo%20los%20servicios%20que%20ofrecen%20en%20Bella%20Vista%20/%20Norte.%20Les%20hago%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20gestionan%20cuando%20se%20satura%20el%20WhatsApp%20con%20personas%20pidiendo%20turnos%20de%20ba%C3%B1o/peluquer%C3%ADa%20canina%20al%20mismo%20tiempo%20que%20atienden%20consultas%20veterinarias%20o%20emergencias%20en%20el%20consultorio%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20separamos%20autom%C3%A1ticamente%20los%20turnos%20de%20spa/peluquer%C3%ADa%20de%20las%20consultas%20m%C3%A9dicas%2C%20permitiendo%20que%20los%20due%C3%B1os%20de%20mascotas%20elijan%20d%C3%ADa%20y%20hora%20desde%20su%20celular%20con%20recordatorio%20autom%C3%A1tico.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20revisar%20una%20prueba%20sin%20costo%20adaptada%20a%20La%20Veterinaria%20Popay%C3%A1n%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="veterinarias" class="lead-row">
+            <td class="text-bold">19</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">🐾 Veterinarias</span>
+            </td>
+            <td>
+                <div class="biz-name">C.V. Pelos & Patas Popayán</div>
+                <div class="biz-cat">Clínica Veterinaria Integral</div>
+            </td>
+            <td>
+                <div>Modelo</div>
+                <div class="biz-addr">Carrera 10 # 1N – 58, Barrio Modelo</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3113725268</span>
+            </td>
+            <td class="biz-sit">Peluquería canina de alta demanda. Horarios fijos de baño y corte para evitar esperas y estrés en los animales.</td>
+            <td><a href="https://wa.me/573113725268?text=%C2%A1Hola%20equipo%20de%20C.V.%20Pelos%20%26%20Patas%20Popay%C3%A1n%2C%20un%20saludo%20especial%20en%20Popay%C3%A1n%21%20%F0%9F%90%BE%F0%9F%91%8B%0A%0AVeo%20los%20servicios%20que%20ofrecen%20en%20Modelo.%20Les%20hago%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20gestionan%20cuando%20se%20satura%20el%20WhatsApp%20con%20personas%20pidiendo%20turnos%20de%20ba%C3%B1o/peluquer%C3%ADa%20canina%20al%20mismo%20tiempo%20que%20atienden%20consultas%20veterinarias%20o%20emergencias%20en%20el%20consultorio%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20separamos%20autom%C3%A1ticamente%20los%20turnos%20de%20spa/peluquer%C3%ADa%20de%20las%20consultas%20m%C3%A9dicas%2C%20permitiendo%20que%20los%20due%C3%B1os%20de%20mascotas%20elijan%20d%C3%ADa%20y%20hora%20desde%20su%20celular%20con%20recordatorio%20autom%C3%A1tico.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20revisar%20una%20prueba%20sin%20costo%20adaptada%20a%20C.V.%20Pelos%20%26%20Patas%20Popay%C3%A1n%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="cali" data-niche="veterinarias" class="lead-row">
+            <td class="text-bold">20</td>
+            <td>
+                <span class="badge badge-city">📍 Cali</span>
+                <span class="badge badge-niche">🐾 Veterinarias</span>
+            </td>
+            <td>
+                <div class="biz-name">Animal Center Cali</div>
+                <div class="biz-cat">Hospital y Spa Veterinario</div>
+            </td>
+            <td>
+                <div>Norte / Santa Mónica</div>
+                <div class="biz-addr">Avenida 6N # 24N-15, Santa Mónica</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3186523901</span>
+            </td>
+            <td class="biz-sit">Servicios veterinarios y grooming canino premium. Clientes desean reservar fecha exacta de baño desde su Instagram.</td>
+            <td><a href="https://wa.me/573186523901?text=%C2%A1Hola%20equipo%20de%20Animal%20Center%20Cali%2C%20un%20saludo%20especial%20en%20Cali%21%20%F0%9F%90%BE%F0%9F%91%8B%0A%0AVeo%20los%20servicios%20que%20ofrecen%20en%20Norte%20/%20Santa%20M%C3%B3nica.%20Les%20hago%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20gestionan%20cuando%20se%20satura%20el%20WhatsApp%20con%20personas%20pidiendo%20turnos%20de%20ba%C3%B1o/peluquer%C3%ADa%20canina%20al%20mismo%20tiempo%20que%20atienden%20consultas%20veterinarias%20o%20emergencias%20en%20el%20consultorio%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20separamos%20autom%C3%A1ticamente%20los%20turnos%20de%20spa/peluquer%C3%ADa%20de%20las%20consultas%20m%C3%A9dicas%2C%20permitiendo%20que%20los%20due%C3%B1os%20de%20mascotas%20elijan%20d%C3%ADa%20y%20hora%20desde%20su%20celular%20con%20recordatorio%20autom%C3%A1tico.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20revisar%20una%20prueba%20sin%20costo%20adaptada%20a%20Animal%20Center%20Cali%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="barberias" class="lead-row">
+            <td class="text-bold">21</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">Los Más Bárbaros Barbershop</div>
+                <div class="biz-cat">Barbería / Cortes Masculinos</div>
+            </td>
+            <td>
+                <div>San Felipe</div>
+                <div class="biz-addr">Cra. 26 #11-42, Barrio San Felipe</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3183599334</span>
+            </td>
+            <td class="biz-sit">Atención en local y a domicilio. Manejan citas manualmente por WhatsApp.</td>
+            <td><a href="https://wa.me/573183599334?text=%C2%A1Hola%20equipo%20de%20Los%20M%C3%A1s%20B%C3%A1rbaros%20Barbershop%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20San%20Felipe.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%20al%20d%C3%ADa%20siguiente%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20celular%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20Los%20M%C3%A1s%20B%C3%A1rbaros%20Barbershop%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="barberias" class="lead-row">
+            <td class="text-bold">22</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">Peluquería Alejandro Unicentro</div>
+                <div class="biz-cat">Salón de Belleza y Peluquería Integral</div>
+            </td>
+            <td>
+                <div>Unicentro</div>
+                <div class="biz-addr">C.C. Unicentro Pasto, Local 2-68</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3185892807</span>
+            </td>
+            <td class="biz-sit">Alto tráfico en centro comercial. Se forman filas y llamadas en horas pico.</td>
+            <td><a href="https://wa.me/573185892807?text=%C2%A1Hola%20equipo%20de%20Peluquer%C3%ADa%20Alejandro%20Unicentro%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AVeo%20su%20excelente%20ubicaci%C3%B3n%20y%20alto%20flujo%20de%20clientes%20en%20Unicentro.%0A%0ASabemos%20que%20en%20horas%20pico%20y%20fines%20de%20semana%20es%20muy%20estresante%20coordinar%20llamadas%2C%20mensajes%20y%20cobros%20en%20caja%20al%20mismo%20tiempo.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20clientes%20pueden%20asegurar%20su%20turno%20con%20su%20estilista%20favorito%20antes%20de%20llegar%20al%20local%2C%20reduciendo%20filas%20y%20ordenando%20el%20d%C3%ADa%20autom%C3%A1ticamente.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20para%20Peluquer%C3%ADa%20Alejandro%20Unicentro%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="barberias" class="lead-row">
+            <td class="text-bold">23</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">Alfonso Peluquería y Estética</div>
+                <div class="biz-cat">Peluquería y Colorimetría</div>
+            </td>
+            <td>
+                <div>Unicentro</div>
+                <div class="biz-addr">C.C. Unicentro Pasto, Local 2-40</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3185874519</span>
+            </td>
+            <td class="biz-sit">Ubicado en centro comercial. Ideal para agendar turnos antes de llegar.</td>
+            <td><a href="https://wa.me/573185874519?text=%C2%A1Hola%20equipo%20de%20Alfonso%20Peluquer%C3%ADa%20y%20Est%C3%A9tica%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AVeo%20su%20excelente%20ubicaci%C3%B3n%20y%20alto%20flujo%20de%20clientes%20en%20Unicentro.%0A%0ASabemos%20que%20en%20horas%20pico%20y%20fines%20de%20semana%20es%20muy%20estresante%20coordinar%20llamadas%2C%20mensajes%20y%20cobros%20en%20caja%20al%20mismo%20tiempo.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20clientes%20pueden%20asegurar%20su%20turno%20con%20su%20estilista%20favorito%20antes%20de%20llegar%20al%20local%2C%20reduciendo%20filas%20y%20ordenando%20el%20d%C3%ADa%20autom%C3%A1ticamente.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20sin%20costo%20para%20Alfonso%20Peluquer%C3%ADa%20y%20Est%C3%A9tica%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="barberias" class="lead-row">
+            <td class="text-bold">24</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">Vikings Barber Company Pasto</div>
+                <div class="biz-cat">Barbería Urbana / Fade & Barba</div>
+            </td>
+            <td>
+                <div>Centro - Occidente</div>
+                <div class="biz-addr">Calle 21 #31C - 36</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3217509139</span>
+            </td>
+            <td class="biz-sit">Cortes modernos con múltiples barberos que requieren repartir la agenda sin cruces.</td>
+            <td><a href="https://wa.me/573217509139?text=%C2%A1Hola%20gente%20de%20Vikings%20Barber%20Company%20Pasto%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%92%88%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20equipo%20en%20Centro%20-%20Occidente%3A%20%C2%BFc%C3%B3mo%20organizan%20los%20turnos%20cuando%20tienen%20varios%20barberos%20trabajando%20al%20tiempo%20para%20que%20no%20se%20crucen%20las%20citas%20ni%20queden%20tiempos%20muertos%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20cada%20barbero%20de%20su%20equipo%20tiene%20su%20propio%20calendario%20en%20el%20celular%20con%20recordatorios%20autom%C3%A1ticos%20para%20que%20los%20clientes%20no%20falten.%0A%0A%C2%BFLes%20interesar%C3%ADa%20probarlo%20gratis%20esta%20semana%20en%20Vikings%20Barber%20Company%20Pasto%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="barberias" class="lead-row">
+            <td class="text-bold">25</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">JL Barber Club Popayán</div>
+                <div class="biz-cat">Barbería y Estética Masculina</div>
+            </td>
+            <td>
+                <div>Santa Clara</div>
+                <div class="biz-addr">Calle 4 Norte # 12-40, Barrio Santa Clara</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3146892301</span>
+            </td>
+            <td class="biz-sit">Barbería juvenil de alta rotación. Clientes piden turnos de noche por WhatsApp.</td>
+            <td><a href="https://wa.me/573146892301?text=%C2%A1Hola%20equipo%20de%20JL%20Barber%20Club%20Popay%C3%A1n%2C%20un%20saludo%20en%20Popay%C3%A1n%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Santa%20Clara.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%20al%20d%C3%ADa%20siguiente%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20celular%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20JL%20Barber%20Club%20Popay%C3%A1n%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="cali" data-niche="barberias" class="lead-row">
+            <td class="text-bold">26</td>
+            <td>
+                <span class="badge badge-city">📍 Cali</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">Gentleman Barber Studio Cali</div>
+                <div class="biz-cat">Barber Studio & Coffee</div>
+            </td>
+            <td>
+                <div>Gran Limonar / Sur</div>
+                <div class="biz-addr">Calle 9 # 62-44, Barrio Gran Limonar</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3178541290</span>
+            </td>
+            <td class="biz-sit">Barbería con café y cerveza. Clientes agendan servicios combinados de corte y barba.</td>
+            <td><a href="https://wa.me/573178541290?text=%C2%A1Hola%20gente%20de%20Gentleman%20Barber%20Studio%20Cali%2C%20un%20saludo%20en%20Cali%21%20%F0%9F%92%88%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20equipo%20en%20Gran%20Limonar%20/%20Sur%3A%20%C2%BFc%C3%B3mo%20organizan%20los%20turnos%20cuando%20tienen%20varios%20barberos%20trabajando%20al%20tiempo%20para%20que%20no%20se%20crucen%20las%20citas%20ni%20queden%20tiempos%20muertos%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20cada%20barbero%20de%20su%20equipo%20tiene%20su%20propio%20calendario%20en%20el%20celular%20con%20recordatorios%20autom%C3%A1ticos%20para%20que%20los%20clientes%20no%20falten.%0A%0A%C2%BFLes%20interesar%C3%ADa%20probarlo%20gratis%20esta%20semana%20en%20Gentleman%20Barber%20Studio%20Cali%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="medellín" data-niche="barberias" class="lead-row">
+            <td class="text-bold">27</td>
+            <td>
+                <span class="badge badge-city">📍 Medellín</span>
+                <span class="badge badge-niche">💈 Barberías y Salones</span>
+            </td>
+            <td>
+                <div class="biz-name">The Barber House Laureles</div>
+                <div class="biz-cat">Barbería Clásica y Moderna</div>
+            </td>
+            <td>
+                <div>Laureles</div>
+                <div class="biz-addr">Circular 4 # 73-20, Laureles</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3127894561</span>
+            </td>
+            <td class="biz-sit">Zona concurrida en Laureles. Barberos independientes que arriendan silla y necesitan su propio horario.</td>
+            <td><a href="https://wa.me/573127894561?text=%C2%A1Hola%20gente%20de%20The%20Barber%20House%20Laureles%2C%20un%20saludo%20en%20Medell%C3%ADn%21%20%F0%9F%92%88%F0%9F%91%8B%0A%0AUna%20pregunta%20r%C3%A1pida%20sobre%20su%20equipo%20en%20Laureles%3A%20%C2%BFc%C3%B3mo%20organizan%20los%20turnos%20cuando%20tienen%20varios%20barberos%20trabajando%20al%20tiempo%20para%20que%20no%20se%20crucen%20las%20citas%20ni%20queden%20tiempos%20muertos%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20cada%20barbero%20de%20su%20equipo%20tiene%20su%20propio%20calendario%20en%20el%20celular%20con%20recordatorios%20autom%C3%A1ticos%20para%20que%20los%20clientes%20no%20falten.%0A%0A%C2%BFLes%20interesar%C3%ADa%20probarlo%20gratis%20esta%20semana%20en%20The%20Barber%20House%20Laureles%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="pasto" data-niche="spas" class="lead-row">
+            <td class="text-bold">28</td>
+            <td>
+                <span class="badge badge-city">📍 Pasto</span>
+                <span class="badge badge-niche">✨ Spas y Estética</span>
+            </td>
+            <td>
+                <div class="biz-name">Terapiel Estética y Spa</div>
+                <div class="biz-cat">Spa / Cuidado Facial y Corporal</div>
+            </td>
+            <td>
+                <div>San Ignacio</div>
+                <div class="biz-addr">Carrera 35 # 15-34, Local 3, Barrio San Ignacio</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3022425775</span>
+            </td>
+            <td class="biz-sit">Tratamientos estéticos que requieren tiempo de preparación de cabina y abono previo.</td>
+            <td><a href="https://wa.me/573022425775?text=%C2%A1Hola%20equipo%20de%20Terapiel%20Est%C3%A9tica%20y%20Spa%2C%20un%20cordial%20saludo%20en%20Pasto%21%20%E2%9C%A8%F0%9F%91%8B%0A%0ASabemos%20que%20en%20centros%20de%20est%C3%A9tica%20y%20spa%20en%20San%20Ignacio%2C%20cuando%20una%20clienta%20no%20llega%20a%20su%20cita%20a%20%C3%BAltima%20hora%2C%20deja%20la%20cabina%20vac%C3%ADa%20y%20el%20especialista%20sin%20producir.%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20las%20clientas%20reservan%20su%20tratamiento%20online%20en%2010%20segundos%2C%20reciben%20confirmaci%C3%B3n%20inmediata%20y%20recordatorios%20autom%C3%A1ticos%20en%20su%20calendario%20para%20asegurar%20su%20asistencia.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20c%C3%B3mo%20se%20ver%C3%ADa%20el%20cat%C3%A1logo%20de%20servicios%20y%20agendamiento%20de%20Terapiel%20Est%C3%A9tica%20y%20Spa%20con%20una%20prueba%20sin%20costo%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="popayán" data-niche="spas" class="lead-row">
+            <td class="text-bold">29</td>
+            <td>
+                <span class="badge badge-city">📍 Popayán</span>
+                <span class="badge badge-niche">✨ Spas y Estética</span>
+            </td>
+            <td>
+                <div class="biz-name">Vitality Spa Popayán</div>
+                <div class="biz-cat">Centro de Relajación y Estética</div>
+            </td>
+            <td>
+                <div>Prados del Norte</div>
+                <div class="biz-addr">Calle 19N # 8-32, Barrio Prados del Norte</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3165214789</span>
+            </td>
+            <td class="biz-sit">Masajes en pareja y limpiezas faciales. Inasistencias causan cabinas desocupadas y pérdidas.</td>
+            <td><a href="https://wa.me/573165214789?text=%C2%A1Hola%20equipo%20de%20Vitality%20Spa%20Popay%C3%A1n%2C%20un%20cordial%20saludo%20en%20Popay%C3%A1n%21%20%E2%9C%A8%F0%9F%91%8B%0A%0ASabemos%20que%20en%20centros%20de%20est%C3%A9tica%20y%20spa%20en%20Prados%20del%20Norte%2C%20cuando%20una%20clienta%20no%20llega%20a%20su%20cita%20a%20%C3%BAltima%20hora%2C%20deja%20la%20cabina%20vac%C3%ADa%20y%20el%20especialista%20sin%20producir.%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20las%20clientas%20reservan%20su%20tratamiento%20online%20en%2010%20segundos%2C%20reciben%20confirmaci%C3%B3n%20inmediata%20y%20recordatorios%20autom%C3%A1ticos%20en%20su%20calendario%20para%20asegurar%20su%20asistencia.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20c%C3%B3mo%20se%20ver%C3%ADa%20el%20cat%C3%A1logo%20de%20servicios%20y%20agendamiento%20de%20Vitality%20Spa%20Popay%C3%A1n%20con%20una%20prueba%20sin%20costo%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+        <tr data-city="cali" data-niche="spas" class="lead-row">
+            <td class="text-bold">30</td>
+            <td>
+                <span class="badge badge-city">📍 Cali</span>
+                <span class="badge badge-niche">✨ Spas y Estética</span>
+            </td>
+            <td>
+                <div class="biz-name">Aura Spa & Wellness Cali</div>
+                <div class="biz-cat">Spa Médico y Cosmetología</div>
+            </td>
+            <td>
+                <div>San Fernando</div>
+                <div class="biz-addr">Carrera 38 # 4A-12, Barrio San Fernando</div>
+            </td>
+            <td>
+                <span class="badge badge-phone">+57 3154872130</span>
+            </td>
+            <td class="biz-sit">Procedimientos estéticos no invasivos. Requieren confirmación automática por email y WhatsApp.</td>
+            <td><a href="https://wa.me/573154872130?text=%C2%A1Hola%20equipo%20de%20Aura%20Spa%20%26%20Wellness%20Cali%2C%20un%20cordial%20saludo%20en%20Cali%21%20%E2%9C%A8%F0%9F%91%8B%0A%0ASabemos%20que%20en%20centros%20de%20est%C3%A9tica%20y%20spa%20en%20San%20Fernando%2C%20cuando%20una%20clienta%20no%20llega%20a%20su%20cita%20a%20%C3%BAltima%20hora%2C%20deja%20la%20cabina%20vac%C3%ADa%20y%20el%20especialista%20sin%20producir.%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20las%20clientas%20reservan%20su%20tratamiento%20online%20en%2010%20segundos%2C%20reciben%20confirmaci%C3%B3n%20inmediata%20y%20recordatorios%20autom%C3%A1ticos%20en%20su%20calendario%20para%20asegurar%20su%20asistencia.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20c%C3%B3mo%20se%20ver%C3%ADa%20el%20cat%C3%A1logo%20de%20servicios%20y%20agendamiento%20de%20Aura%20Spa%20%26%20Wellness%20Cali%20con%20una%20prueba%20sin%20costo%3F" target="_blank" class="btn-wa">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Contactar WhatsApp
+        </a></td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function filtrar() {
+            const city = document.getElementById("cityFilter").value.toLowerCase();
+            const niche = document.getElementById("nicheFilter").value.toLowerCase();
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll(".lead-row");
+            let visibles = 0;
+
+            rows.forEach(row => {
+                const rowCity = row.getAttribute("data-city");
+                const rowNiche = row.getAttribute("data-niche");
+                const text = row.innerText.toLowerCase();
+
+                const matchCity = (city === "all" || rowCity === city);
+                const matchNiche = (niche === "all" || rowNiche === niche);
+                const matchQuery = (!query || text.includes(query));
+
+                if (matchCity && matchNiche && matchQuery) {
+                    row.style.display = "";
+                    visibles++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            document.getElementById("counterBox").innerText = `Mostrando ${visibles} de ${rows.length} prospectos`;
+        }
+    </script>
+</body>
+</html>

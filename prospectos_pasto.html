@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prospectos AgendaClick - Pasto (Salones y Barberías)</title>
+    <style>
+        :root {
+            --bg: #090d16;
+            --surface: #111827;
+            --border: #1f2937;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --whatsapp: #22c55e;
+            --whatsapp-hover: #16a34a;
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 30px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { font-size: 24px; font-weight: 700; color: #fff; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        .stats-badge {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 13px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background: #172033;
+            color: #94a3b8;
+            padding: 14px 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .biz-name { font-weight: 600; color: #fff; font-size: 15px; }
+        .biz-cat { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+        .biz-addr { color: #64748b; font-size: 12px; margin-top: 2px; }
+        .biz-sit { color: #cbd5e1; font-size: 13px; max-width: 280px; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-phone { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-gray { background: #1e293b; color: #94a3b8; }
+        .btn-wa {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--whatsapp);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        .btn-wa:hover {
+            background: var(--whatsapp-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+        }
+        .text-bold { font-weight: 700; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🎯 Prospectos Calificados: Barberías y Salones en Pasto</h1>
+                <p class="subtitle">Generado automáticamente para AgendaClick — Cada botón abre WhatsApp con el pitch personalizado.</p>
+            </div>
+            <div class="stats-badge">
+                12 Negocios Identificados • Pasto, Nariño
+            </div>
+        </header>
+        
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40">#</th>
+                        <th>Negocio</th>
+                        <th>Ubicación</th>
+                        <th>Contacto</th>
+                        <th>Oportunidad Detectada</th>
+                        <th width="200">Acción Rápida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td class="text-bold">1</td>
+            <td>
+                <div class="biz-name">Los Más Bárbaros Barbershop</div>
+                <div class="biz-cat">Barbería / Cortes Masculinos</div>
+            </td>
+            <td>
+                <div>📍 San Felipe</div>
+                <div class="biz-addr">Cra. 26 #11-42, Barrio San Felipe (Frente a la iglesia)</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3183599334</span></td>
+            <td class="biz-sit">Atención en local y a domicilio. Manejan citas manualmente por WhatsApp.</td>
+            <td><a href="https://wa.me/573183599334?text=%C2%A1Hola%20equipo%20de%20Los%20M%C3%A1s%20B%C3%A1rbaros%20Barbershop%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20San%20Felipe.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20WhatsApp%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20Los%20M%C3%A1s%20B%C3%A1rbaros%20Barbershop%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">2</td>
+            <td>
+                <div class="biz-name">Peluquería Alejandro</div>
+                <div class="biz-cat">Salón de Belleza y Estética Integral</div>
+            </td>
+            <td>
+                <div>📍 Unicentro</div>
+                <div class="biz-addr">Centro Comercial Unicentro Pasto, Local 2-68</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3185892807</span></td>
+            <td class="biz-sit">Alto tráfico en centro comercial. Se forman filas y llamadas en horas pico.</td>
+            <td><a href="https://wa.me/573185892807?text=%C2%A1Hola%20equipo%20de%20Peluquer%C3%ADa%20Alejandro%2C%20un%20saludo%21%20%F0%9F%91%8B%0A%0AVeo%20su%20excelente%20ubicaci%C3%B3n%20y%20alto%20flujo%20de%20clientes%20en%20Unicentro.%0A%0ALes%20escribo%20porque%20sabemos%20que%20los%20fines%20de%20semana%20y%20horas%20pico%20es%20ca%C3%B3tico%20coordinar%20llamadas%2C%20mensajes%20y%20turnos%20en%20caja%20al%20mismo%20tiempo.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20clientes%20pueden%20asegurar%20su%20turno%20antes%20de%20llegar%20al%20centro%20comercial%2C%20reduciendo%20esperas%20y%20repartiendo%20la%20carga%20de%20cada%20estilista%20autom%C3%A1ticamente.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20mostrarles%20c%C3%B3mo%20funciona%20con%20una%20prueba%20sin%20costo%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">3</td>
+            <td>
+                <div class="biz-name">Alfonso Peluquería y Estética</div>
+                <div class="biz-cat">Peluquería y Colorimetría</div>
+            </td>
+            <td>
+                <div>📍 Unicentro</div>
+                <div class="biz-addr">Centro Comercial Unicentro, Local 2-40</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3185874519</span></td>
+            <td class="biz-sit">Ubicado en centro comercial. Ideal para que los clientes reserven turno antes de llegar.</td>
+            <td><a href="https://wa.me/573185874519?text=%C2%A1Hola%20equipo%20de%20Alfonso%20Peluquer%C3%ADa%20y%20Est%C3%A9tica%2C%20un%20saludo%21%20%F0%9F%91%8B%0A%0AVeo%20su%20excelente%20ubicaci%C3%B3n%20y%20alto%20flujo%20de%20clientes%20en%20Unicentro.%0A%0ALes%20escribo%20porque%20sabemos%20que%20los%20fines%20de%20semana%20y%20horas%20pico%20es%20ca%C3%B3tico%20coordinar%20llamadas%2C%20mensajes%20y%20turnos%20en%20caja%20al%20mismo%20tiempo.%0A%0ACon%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20sus%20clientes%20pueden%20asegurar%20su%20turno%20antes%20de%20llegar%20al%20centro%20comercial%2C%20reduciendo%20esperas%20y%20repartiendo%20la%20carga%20de%20cada%20estilista%20autom%C3%A1ticamente.%0A%0A%C2%BFTendr%C3%ADan%203%20minutos%20para%20mostrarles%20c%C3%B3mo%20funciona%20con%20una%20prueba%20sin%20costo%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">4</td>
+            <td>
+                <div class="biz-name">Peluquería Diego Martínez</div>
+                <div class="biz-cat">Peluquería Tradicional</div>
+            </td>
+            <td>
+                <div>📍 Centro</div>
+                <div class="biz-addr">Carrera 28A # 17-87, Centro</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3122278972</span></td>
+            <td class="biz-sit">Ubicación céntrica tradicional. Pierden solicitudes fuera del horario comercial.</td>
+            <td><a href="https://wa.me/573122278972?text=%C2%A1Hola%20equipo%20de%20Peluquer%C3%ADa%20Diego%20Mart%C3%ADnez%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Centro.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20WhatsApp%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20Peluquer%C3%ADa%20Diego%20Mart%C3%ADnez%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">5</td>
+            <td>
+                <div class="biz-name">Vikings Barber Company</div>
+                <div class="biz-cat">Barbería Urbana / Fade & Barba</div>
+            </td>
+            <td>
+                <div>📍 Comuna Centro - Occidente</div>
+                <div class="biz-addr">Calle 21 #31C - 36</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3217509139</span></td>
+            <td class="biz-sit">Cortes urbanos modernos. Varios barberos que requieren organizar agenda sin choques.</td>
+            <td><a href="https://wa.me/573217509139?text=%C2%A1Hola%20gente%20de%20Vikings%20Barber%20Company%21%20%F0%9F%92%88%20Un%20saludo%20especial%20en%20Pasto.%0A%0AUna%20pregunta%3A%20%C2%BFc%C3%B3mo%20organizan%20los%20turnos%20cuando%20tienen%20varios%20barberos%20trabajando%20al%20tiempo%20para%20que%20no%20se%20crucen%20las%20citas%20ni%20queden%20tiempos%20muertos%3F%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20cada%20barbero%20de%20su%20equipo%20tiene%20su%20propio%20calendario%20en%20el%20celular%20con%20recordatorios%20autom%C3%A1ticos%20para%20que%20los%20clientes%20no%20falten.%0A%0A%C2%BFLes%20interesar%C3%ADa%20probarlo%20gratis%20esta%20semana%20en%20la%20barber%C3%ADa%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">6</td>
+            <td>
+                <div class="biz-name">JL Barbería</div>
+                <div class="biz-cat">Barbería / Cuidado Masculino</div>
+            </td>
+            <td>
+                <div>📍 Sur</div>
+                <div class="biz-addr">Calle 4 Sur #2446 a 2502</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3127628553</span></td>
+            <td class="biz-sit">Gestión directa por chat. Pierden tiempo contestando precios y disponibilidad uno a uno.</td>
+            <td><a href="https://wa.me/573127628553?text=%C2%A1Hola%20equipo%20de%20JL%20Barber%C3%ADa%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Sur.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20WhatsApp%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20JL%20Barber%C3%ADa%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">7</td>
+            <td>
+                <div class="biz-name">JS Barbería</div>
+                <div class="biz-cat">Barbería y Estilismo Masculino</div>
+            </td>
+            <td>
+                <div>📍 Sur / Maridíaz</div>
+                <div class="biz-addr">Carrera 37 #4A-35</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3157477838</span></td>
+            <td class="biz-sit">Barbería con clientela recurrente. Necesitan evitar los tiempos muertos entre clientes.</td>
+            <td><a href="https://wa.me/573157477838?text=%C2%A1Hola%20equipo%20de%20JS%20Barber%C3%ADa%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Sur%20/%20Marid%C3%ADaz.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20WhatsApp%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20JS%20Barber%C3%ADa%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">8</td>
+            <td>
+                <div class="biz-name">Terapiel (Estética y Belleza)</div>
+                <div class="biz-cat">Spa / Cuidado Facial y Corporal</div>
+            </td>
+            <td>
+                <div>📍 San Ignacio</div>
+                <div class="biz-addr">Carrera 35 # 15-34, Local 3, Barrio San Ignacio</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3022425775</span></td>
+            <td class="biz-sit">Servicios especializados de estética que requieren anticipo o confirmación previa para no perder la cabina.</td>
+            <td><a href="https://wa.me/573022425775?text=%C2%A1Hola%20equipo%20de%20Terapiel%20%28Est%C3%A9tica%20y%20Belleza%29%2C%20un%20cordial%20saludo%20en%20Pasto%21%20%E2%9C%A8%0A%0ASabemos%20que%20en%20est%C3%A9tica%20y%20spa%20una%20cita%20cancelada%20a%20%C3%BAltima%20hora%20deja%20la%20cabina%20vac%C3%ADa%20y%20genera%20p%C3%A9rdidas.%0A%0AEn%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20las%20clientas%20reservan%20su%20tratamiento%20online%20y%20reciben%20confirmaci%C3%B3n%20y%20recordatorio%20autom%C3%A1tico%20en%20su%20correo%20y%20WhatsApp%20para%20asegurar%20su%20asistencia.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20c%C3%B3mo%20se%20adaptar%C3%ADa%20a%20los%20tratamientos%20de%20Terapiel%20%28Est%C3%A9tica%20y%20Belleza%29%20con%20una%20prueba%20sin%20costo%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">9</td>
+            <td>
+                <div class="biz-name">María Edivia Gómez Silva</div>
+                <div class="biz-cat">Salón de Belleza / Peluquería</div>
+            </td>
+            <td>
+                <div>📍 Centro / Arazá</div>
+                <div class="biz-addr">Calle 16 # 22A-40, C.C. Arazá, Local 115</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3137802501</span></td>
+            <td class="biz-sit">Salón en centro comercial. Manejo de tintes, alisados y cortes con tiempos prolongados.</td>
+            <td><a href="https://wa.me/573137802501?text=%C2%A1Hola%20equipo%20de%20Mar%C3%ADa%20Edivia%20G%C3%B3mez%20Silva%2C%20saludos%20cordiales%20en%20Pasto%21%20%F0%9F%91%8B%0A%0ALes%20escribo%20de%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29.%20Desarrollamos%20un%20sistema%20100%25%20colombiano%20de%20agendamiento%20online%20para%20salones%20y%20barber%C3%ADas%20que%20permite%20a%20sus%20clientes%20reservar%20cita%20en%2010%20segundos%20las%2024%20horas%20del%20d%C3%ADa.%0A%0A%C2%BFPodr%C3%ADamos%20activarles%20una%20prueba%20gratuita%20para%20que%20conozcan%20la%20plataforma%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">10</td>
+            <td>
+                <div class="biz-name">Patricia Peluquería</div>
+                <div class="biz-cat">Salón de Belleza</div>
+            </td>
+            <td>
+                <div>📍 Centro</div>
+                <div class="biz-addr">Calle 20 # 31A-08</div>
+            </td>
+            <td><span class="badge badge-phone">+57 3168124190</span></td>
+            <td class="biz-sit">Atención personalizada por orden de llegada o chat. Ideal para ordenar la semana.</td>
+            <td><a href="https://wa.me/573168124190?text=%C2%A1Hola%20equipo%20de%20Patricia%20Peluquer%C3%ADa%2C%20un%20saludo%20en%20Pasto%21%20%F0%9F%91%8B%0A%0AEstuve%20viendo%20su%20trabajo%20en%20Centro.%20Quer%C3%ADa%20hacerles%20una%20consulta%20r%C3%A1pida%3A%0A%0A%C2%BFC%C3%B3mo%20hacen%20cuando%20un%20cliente%20les%20escribe%20a%20las%209%20o%2010%20de%20la%20noche%20para%20apartar%20turno%2C%20o%20cuando%20est%C3%A1n%20cortando%20y%20no%20pueden%20responder%20el%20WhatsApp%3F%0A%0ACreamos%20AgendaClick%20%28https%3A//www.agendaclick.com.co%29%20justo%20para%20que%20sus%20clientes%20elijan%20servicio%2C%20barbero%20y%20hora%20en%2010%20segundos%20desde%20un%20enlace%20en%20su%20Instagram%20o%20WhatsApp%2C%20sin%20que%20ustedes%20pierdan%20tiempo%20chateando%20de%20ida%20y%20vuelta.%0A%0A%C2%BFLes%20gustar%C3%ADa%20ver%20una%20prueba%20gratuita%20de%20c%C3%B3mo%20quedar%C3%ADa%20la%20agenda%20de%20Patricia%20Peluquer%C3%ADa%3F" target="_blank" class="btn-wa">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                Contactar por WhatsApp
+            </a></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">11</td>
+            <td>
+                <div class="biz-name">Beria Barbería</div>
+                <div class="biz-cat">Barbería Premium / Visagismo</div>
+            </td>
+            <td>
+                <div>📍 Palermo</div>
+                <div class="biz-addr">Cra. 38 #19A-31, Barrio Palermo</div>
+            </td>
+            <td><span class="badge badge-gray">Sin cel público</span></td>
+            <td class="biz-sit">Sector exclusivo en Palermo. Ya conocen el valor de agendar online (usan WeiBook).</td>
+            <td><span class="badge badge-gray">Visita Presencial / IG</span></td>
+        </tr>
+        
+        <tr>
+            <td class="text-bold">12</td>
+            <td>
+                <div class="biz-name">Real Men Barber Shop</div>
+                <div class="biz-cat">Barbería / Barber Spa</div>
+            </td>
+            <td>
+                <div>📍 Maridíaz</div>
+                <div class="biz-addr">Cra. 32 #16-33, Barrio Maridíaz</div>
+            </td>
+            <td><span class="badge badge-gray">Sin cel público</span></td>
+            <td class="biz-sit">Zona universitaria de Maridíaz. Público joven que prefiere agendar digitalmente.</td>
+            <td><span class="badge badge-gray">Visita Presencial / IG</span></td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
