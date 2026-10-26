@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle, Sparkles } from 'lucide-react'
+import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle, Sparkles, ArrowRight } from 'lucide-react'
 import { QuickSetupWizard } from './QuickSetupWizard'
 import { SetupProgressBar } from './SetupProgressBar'
 import { 
@@ -77,6 +78,7 @@ export default function DashboardClient({
   initialNeedsSetup?: boolean
   userEmail?: string
 }) {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [isWizardOpen, setIsWizardOpen] = useState(initialNeedsSetup)
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null)
@@ -86,6 +88,7 @@ export default function DashboardClient({
   const [localAppointments, setLocalAppointments] = useState<Appointment[]>(appointments)
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('day')
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
+  const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending'>('all')
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isAssigningStaff, setIsAssigningStaff] = useState(false)
   const [isRescheduling, setIsRescheduling] = useState(false)
@@ -252,8 +255,8 @@ export default function DashboardClient({
     staffColors[name] = COLORS[i % COLORS.length]
   })
 
-  // Citas filtradas por rango y por staff seleccionado
-  const filteredAppointments = localAppointments.filter(apt => {
+  // Citas filtradas por rango de fecha y por staff seleccionado (base para métricas)
+  const baseRangeAppointments = localAppointments.filter(apt => {
     const aptDate = parseISO(apt.start_time)
     
     if (selectedStaff) {
@@ -275,22 +278,33 @@ export default function DashboardClient({
     return true
   })
 
-  const confirmedCount = filteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed').length
-  const pendingCount = filteredAppointments.filter(a => a.status === 'pending').length
-  const uniqueClientsCount = new Set(filteredAppointments.map(a => a.client_phone || a.client_name)).size
+  // Citas a renderizar en la tabla (aplica filtro de estado si está activo)
+  const filteredAppointments = baseRangeAppointments.filter(apt => {
+    if (statusFilter === 'confirmed') {
+      return apt.status === 'confirmed' || apt.status === 'completed'
+    }
+    if (statusFilter === 'pending') {
+      return apt.status === 'pending'
+    }
+    return true
+  })
+
+  const confirmedCount = baseRangeAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed').length
+  const pendingCount = baseRangeAppointments.filter(a => a.status === 'pending').length
+  const uniqueClientsCount = new Set(baseRangeAppointments.map(a => a.client_phone || a.client_name)).size
 
   const getOccupancyRate = () => {
-    if (filteredAppointments.length === 0) return '0%'
+    if (baseRangeAppointments.length === 0) return '0%'
     if (viewMode === 'day') {
-      const rate = Math.min(100, Math.round((filteredAppointments.length / businessHours.length) * 100))
+      const rate = Math.min(100, Math.round((baseRangeAppointments.length / businessHours.length) * 100))
       return `${rate}%`
     } else if (viewMode === 'week') {
       const totalSlots = businessHours.length * 6
-      const rate = Math.min(100, Math.round((filteredAppointments.length / totalSlots) * 100))
+      const rate = Math.min(100, Math.round((baseRangeAppointments.length / totalSlots) * 100))
       return `${rate}%`
     } else if (viewMode === 'month') {
       const totalSlots = businessHours.length * 26
-      const rate = Math.min(100, Math.round((filteredAppointments.length / totalSlots) * 100))
+      const rate = Math.min(100, Math.round((baseRangeAppointments.length / totalSlots) * 100))
       return `${rate}%`
     }
     return 'N/A'
@@ -469,25 +483,112 @@ export default function DashboardClient({
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { title: `Citas ${viewMode === 'day' ? 'Hoy' : viewMode === 'week' ? 'Semana' : viewMode === 'month' ? 'Mes' : 'Año'} (Confirmadas)`, value: confirmedCount.toString(), icon: TrendingUp },
-          { title: 'Citas Pendientes', value: pendingCount.toString(), icon: CalendarIcon },
-          { title: 'Clientes Únicos', value: uniqueClientsCount.toString(), icon: Users },
-          { title: 'Ocupación estimada', value: getOccupancyRate(), icon: Clock },
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+          { 
+            id: 'confirmed',
+            title: `Citas ${viewMode === 'day' ? 'Hoy' : viewMode === 'week' ? 'Semana' : viewMode === 'month' ? 'Mes' : 'Año'} (Confirmadas)`, 
+            value: confirmedCount.toString(), 
+            icon: TrendingUp,
+            actionLabel: 'Ver citas de hoy',
+            onClick: () => {
+              setCurrentDate(new Date())
+              setViewMode('day')
+              setStatusFilter('confirmed')
+              setTimeout(() => {
+                document.getElementById('calendario-maestro')?.scrollIntoView({ behavior: 'smooth' })
+              }, 50)
+            },
+            isActive: statusFilter === 'confirmed' && isSameDay(currentDate, new Date()) && viewMode === 'day'
+          },
+          { 
+            id: 'pending',
+            title: 'Citas Pendientes', 
+            value: pendingCount.toString(), 
+            icon: CalendarIcon,
+            actionLabel: 'Ver citas pendientes',
+            onClick: () => {
+              setStatusFilter('pending')
+              setTimeout(() => {
+                document.getElementById('calendario-maestro')?.scrollIntoView({ behavior: 'smooth' })
+              }, 50)
+            },
+            isActive: statusFilter === 'pending'
+          },
+          { 
+            id: 'clients',
+            title: 'Clientes Únicos', 
+            value: uniqueClientsCount.toString(), 
+            icon: Users,
+            actionLabel: 'Ir al Directorio CRM',
+            onClick: () => {
+              router.push('/dashboard/clients')
+            },
+            isActive: false
+          },
+          { 
+            id: 'occupancy',
+            title: 'Ocupación estimada', 
+            value: getOccupancyRate(), 
+            icon: Clock,
+            actionLabel: 'Ver horarios libres',
+            onClick: () => {
+              setTimeout(() => {
+                document.getElementById('horarios-libres')?.scrollIntoView({ behavior: 'smooth' })
+              }, 50)
+            },
+            isActive: false
+          },
+        ].map((stat) => (
+          <div 
+            key={stat.id}
+            onClick={stat.onClick}
+            role="button"
+            tabIndex={0}
+            className={`bg-white p-6 border shadow-sm hover:shadow-md transition-all relative overflow-hidden group cursor-pointer text-left select-none rounded-2xl ${
+              stat.isActive 
+                ? 'border-black ring-2 ring-black/10 bg-gray-50/60' 
+                : 'border-gray-200 hover:border-black'
+            }`}
+          >
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all pointer-events-none">
               <stat.icon className="w-24 h-24" />
             </div>
-            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{stat.title}</p>
-            <h3 className="text-3xl font-black mt-2">{stat.value}</h3>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{stat.title}</p>
+              {stat.isActive && (
+                <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full font-bold">
+                  Filtro activo
+                </span>
+              )}
+            </div>
+            <h3 className="text-3xl font-black mt-2 text-gray-900">{stat.value}</h3>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-gray-500 group-hover:text-black group-hover:translate-x-1 transition-all">
+              <span>{stat.actionLabel}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </div>
           </div>
         ))}
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-white border border-gray-200 shadow-sm">
+      <motion.div id="calendario-maestro" variants={itemVariants} className="bg-white border border-gray-200 shadow-sm scroll-mt-6 rounded-2xl overflow-hidden">
         <div className="p-6 border-b border-gray-200 space-y-4">
-          {/* Fila 1: Título */}
-          <h2 className="text-xl font-bold tracking-tight">Calendario Maestro</h2>
+          {/* Fila 1: Título y filtro activo */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h2 className="text-xl font-bold tracking-tight">Calendario Maestro</h2>
+            {statusFilter !== 'all' && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs bg-black text-white px-3 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-xs">
+                  Filtro activo: {statusFilter === 'confirmed' ? 'Citas Confirmadas' : 'Citas Pendientes'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className="text-xs text-gray-500 hover:text-black underline font-semibold transition-colors"
+                >
+                  Mostrar todas
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Fila 2: Navegación de fecha + Selector de vista */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -599,7 +700,22 @@ export default function DashboardClient({
               {filteredAppointments.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-gray-500">
-                    No hay citas programadas para el período seleccionado.
+                    {statusFilter !== 'all' ? (
+                      <div className="space-y-3 py-2">
+                        <p className="text-sm font-medium text-gray-700">
+                          No hay citas con estado &quot;{statusFilter === 'confirmed' ? 'Confirmadas' : 'Pendientes'}&quot; para este período.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setStatusFilter('all')}
+                          className="px-4 py-1.5 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-colors shadow-xs"
+                        >
+                          Ver todas las citas
+                        </button>
+                      </div>
+                    ) : (
+                      'No hay citas programadas para el período seleccionado.'
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -644,7 +760,7 @@ export default function DashboardClient({
       </motion.div>
 
       {/* Sección de Horarios Libres */}
-      <motion.div variants={itemVariants} className="bg-white border border-gray-200 shadow-sm p-6 space-y-4">
+      <motion.div id="horarios-libres" variants={itemVariants} className="bg-white border border-gray-200 shadow-sm p-6 space-y-4 scroll-mt-6 rounded-2xl">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
