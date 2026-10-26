@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle, Sparkles, ArrowRight } from 'lucide-react'
+import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle, Sparkles, ArrowRight, Settings2, XCircle, Eye } from 'lucide-react'
 import { QuickSetupWizard } from './QuickSetupWizard'
 import { SetupProgressBar } from './SetupProgressBar'
 import { 
@@ -27,7 +27,7 @@ import {
   subYears 
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { cancelAppointment, cancelAppointmentsForStaff, assignStaffToAppointment, updateAppointmentStatus, saveAppointmentNotes, blockTime, updateAppointmentTime } from './actions'
+import { cancelAppointment, cancelAppointmentsForStaff, assignStaffToAppointment, updateAppointmentStatus, saveAppointmentNotes, blockTime, updateAppointmentTime, getCancellationLink } from './actions'
 import { toast } from 'sonner'
 
 type Appointment = {
@@ -310,15 +310,30 @@ export default function DashboardClient({
     return 'N/A'
   }
 
-  const handleWhatsApp = (phone: string, name: string, service: string, time: string, mode: 'cancellation' | 'confirmation' | 'reminder' = 'confirmation') => {
+  const handleWhatsApp = async (phone: string, name: string, service: string, time: string, mode: 'cancellation' | 'confirmation' | 'reminder' = 'confirmation', appointmentId?: string) => {
     const formattedTime = format(parseISO(time), "d 'de' MMMM 'a las' hh:mm a", { locale: es })
+    let cancelLink = ''
+    if (appointmentId && (mode === 'confirmation' || mode === 'reminder')) {
+      try {
+        cancelLink = await getCancellationLink(appointmentId)
+      } catch (e) {
+        console.error('Error obteniendo enlace de cancelación:', e)
+      }
+    }
+
     let msg = ''
     if (mode === 'cancellation') {
       msg = `Hola ${name}, te escribimos para informarte que por un motivo de fuerza mayor tuvimos que cancelar tu cita de ${service} el ${formattedTime}. Te pedimos disculpas y te invitamos a reagendar en https://agendaclick.com.co/${clinicSlug}`
     } else if (mode === 'reminder') {
       msg = `Hola ${name}, queremos recordarte tu cita de ${service} programada para el ${formattedTime}. ¡Te esperamos!`
+      if (cancelLink) {
+        msg += `\n\n(Si necesitas cancelar o reagendar tu cita, puedes hacerlo aquí: ${cancelLink})`
+      }
     } else {
-      msg = `Hola ${name}, te escribimos de la estética para confirmar tu cita de ${service} el ${formattedTime}.`
+      msg = `Hola ${name}, te escribimos de ${clinic?.name || 'tu centro de atención'} para confirmar tu cita de ${service} el ${formattedTime}.`
+      if (cancelLink) {
+        msg += `\n\n(Si necesitas cancelar o reagendar tu cita, puedes hacerlo aquí: ${cancelLink})`
+      }
     }
     const encoded = encodeURIComponent(msg)
     let cleanPhone = phone?.replace(/[^0-9]/g, '') || ''
@@ -686,20 +701,21 @@ export default function DashboardClient({
         </div>
         
         <div className="p-0 overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[600px]">
+          <table className="w-full text-left border-collapse min-w-[650px]">
             <thead>
               <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
                 <th className="p-4 border-b font-semibold">Hora / Fecha</th>
                 <th className="p-4 border-b font-semibold">Cliente</th>
                 <th className="p-4 border-b font-semibold">Servicio</th>
                 <th className="p-4 border-b font-semibold">Staff</th>
-                <th className="p-4 border-b font-semibold text-right">Estado</th>
+                <th className="p-4 border-b font-semibold text-center">Estado</th>
+                <th className="p-4 border-b font-semibold text-right">Acción</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredAppointments.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                  <td colSpan={6} className="p-8 text-center text-gray-500">
                     {statusFilter !== 'all' ? (
                       <div className="space-y-3 py-2">
                         <p className="text-sm font-medium text-gray-700">
@@ -722,33 +738,69 @@ export default function DashboardClient({
                 filteredAppointments.map((apt) => {
                   const staffName = apt.profiles?.name || 'Sin Asignar'
                   return (
-                    <tr key={apt.id} onClick={() => setSelectedAppointment(apt)} className="hover:bg-gray-50 transition-colors group cursor-pointer">
-                      <td className="p-4 font-bold text-gray-900">
-                        {viewMode === 'day' 
-                          ? format(parseISO(apt.start_time), 'hh:mm a')
-                          : format(parseISO(apt.start_time), "eee d MMM - hh:mm a", { locale: es })
-                        }
+                    <tr 
+                      key={apt.id} 
+                      onClick={() => setSelectedAppointment(apt)} 
+                      className="hover:bg-blue-50/40 transition-colors group cursor-pointer"
+                    >
+                      <td className="p-4 font-bold text-gray-900 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-gray-400" />
+                          <span>
+                            {viewMode === 'day' 
+                              ? format(parseISO(apt.start_time), 'hh:mm a')
+                              : format(parseISO(apt.start_time), "eee d MMM - hh:mm a", { locale: es })
+                            }
+                          </span>
+                        </div>
                       </td>
-                      <td className="p-4 font-medium">{apt.client_name}</td>
-                      <td className="p-4 text-gray-500">{apt.services?.name || 'Cita General'}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 text-xs font-bold ${staffColors[staffName]}`}>
-                          {staffName}
+                        <div className="font-bold text-gray-900">{apt.client_name}</div>
+                        {apt.client_phone && (
+                          <div className="text-[11px] text-gray-400 font-mono">{apt.client_phone}</div>
+                        )}
+                      </td>
+                      <td className="p-4 text-gray-600 font-medium">
+                        {apt.services?.name || 'Cita General'}
+                      </td>
+                      <td className="p-4">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-gray-100 text-gray-800 border border-gray-200">
+                          <Users className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="truncate max-w-[190px]">{staffName}</span>
                         </span>
                       </td>
-                      <td className="p-4 text-right">
-                        <span className="inline-flex items-center gap-1.5">
+                      <td className="p-4 text-center">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${
+                          apt.status === 'completed' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                          apt.status === 'confirmed' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+                          apt.status === 'cancelled' ? 'bg-rose-50 text-rose-800 border border-rose-200' : 
+                          'bg-amber-50 text-amber-800 border border-amber-200'
+                        }`}>
                           <span className={`w-2 h-2 rounded-full ${
                             apt.status === 'completed' ? 'bg-blue-500' :
-                            apt.status === 'confirmed' ? 'bg-green-500 animate-pulse' :
-                            apt.status === 'cancelled' ? 'bg-red-500' : 'bg-yellow-400'
+                            apt.status === 'confirmed' ? 'bg-emerald-500 animate-pulse' :
+                            apt.status === 'cancelled' ? 'bg-rose-500' : 'bg-amber-400'
                           }`}></span>
-                          <span className="text-xs font-medium uppercase tracking-wider text-gray-600">
+                          <span>
                             {apt.status === 'completed' ? 'Completado' :
                              apt.status === 'confirmed' ? 'Confirmado' :
                              apt.status === 'cancelled' ? 'Cancelado' : 'Pendiente'}
                           </span>
                         </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedAppointment(apt)
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-neutral-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+                          title="Gestionar detalles de la cita"
+                        >
+                          <Settings2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Gestionar</span>
+                        </button>
                       </td>
                     </tr>
                   )
@@ -945,31 +997,32 @@ export default function DashboardClient({
               <div className="p-6 pt-0 space-y-2.5">
                 {selectedAppointment.status === 'cancelled' ? (
                   <button 
-                    onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'cancellation')}
-                    className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors text-sm"
+                    onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'cancellation', selectedAppointment.id)}
+                    className="w-full py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-extrabold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm"
                   >
                     <MessageCircle className="w-5 h-5" /> Avisar Cancelación por WhatsApp
                   </button>
                 ) : (
                   <>
                     <button 
-                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'confirmation')}
-                      className="w-full py-3 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors text-sm"
+                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'confirmation', selectedAppointment.id)}
+                      className="w-full py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-extrabold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm"
                     >
                       <MessageCircle className="w-5 h-5" /> Confirmar por WhatsApp
                     </button>
                     <button 
-                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'reminder')}
-                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
+                      onClick={() => handleWhatsApp(selectedAppointment.client_phone, selectedAppointment.client_name, selectedAppointment.services?.name || 'Cita', selectedAppointment.start_time, 'reminder', selectedAppointment.id)}
+                      className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm"
                     >
                       <MessageCircle className="w-5 h-5" /> Enviar Recordatorio (WhatsApp)
                     </button>
                     <button 
                       disabled={isCancelling}
                       onClick={() => handleCancelAppointment(selectedAppointment.id)}
-                      className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50 text-sm"
+                      className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border-2 border-rose-200 hover:border-rose-300 font-extrabold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-50 text-sm active:scale-98"
                     >
-                      {isCancelling ? 'Cancelando...' : 'Cancelar Cita'}
+                      <XCircle className="w-4 h-4 text-rose-600" />
+                      <span>{isCancelling ? 'Cancelando...' : 'Cancelar Cita'}</span>
                     </button>
                   </>
                 )}

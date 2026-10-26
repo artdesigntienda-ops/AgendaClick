@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { generateCancellationHash } from '@/utils/securityTokens'
 
 /**
  * Helper de seguridad para obtener el clinic_id y rol del usuario autenticado actual
@@ -44,6 +45,23 @@ export async function markTutorialAsSeen() {
       .update({ has_seen_tutorial: true })
       .eq('id', user.id)
   }
+}
+
+export async function getCancellationLink(appointmentId: string): Promise<string> {
+  const auth = await getAuthenticatedUserClinic()
+  if (!auth || !auth.clinicId) return ''
+
+  const { data: apt } = await auth.supabase
+    .from('appointments')
+    .select('id, client_email')
+    .eq('id', appointmentId)
+    .eq('clinic_id', auth.clinicId)
+    .maybeSingle()
+
+  if (!apt) return ''
+  const token = generateCancellationHash(apt.id, apt.client_email || '')
+  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'
+  return `${origin}/cancelar/${apt.id}?token=${token}`
 }
 
 export async function cancelAppointment(appointmentId: string) {
