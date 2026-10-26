@@ -45,6 +45,19 @@ export default async function SettingsPage() {
     clinic = data
   }
 
+  // Obtener información del asesor comercial que refirió este negocio
+  let partnerInfo: { id: string; name: string; partner_code: string; email?: string } | null = null
+  if (clinic?.referred_by_partner_id) {
+    const { data: partner } = await adminClient
+      .from('profiles')
+      .select('id, name, partner_code, email')
+      .eq('id', clinic.referred_by_partner_id)
+      .maybeSingle()
+    if (partner) {
+      partnerInfo = partner
+    }
+  }
+
   async function saveSettings(formData: FormData) {
     'use server'
     const supabase = await createClient()
@@ -365,7 +378,7 @@ export default async function SettingsPage() {
 
       <div className="bg-white border rounded-2xl p-3.5 sm:p-6 max-w-2xl shadow-sm overflow-hidden">
         <Suspense fallback={<div>Cargando...</div>}>
-          <SettingsForm clinic={clinic} profile={profile} saveAction={saveSettings} />
+          <SettingsForm clinic={clinic} profile={profile} partnerInfo={partnerInfo} saveAction={saveSettings} />
         </Suspense>
       </div>
     </div>

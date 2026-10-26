@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Sparkles, 
@@ -19,10 +19,12 @@ import {
   MessageCircle, 
   Plus, 
   Trash2,
-  Smile
+  Smile,
+  Tag
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { quickSetupClinic, QuickSetupInput } from './actions'
+import { validatePartnerCode } from '@/app/dashboard/partners/actions'
 
 interface Props {
   isOpen: boolean
@@ -132,6 +134,10 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
   const [businessName, setBusinessName] = useState('')
   const [businessType, setBusinessType] = useState('barberia')
   const [phone, setPhone] = useState('')
+  const [partnerCode, setPartnerCode] = useState('')
+  const [isCheckingCode, setIsCheckingCode] = useState(false)
+  const [partnerValidation, setPartnerValidation] = useState<{ valid: boolean; partnerName?: string; partnerCode?: string; error?: string } | null>(null)
+
   const [services, setServices] = useState<ServiceTemplate[]>(() => 
     CATEGORY_TEMPLATES.barberia.services.map(s => ({ ...s, selected: true }))
   )
@@ -142,6 +148,38 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createdSlug, setCreatedSlug] = useState('')
   const [isCopied, setIsCopied] = useState(false)
+
+  // Cargar código de referido si vino por URL o cookie/localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const urlParams = new URLSearchParams(window.location.search)
+    const refFromUrl = urlParams.get('ref')
+    const refFromStorage = localStorage.getItem('agendaclick_ref_code')
+    const initialRef = refFromUrl || refFromStorage
+
+    if (initialRef) {
+      setPartnerCode(initialRef.toUpperCase())
+      handleCheckPartnerCode(initialRef.toUpperCase())
+    }
+  }, [])
+
+  const handleCheckPartnerCode = async (code: string) => {
+    setPartnerCode(code)
+    const clean = code.trim().toUpperCase()
+    if (!clean) {
+      setPartnerValidation(null)
+      return
+    }
+    setIsCheckingCode(true)
+    try {
+      const res = await validatePartnerCode(clean)
+      setPartnerValidation(res)
+    } catch {
+      setPartnerValidation({ valid: false, error: 'Error al verificar' })
+    } finally {
+      setIsCheckingCode(false)
+    }
+  }
 
   // Actualizar los servicios sugeridos si cambia la categoría
   const handleSelectCategory = (catKey: string) => {
@@ -200,10 +238,12 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
     setIsSubmitting(true)
 
     try {
+      const finalCode = partnerValidation?.valid ? partnerValidation.partnerCode : (partnerCode.trim() ? partnerCode.trim().toUpperCase() : undefined)
       const res = await quickSetupClinic({
         name: businessName.trim(),
         businessType,
         phone: phone.trim(),
+        partnerCode: finalCode,
         services: selectedServices.map(s => ({
           name: s.name,
           price: s.price,
@@ -350,6 +390,68 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
                   </div>
                   <p className="mt-1 text-xs text-gray-500">
                     Opcional por ahora, pero muy útil para que tus clientes te contacten.
+                  </p>
+                </div>
+
+                {/* Pregunta sobre asesor comercial / vendedor */}
+                <div className="pt-2 border-t border-gray-100">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-bold text-gray-900">
+                      4. ¿Recibiste asesoría de un vendedor o comercial?
+                    </label>
+                    <span className="text-[11px] text-gray-400 font-semibold bg-gray-100 px-2 py-0.5 rounded-full">
+                      Opcional
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <Tag className="w-5 h-5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input 
+                      type="text"
+                      value={partnerCode}
+                      onChange={(e) => handleCheckPartnerCode(e.target.value)}
+                      placeholder="Código del asesor (Ej: CARLOS24 o MARIA10)"
+                      className={`w-full pl-11 pr-24 py-3 rounded-xl border text-sm font-mono uppercase tracking-wider outline-none transition-all placeholder:normal-case placeholder:font-sans placeholder:tracking-normal ${
+                        partnerValidation?.valid 
+                          ? 'border-emerald-500 bg-emerald-50/50 text-emerald-950 ring-2 ring-emerald-500/20 font-bold' 
+                          : partnerCode.trim() && !isCheckingCode && partnerValidation?.valid === false 
+                            ? 'border-amber-400 bg-amber-50/40 text-amber-900' 
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-gray-900 font-medium'
+                      }`}
+                    />
+                    {isCheckingCode ? (
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-sans">
+                        Verificando...
+                      </span>
+                    ) : partnerValidation?.valid ? (
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-sans">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        Válido
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* Alerta de confirmación visual del vendedor */}
+                  {partnerValidation?.valid && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -5 }} 
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-xs text-emerald-800 bg-emerald-50 border border-emerald-300 rounded-xl p-2.5 flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>
+                        Asesor comercial asignado: <strong>{partnerValidation.partnerName}</strong> ({partnerValidation.partnerCode}). ¡Tu cuenta quedará respaldada con su acompañamiento!
+                      </span>
+                    </motion.div>
+                  )}
+
+                  {partnerCode.trim() && !isCheckingCode && partnerValidation?.valid === false && (
+                    <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1">
+                      <span>⚠️ Código de asesor no encontrado. Revisa que esté bien escrito o déjalo en blanco si te registraste por tu cuenta.</span>
+                    </p>
+                  )}
+
+                  <p className="mt-1 text-[11px] text-gray-400">
+                    Si alguien de nuestro equipo te orientó para crear tu cuenta, escribe su código para asignarle tu atención y soporte.
                   </p>
                 </div>
 

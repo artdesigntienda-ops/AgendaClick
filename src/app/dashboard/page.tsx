@@ -74,6 +74,11 @@ export default async function DashboardOverview() {
   let clinicSlug = ''
   let clinicData: any = null
 
+  // Si es un vendedor/asesor comercial registrado sin clínica, llevarlo directo a su portal comercial
+  if (!clinicId && profile?.role === 'partner') {
+    redirect('/dashboard/partners')
+  }
+
   const adminClient = createAdminClient()
 
   if (!clinicId && profile?.role === 'owner') {

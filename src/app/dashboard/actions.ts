@@ -337,6 +337,7 @@ export interface QuickSetupInput {
   name: string
   businessType: string
   phone: string
+  partnerCode?: string
   services: Array<{
     name: string
     price: number
@@ -421,19 +422,40 @@ export async function quickSetupClinic(data: QuickSetupInput) {
   const trialEndsAt = new Date()
   trialEndsAt.setDate(trialEndsAt.getDate() + 14)
 
+  // 2. Buscar si proporcionó código de asesor / vendedor comercial
+  let referredByPartnerId: string | null = null
+  if (data.partnerCode && data.partnerCode.trim()) {
+    const cleanPartnerCode = data.partnerCode.trim().toUpperCase()
+    const { data: partnerProfile } = await adminClient
+      .from('profiles')
+      .select('id')
+      .ilike('partner_code', cleanPartnerCode)
+      .maybeSingle()
+
+    if (partnerProfile) {
+      referredByPartnerId = partnerProfile.id
+    }
+  }
+
   let finalClinicId = clinicId
 
   if (clinicId) {
     // Actualizar clínica existente
+    const updatePayload: any = {
+      name: data.name,
+      slug: candidateSlug,
+      phone: data.phone,
+      business_type: data.businessType,
+      schedule: defaultSchedule
+    }
+
+    if (referredByPartnerId) {
+      updatePayload.referred_by_partner_id = referredByPartnerId
+    }
+
     const { error: updateErr } = await adminClient
       .from('clinics')
-      .update({
-        name: data.name,
-        slug: candidateSlug,
-        phone: data.phone,
-        business_type: data.businessType,
-        schedule: defaultSchedule
-      })
+      .update(updatePayload)
       .eq('id', clinicId)
 
     if (updateErr) {
@@ -441,21 +463,27 @@ export async function quickSetupClinic(data: QuickSetupInput) {
       return { success: false, error: updateErr.message }
     }
   } else {
-    // Crear nueva clínica con 14 días de prueba
+    // Crear nueva clínica con 14 días de prueba y asignación de vendedor
+    const insertPayload: any = {
+      owner_id: user.id,
+      name: data.name,
+      slug: candidateSlug,
+      phone: data.phone,
+      business_type: data.businessType,
+      schedule: defaultSchedule,
+      subscription_status: 'trial',
+      subscription_ends_at: trialEndsAt.toISOString(),
+      plan_type: 'independiente',
+      staff_limit: 1
+    }
+
+    if (referredByPartnerId) {
+      insertPayload.referred_by_partner_id = referredByPartnerId
+    }
+
     const { data: newClinic, error: insertErr } = await adminClient
       .from('clinics')
-      .insert([{
-        owner_id: user.id,
-        name: data.name,
-        slug: candidateSlug,
-        phone: data.phone,
-        business_type: data.businessType,
-        schedule: defaultSchedule,
-        subscription_status: 'trial',
-        subscription_ends_at: trialEndsAt.toISOString(),
-        plan_type: 'independiente',
-        staff_limit: 1
-      }])
+      .insert([insertPayload])
       .select('id')
       .single()
 

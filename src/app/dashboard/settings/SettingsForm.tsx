@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import AddressAutocomplete from '@/components/AddressAutocomplete'
 import { State, City } from 'country-state-city'
 import ScheduleManager from '@/components/ScheduleManager'
+import { linkPartnerToClinic } from '@/app/dashboard/partners/actions'
 import { 
   Building, 
   Palette, 
@@ -21,7 +22,9 @@ import {
   ArrowLeft,
   User,
   Briefcase,
-  ShieldCheck
+  ShieldCheck,
+  Tag,
+  CheckCircle2
 } from 'lucide-react'
 
 const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
@@ -135,8 +138,48 @@ function GoogleCalendarSync({ profile, isDisconnecting, onDisconnect }: { profil
   )
 }
 
-export default function SettingsForm({ clinic, profile, saveAction }: { clinic: any, profile?: any, saveAction: (formData: FormData) => void }) {
+export default function SettingsForm({ 
+  clinic, 
+  profile, 
+  partnerInfo, 
+  saveAction 
+}: { 
+  clinic: any, 
+  profile?: any, 
+  partnerInfo?: { id: string; name: string; partner_code: string; email?: string } | null, 
+  saveAction: (formData: FormData) => void 
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentPartner, setCurrentPartner] = useState(partnerInfo || null)
+  const [partnerCodeInput, setPartnerCodeInput] = useState('')
+  const [isLinkingPartner, setIsLinkingPartner] = useState(false)
+
+  const handleLinkPartner = async () => {
+    if (!partnerCodeInput.trim() || !clinic?.id) {
+      toast.error('Por favor escribe el código del asesor')
+      return
+    }
+    setIsLinkingPartner(true)
+    try {
+      const res = await linkPartnerToClinic(clinic.id, partnerCodeInput.trim())
+      if (res.success) {
+        toast.success(res.message)
+        setCurrentPartner({
+          id: '',
+          name: res.partnerName || 'Asesor Comercial',
+          partner_code: partnerCodeInput.trim().toUpperCase()
+        })
+        setPartnerCodeInput('')
+      } else {
+        toast.error(res.error || 'No se pudo vincular el asesor')
+      }
+    } catch {
+      toast.error('Error de conexión al vincular asesor')
+    } finally {
+      setIsLinkingPartner(false)
+    }
+  }
+
   const [name, setName] = useState(clinic?.name || '')
   const [slug, setSlug] = useState(clinic?.slug || '')
   const [slogan, setSlogan] = useState(clinic?.slogan || '')
@@ -727,6 +770,54 @@ export default function SettingsForm({ clinic, profile, saveAction }: { clinic: 
               </div>
             )}
           </div>
+        </div>
+
+        {/* Asesor Comercial / Vendedor */}
+        <div className="border-b pb-6">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-2">Asesor Comercial de tu Cuenta</h2>
+          {currentPartner ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-emerald-950 uppercase tracking-wide">Asesor Comercial Asignado</p>
+                  <p className="text-sm font-extrabold text-emerald-900">{currentPartner.name}</p>
+                  <p className="text-xs text-emerald-700 font-mono">Código de Asesor: {currentPartner.partner_code}</p>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-emerald-800 bg-emerald-200/60 px-3 py-1 rounded-full shrink-0">
+                Verificado ✅
+              </span>
+            </div>
+          ) : (
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
+              <div>
+                <p className="text-xs font-bold text-gray-800">¿Recibiste asesoría de un vendedor o comercial?</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Si un asesor comercial de AgendaClick te ayudó a configurar tu cuenta, ingresa su código para asignarlo.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                <input 
+                  type="text"
+                  value={partnerCodeInput}
+                  onChange={(e) => setPartnerCodeInput(e.target.value.toUpperCase())}
+                  placeholder="Código de asesor (Ej: CARLOS24)"
+                  className="flex-1 bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-black"
+                />
+                <button
+                  type="button"
+                  onClick={handleLinkPartner}
+                  disabled={isLinkingPartner || !partnerCodeInput.trim()}
+                  className="bg-black hover:bg-neutral-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors disabled:opacity-50 shadow-sm shrink-0"
+                >
+                  {isLinkingPartner ? 'Vinculando...' : 'Vincular Asesor'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tu Perfil como Profesional */}

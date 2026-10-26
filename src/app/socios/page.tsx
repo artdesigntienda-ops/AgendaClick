@@ -63,10 +63,16 @@ export default function SociosLandingPage() {
               Volver al Inicio
             </Link>
             <Link 
-              href="/login" 
+              href="/login?next=/dashboard/partners" 
+              className="text-sm font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 rounded-full transition-all"
+            >
+              Iniciar Sesión
+            </Link>
+            <Link 
+              href="/vendedores" 
               className="text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black px-5 py-2 rounded-full transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95"
             >
-              Acceso a Portal
+              Obtener mi Código
             </Link>
           </div>
         </div>
@@ -91,7 +97,7 @@ export default function SociosLandingPage() {
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link 
-              href="/login" 
+              href="/vendedores" 
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-8 py-4 rounded-xl text-base transition-all shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95"
             >
               Comenzar como Distribuidor Gratis
@@ -182,7 +188,7 @@ export default function SociosLandingPage() {
 
             <div className="mt-8 text-center">
               <Link 
-                href="/login" 
+                href="/vendedores" 
                 className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold px-8 py-3.5 rounded-xl transition-all shadow-lg hover:scale-105"
               >
                 Quiero Crear mi Cuenta de Distribuidor →
@@ -469,7 +475,7 @@ export default function SociosLandingPage() {
 
           <div className="mt-12 text-center">
             <Link 
-              href="/login" 
+              href="/vendedores" 
               className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 py-4 rounded-xl text-base transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-105"
             >
               Registrarme como Distribuidor Ahora

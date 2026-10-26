@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import ReferralTracker from "@/components/ReferralTracker";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -128,6 +129,7 @@ export default function RootLayout({
         </div>
 
         {children}
+        <ReferralTracker />
         <Toaster position="bottom-center" richColors />
       </body>
     </html>
