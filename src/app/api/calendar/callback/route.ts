@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { google } from 'googleapis'
 import { createClient } from '@/utils/supabase/server'
 import crypto from 'crypto'
+import { encryptSensitiveToken } from '@/utils/securityTokens'
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
     }
     
     if (tokens.refresh_token) {
-      updateData.google_refresh_token = tokens.refresh_token
+      updateData.google_refresh_token = encryptSensitiveToken(tokens.refresh_token)
     }
 
     const { error } = await supabase

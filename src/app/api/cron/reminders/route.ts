@@ -32,8 +32,27 @@ export async function GET(req: Request) {
 
     if (error) throw error
 
+    // Mantenimiento y depuración automática diaria de la base de datos
+    const nowIso = now.toISOString()
+    try {
+      // 1. Purgar códigos OTP expirados para evitar bloat
+      await supabase
+        .from('otp_verifications')
+        .delete()
+        .lt('expires_at', nowIso)
+
+      // 2. Marcar citas pasadas como completed automáticamente
+      await supabase
+        .from('appointments')
+        .update({ status: 'completed' })
+        .lt('end_time', nowIso)
+        .eq('status', 'confirmed')
+    } catch (cleanupErr) {
+      console.error('[Cron Maintenance Error]:', cleanupErr)
+    }
+
     if (!clinics || clinics.length === 0) {
-      return NextResponse.json({ message: 'No reminders to send today.' })
+      return NextResponse.json({ message: 'No reminders to send today. Maintenance completed.' })
     }
 
     let emailsSent = 0

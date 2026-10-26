@@ -44,9 +44,25 @@ export async function GET(req: Request) {
       )
     }
 
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (serviceKey) {
+      try {
+        const adminSupabase = createClient(supabaseUrl, serviceKey, {
+          auth: { persistSession: false }
+        })
+        const nowIso = new Date().toISOString()
+        // 1. Purgar OTPs caducados
+        await adminSupabase.from('otp_verifications').delete().lt('expires_at', nowIso)
+        // 2. Auto-completar citas pasadas
+        await adminSupabase.from('appointments').update({ status: 'completed' }).lt('end_time', nowIso).eq('status', 'confirmed')
+      } catch (maintErr) {
+        console.error('[Keep-Alive Maintenance Non-Fatal Error]:', maintErr)
+      }
+    }
+
     return NextResponse.json({
       status: 'healthy',
-      message: 'Supabase keep-alive ping exitoso. El contador de inactividad ha sido reiniciado.',
+      message: 'Supabase keep-alive ping exitoso y mantenimiento de base de datos ejecutado.',
       recordsFound: data?.length || 0,
       latencyMs,
       timestamp: new Date().toISOString()

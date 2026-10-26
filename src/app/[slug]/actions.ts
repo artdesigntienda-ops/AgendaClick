@@ -7,7 +7,7 @@ import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { google } from 'googleapis'
-import { generateCancellationHash, verifyCancellationHash } from '@/utils/securityTokens'
+import { generateCancellationHash, verifyCancellationHash, decryptSensitiveToken } from '@/utils/securityTokens'
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY!)
@@ -237,7 +237,7 @@ export async function createAppointment(data: {
   let targetProfile: any = null
 
   if (data.staffId) {
-    const { data: staffProf } = await supabase
+    const { data: staffProf } = await getSupabaseAdmin()
       .from('profiles')
       .select('email, google_refresh_token, google_calendar_id')
       .eq('id', data.staffId)
@@ -248,7 +248,7 @@ export async function createAppointment(data: {
   }
 
   if (!targetProfile && clinicInfo?.owner_id) {
-    const { data: ownerProf } = await supabase
+    const { data: ownerProf } = await getSupabaseAdmin()
       .from('profiles')
       .select('email, google_refresh_token, google_calendar_id')
       .eq('id', clinicInfo.owner_id)
@@ -275,9 +275,9 @@ export async function createAppointment(data: {
 
   const formattedDate = format(new Date(data.startTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
   
-  // Extraemos tokens de google si existen
+  // Extraemos tokens de google si existen (descifrado seguro con AES-256-GCM)
   const ownerEmail = targetProfile?.email || null
-  const googleRefreshToken = targetProfile?.google_refresh_token || null
+  const googleRefreshToken = decryptSensitiveToken(targetProfile?.google_refresh_token || null)
   const googleCalendarId = targetProfile?.google_calendar_id || null
 
   try {
@@ -500,13 +500,14 @@ export async function cancelAppointmentFromClient(appointmentId: string, token?:
   }
 
   // 6. Eliminar el evento en Google Calendar si la integración está activa
-  if (ownerProfile?.google_refresh_token && ownerProfile?.google_calendar_id) {
+  const rawRefreshToken = decryptSensitiveToken(ownerProfile?.google_refresh_token)
+  if (rawRefreshToken && ownerProfile?.google_calendar_id) {
     try {
       const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET
       )
-      oauth2Client.setCredentials({ refresh_token: ownerProfile.google_refresh_token })
+      oauth2Client.setCredentials({ refresh_token: rawRefreshToken })
       const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
 
       // Buscar el evento en ese rango de fecha/hora
