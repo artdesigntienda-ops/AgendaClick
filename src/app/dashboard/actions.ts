@@ -448,7 +448,7 @@ export async function quickSetupClinic(data: QuickSetupInput) {
         schedule: defaultSchedule,
         subscription_status: 'trial',
         subscription_ends_at: trialEndsAt.toISOString(),
-        plan_type: 'independent',
+        plan_type: 'independiente',
         staff_limit: 1
       }])
       .select('id')
