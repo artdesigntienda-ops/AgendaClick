@@ -73,10 +73,10 @@ export async function getPartnerData() {
   let estimatedMonthlyCommission = 0
 
   const planPrices: Record<string, number> = {
-    independiente: 35000,
-    profesional: 75000,
-    negocio: 115000,
-    elite: 190000
+    independiente: 59000,
+    profesional: 189000,
+    negocio: 349000,
+    elite: 499000
   }
 
   const processedClinics = clinicsList.map((c: any) => {
@@ -97,7 +97,7 @@ export async function getPartnerData() {
     if (c.subscription_status === 'active' && !isExpired) {
       statusLabel = 'Activo (Pagado)'
       activeCount++
-      const planPrice = planPrices[c.plan_type?.toLowerCase()] || 115000
+      const planPrice = planPrices[c.plan_type?.toLowerCase()] || 349000
       estimatedMonthlyCommission += planPrice * (commissionRate / 100)
     } else if (c.subscription_status === 'trial' && !isExpired) {
       statusLabel = `En Prueba (${daysRemaining}d restantes)`

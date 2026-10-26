@@ -460,7 +460,7 @@ export default function LandingPage() {
             {[
               {
                 name: 'Independiente',
-                price: '35.000',
+                price: '59.000',
                 limit: '1 Profesional / Bahía',
                 target: 'Ideal para personas que trabajan solas en su consultorio o espacio.',
                 features: [
@@ -474,7 +474,7 @@ export default function LandingPage() {
               },
               {
                 name: 'Profesional',
-                price: '75.000',
+                price: '189.000',
                 limit: 'Hasta 4 Profesionales',
                 target: 'Para negocios con equipo que necesitan agendar múltiples servicios.',
                 features: [
@@ -488,7 +488,7 @@ export default function LandingPage() {
               },
               {
                 name: 'Negocio',
-                price: '125.000',
+                price: '349.000',
                 limit: 'Hasta 8 Profesionales',
                 target: 'Para empresas consolidadas, talleres, clínicas y spas con equipo.',
                 features: [
@@ -503,7 +503,7 @@ export default function LandingPage() {
               },
               {
                 name: 'Élite',
-                price: '199.000',
+                price: '499.000',
                 limit: 'Capacidad Ilimitada (999+)',
                 target: 'Para grandes concesionarios, franquicias y centros de alto volumen.',
                 features: [

@@ -75,7 +75,7 @@ const jsonLd = {
   applicationCategory: 'BusinessApplication',
   offers: {
     '@type': 'Offer',
-    price: '35000.00',
+    price: '59000.00',
     priceCurrency: 'COP',
   },
   description: "AgendaClick es una plataforma SaaS B2B de agendamiento para negocios de servicios: salones, clínicas, spas, consultorías, canchas sintéticas, veterinarias, estaciones de carga de vehículos eléctricos, academias y profesionales independientes en Colombia.",

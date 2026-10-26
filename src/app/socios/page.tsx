@@ -35,7 +35,7 @@ const staggerContainer = {
 export default function SociosLandingPage() {
   // Calculadora de comisiones
   const [clientCount, setClientCount] = useState<number>(20)
-  const averagePlanPrice = 115000 // Plan Negocio promedio ($115.000 COP)
+  const averagePlanPrice = 349000 // Plan Negocio promedio ($349.000 COP)
   const commissionRate = 0.30 // 30% comisión recurrente
   const monthlyEarnings = Math.round(clientCount * averagePlanPrice * commissionRate)
   const yearlyEarnings = monthlyEarnings * 12

@@ -12,7 +12,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'independiente',
     name: 'Independiente',
-    priceCOP: 35000,
+    priceCOP: 59000,
     limit: 1,
     badge: '1 Profesional / Bahía',
     target: 'Ideal para personas que trabajan solas en su propio consultorio o espacio.',
@@ -28,7 +28,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'boutique', // 'profesional' mapeado históricamente como 'boutique'
     name: 'Profesional',
-    priceCOP: 75000,
+    priceCOP: 189000,
     limit: 4,
     badge: 'Hasta 4 Profesionales',
     target: 'Para negocios con equipo que necesitan agendar múltiples servicios.',
@@ -44,7 +44,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'salon', // 'negocio' mapeado históricamente como 'salon'
     name: 'Negocio',
-    priceCOP: 125000,
+    priceCOP: 349000,
     limit: 8,
     badge: '🚀 MÁS POPULAR / MEJOR VALOR',
     target: 'Para empresas consolidadas, talleres, clínicas y spas con equipo.',
@@ -61,7 +61,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'elite',
     name: 'Élite',
-    priceCOP: 199000,
+    priceCOP: 499000,
     limit: 999,
     badge: 'Capacidad Ilimitada',
     target: 'Para grandes concesionarios, franquicias y centros de alto volumen.',

@@ -110,12 +110,12 @@ El sistema cuenta con sincronización en tiempo real para agendar y cancelar cit
 
 ---
 
-## 🔄 Nombres de los Planes (Genéricos y Neuromarketing)
-Cambiamos los nombres de los planes anteriores (dirigidos a estéticas) por nombres genéricos aplicables a todo el mercado de reservas:
-1.  **Independiente** (1 Profesional) - $35,000 COP/mes.
-2.  **Profesional** *(Antes Boutique)* (Hasta 4 Profesionales) - $75,000 COP/mes.
-3.  **Negocio** *(Antes Salón)* (Hasta 8 Profesionales) - $115,000 COP/mes — **Destacado como el más recomendado (🚀 MEJOR VALOR)**.
-4.  **Élite** (Ilimitados) - $190,000 COP/mes.
+## 🔄 Nombres y Precios de los Planes (Estrategia 50% de Booksy)
+Planes genéricos aplicables a todo el mercado de reservas posicionados al 50% de la tarifa internacional de Booksy:
+1.  **Independiente** (1 Profesional) - $59,000 COP/mes.
+2.  **Profesional** *(Antes Boutique)* (Hasta 4 Profesionales) - $189,000 COP/mes.
+3.  **Negocio** *(Antes Salón)* (Hasta 8 Profesionales) - $349,000 COP/mes — **Destacado como el más recomendado (🚀 MEJOR VALOR)**.
+4.  **Élite** (Ilimitados 999+) - $499,000 COP/mes.
 
 ---
 
