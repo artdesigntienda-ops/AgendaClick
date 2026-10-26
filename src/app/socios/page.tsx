@@ -16,7 +16,8 @@ import {
   HelpCircle, 
   Gift, 
   Zap,
-  PlayCircle
+  PlayCircle,
+  Download
 } from 'lucide-react'
 
 const fadeInUp = {
@@ -191,6 +192,193 @@ export default function SociosLandingPage() {
           </div>
 
         </div>
+      </section>
+
+      {/* 4 MODELOS COMERCIALES Y MATERIAL PUBLICITARIO */}
+      <section className="py-20 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+            <Sparkles className="w-3.5 h-3.5" />
+            Modelos de Negocio Transparentes en Colombia
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black mb-4">4 Formas de Ganar Dinero con AgendaClick</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto text-base">
+            Elige el discurso y modelo que mejor se adapte a tu estilo de venta. Cifras reales en Pesos Colombianos, sin humo y sin letras pequeñas.
+          </p>
+        </div>
+
+        {/* GRID DE LAS 4 OPCIONES */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          
+          {/* OPCIÓN 1 */}
+          <div className="bg-slate-900/80 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-xl hover:border-emerald-500/60 transition-all flex flex-col justify-between">
+            <div className="relative aspect-square w-full bg-slate-950 overflow-hidden border-b border-white/10">
+              <img 
+                src="/promos/agendaclick_opcion_1_dinero_tangible.png" 
+                alt="Opción 1: Dinero Tangible en Pesos" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
+                  🥇 Opción 1 • La Más Efectiva
+                </span>
+                <h3 className="text-2xl font-black mt-3 mb-2">Dinero Tangible en Pesos COP</h3>
+                <p className="text-sm text-gray-300 leading-relaxed mb-4">
+                  Eliminamos los porcentajes abstractos que generan dudas y mostramos cifras exactas en moneda local para metas alcanzables:
+                </p>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Gana hasta <strong>$244.000 COP mensuales</strong> por cada negocio.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Con 5 negocios te aseguras <strong>+$1.200.000 COP al mes</strong> en automático.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Con 10 negocios superas los <strong>$2.400.000 COP mensuales</strong> sin jefes.</li>
+                </ul>
+              </div>
+              <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                <span className="text-xs text-gray-400">Pagos a Nequi, Daviplata o Banco</span>
+                <a href="/promos/agendaclick_opcion_1_dinero_tangible.png" download target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* OPCIÓN 2 */}
+          <div className="bg-slate-900/80 border border-amber-500/30 rounded-3xl overflow-hidden shadow-xl hover:border-amber-500/60 transition-all flex flex-col justify-between">
+            <div className="relative aspect-square w-full bg-slate-950 overflow-hidden border-b border-white/10">
+              <img 
+                src="/promos/agendaclick_opcion_2_modelo_hibrido.png" 
+                alt="Opción 2: El Modelo Híbrido" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full">
+                  🥈 Opción 2 • Liquidez Rápida
+                </span>
+                <h3 className="text-2xl font-black mt-3 mb-2">100% Primer Mes + Mensualidad Recurrente</h3>
+                <p className="text-sm text-gray-300 leading-relaxed mb-4">
+                  El vendedor comercial en Colombia necesita liquidez inmediata. Con este modelo recibes dinero en mano el mismo día:
+                </p>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" /> <strong>El 100% del primer pago</strong> va directo a tu bolsillo (entre $189.000 y $349.000 COP).</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" /> Renta pasiva del <strong>30% mensual de por vida</strong> desde el segundo mes.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" /> Cero frustración de esperar un mes para cobrar comisiones.</li>
+                </ul>
+              </div>
+              <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                <span className="text-xs text-gray-400">Dinero hoy + Ingreso pasivo mañana</span>
+                <a href="/promos/agendaclick_opcion_2_modelo_hibrido.png" download target="_blank" className="text-xs font-bold text-amber-400 hover:underline flex items-center gap-1">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* OPCIÓN 3 */}
+          <div className="bg-slate-900/80 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-xl hover:border-emerald-500/60 transition-all flex flex-col justify-between">
+            <div className="relative aspect-square w-full bg-slate-950 overflow-hidden border-b border-white/10">
+              <img 
+                src="/promos/agendaclick_opcion_3_modelo_escalonado.png" 
+                alt="Opción 3: Modelo Escalonado por Metas" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
+                  🥉 Opción 3 • Carrera Comercial
+                </span>
+                <h3 className="text-2xl font-black mt-3 mb-2">Escalafón por Metas y Rangos</h3>
+                <p className="text-sm text-gray-300 leading-relaxed mb-4">
+                  Genera estatus corporativo y elimina sospechas de estafa o multinivel, premiando la constancia comercial:
+                </p>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> 🥉 <strong>Asesor Junior (1 a 3 clientes):</strong> 30% mensual recurrente.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> 🥈 <strong>Distribuidor Plata (4 a 8 clientes):</strong> 45% mensual recurrente.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> 🥇 <strong>Embajador Élite (9+ clientes):</strong> 60% mensual recurrente + Bono de cumplimiento.</li>
+                </ul>
+              </div>
+              <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                <span className="text-xs text-gray-400">Estatus y crecimiento real</span>
+                <a href="/promos/agendaclick_opcion_3_modelo_escalonado.png" download target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* OPCIÓN 4 */}
+          <div className="bg-slate-900/80 border border-blue-500/30 rounded-3xl overflow-hidden shadow-xl hover:border-blue-500/60 transition-all flex flex-col justify-between">
+            <div className="relative aspect-square w-full bg-slate-950 overflow-hidden border-b border-white/10">
+              <img 
+                src="/promos/agendaclick_opcion_4_agencia_digital.png" 
+                alt="Opción 4: Monta tu Agencia de Digitalización" 
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="p-8 space-y-4 flex-1 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full">
+                  🏅 Opción 4 • Estatus de Consultor
+                </span>
+                <h3 className="text-2xl font-black mt-3 mb-2">Monta tu Agencia de Citas</h3>
+                <p className="text-sm text-gray-300 leading-relaxed mb-4">
+                  No eres un vendedor comisionista; eres el asesor tecnológico de tu ciudad. Cobras dos veces por cada cliente:
+                </p>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" /> <strong>Cobro de Instalación/Setup:</strong> Entre $100.000 y $200.000 COP (100% tuyo).</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" /> <strong>Ingreso Recurrente:</strong> Mensualidad del software mes a mes.</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" /> Nosotros ponemos la tecnología, tú te quedas con el margen.</li>
+                </ul>
+              </div>
+              <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                <span className="text-xs text-gray-400">Sin saber programar</span>
+                <a href="/promos/agendaclick_opcion_4_agencia_digital.png" download target="_blank" className="text-xs font-bold text-blue-400 hover:underline flex items-center gap-1">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* MATERIAL PUBLICITARIO DESCARGABLE PARA REDES */}
+        <div className="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/30 rounded-3xl p-8 sm:p-12 text-center">
+          <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">
+            Material de Marketing Oficial
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-black mt-4 mb-3">Piezas Listas para Tus Estados de WhatsApp e Instagram</h3>
+          <p className="text-gray-300 max-w-xl mx-auto text-sm mb-8">
+            Descarga los artes publicitarios oficiales de AgendaClick para publicar en tus redes y empezar a captar salones, barberías y negocios hoy mismo.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
+            <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
+              <img src="/promos/agendaclick_afiliados_colombia_feed_1_png_1793021505003.jpg" className="w-20 h-20 rounded-xl object-cover border border-white/10" alt="Feed 1:1" />
+              <div>
+                <h4 className="font-bold text-white text-base">Arte Feed Cuadrado (1:1)</h4>
+                <p className="text-xs text-gray-400 mb-2">Para Instagram, Facebook y Grupos</p>
+                <a href="/promos/agendaclick_afiliados_colombia_feed_1_png_1793021505003.jpg" download target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                  <Download className="w-3 h-3" /> Descargar Imagen
+                </a>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
+              <img src="/promos/agendaclick_afiliados_colombia_story_2_png_1793021525748.jpg" className="w-20 h-20 rounded-xl object-cover border border-white/10" alt="Stories 9:16" />
+              <div>
+                <h4 className="font-bold text-white text-base">Arte Vertical Stories (9:16)</h4>
+                <p className="text-xs text-gray-400 mb-2">Para Estados de WhatsApp y Reels</p>
+                <a href="/promos/agendaclick_afiliados_colombia_story_2_png_1793021525748.jpg" download target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                  <Download className="w-3 h-3" /> Descargar Imagen
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       {/* HERRAMIENTAS QUE INCLUYE EL DASHBOARD DEL VENDEDOR */}
