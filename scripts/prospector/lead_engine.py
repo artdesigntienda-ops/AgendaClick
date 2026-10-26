@@ -881,6 +881,27 @@ def exportar_html(lista_prospectos, ruta_archivo="prospectos_agendaclick.html"):
         f.write(html_content)
     print(f"✅ Dashboard interactivo generado con {len(lista_prospectos)} prospectos: {ruta_archivo}")
 
+def iniciar_servidor(puerto=5555, archivo_html="prospectos_agendaclick.html"):
+    """Inicia un servidor web local y abre el dashboard interactivo"""
+    import http.server
+    import socketserver
+    
+    class DashboardHandler(http.server.SimpleHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == "/" or self.path == "/index.html":
+                self.path = "/" + archivo_html
+            return super().do_GET()
+
+    print(f"\n🌐 Servidor activo en: http://localhost:{puerto}")
+    print(f"👉 Abre en tu navegador: http://localhost:{puerto}")
+    print("Presiona Ctrl + C para detener el servidor.\n")
+    
+    with socketserver.TCPServer(("", puerto), DashboardHandler) as httpd:
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\n🛑 Servidor detenido.")
+
 # =====================================================================
 # CLI PRINCIPAL
 # =====================================================================
@@ -890,6 +911,8 @@ def main():
     parser.add_argument("--nicho", type=str, default="all", help="Filtrar por nicho (canchas, odontologia, veterinarias, barberias, spas o all)")
     parser.add_argument("--csv", type=str, default="prospectos_agendaclick.csv", help="Ruta del archivo CSV")
     parser.add_argument("--html", type=str, default="prospectos_agendaclick.html", help="Ruta del dashboard HTML")
+    parser.add_argument("--serve", action="store_true", help="Iniciar servidor local en puerto 5555 para interactuar con el dashboard")
+    parser.add_argument("--puerto", type=int, default=5555, help="Puerto para el servidor web local (default: 5555)")
     
     args = parser.parse_args()
     
@@ -915,6 +938,9 @@ def main():
     print(f"📁 CSV para Excel: {os.path.abspath(args.csv)}")
     print(f"🌐 Dashboard Interactivo: {os.path.abspath(args.html)}")
     print("=" * 65)
+    
+    if args.serve:
+        iniciar_servidor(args.puerto, args.html)
 
 if __name__ == "__main__":
     main()
