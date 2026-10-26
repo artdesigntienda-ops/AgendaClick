@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,7 +8,26 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { format, addDays, startOfToday, parseISO, getDay, addMinutes, isBefore, parse, startOfMonth, getDaysInMonth, addMonths, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, User, Phone, Mail, ArrowRight, CheckCircle2, Video, MapPin, Link as LinkIcon, AlertCircle, ChevronLeft, ChevronRight, Check, Car } from 'lucide-react'
+import { 
+  Calendar as CalendarIcon, 
+  Clock, 
+  User, 
+  Phone, 
+  Mail, 
+  ArrowRight, 
+  CheckCircle2, 
+  Video, 
+  MapPin, 
+  Link as LinkIcon, 
+  AlertCircle, 
+  ChevronLeft, 
+  ChevronRight, 
+  Check, 
+  Car,
+  Sunrise,
+  Sun,
+  Moon
+} from 'lucide-react'
 import { getSegmentConfig } from '@/lib/segment-icons'
 import { createAppointment, sendOtpCode } from './actions'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
@@ -173,95 +192,236 @@ export default function BookingClient({ clinic, services, professionals, appoint
 
   const [currentMonth, setCurrentMonth] = useState<Date>(startOfMonth(startOfToday()))
 
-  // Generar días del mes seleccionado (filtrando los días pasados si es el mes actual)
-  const availableDates = Array.from({ length: getDaysInMonth(currentMonth) })
-    .map((_, i) => addDays(currentMonth, i))
-    .filter(date => date >= startOfToday() || isSameDay(date, startOfToday()))
-  
-  // Calcular horarios disponibles considerando la duración total acumulada de todos los servicios
-  const getAvailableTimes = () => {
-    if (!selectedDate || selectedServices.length === 0) return []
+  // Interfaz de slots con inicio, fin y jornada
+  interface TimeSlot {
+    time: string
+    endTime: string
+    period: 'morning' | 'afternoon' | 'evening'
+  }
+
+  const FALLBACK_SCHEDULE: Record<string, any> = {
+    monday: { isOpen: true, openTime: '09:00', closeTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    friday: { isOpen: true, openTime: '09:00', closeTime: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+    saturday: { isOpen: true, openTime: '09:00', closeTime: '14:00', breakStart: '', breakEnd: '' },
+    sunday: { isOpen: false, openTime: '09:00', closeTime: '14:00', breakStart: '', breakEnd: '' }
+  }
+
+  const formatSlotDisplay = (timeStr: string) => {
+    try {
+      const [h, m] = timeStr.split(':').map(Number)
+      const period = h >= 12 ? 'p.m.' : 'a.m.'
+      const hour12 = h % 12 === 0 ? 12 : h % 12
+      return `${hour12}:${m < 10 ? '0' : ''}${m} ${period}`
+    } catch {
+      return timeStr
+    }
+  }
+
+  // Función para calcular horarios disponibles de cualquier fecha seleccionada
+  const getTimesForDate = (date: Date): TimeSlot[] => {
+    if (!date || selectedServices.length === 0) return []
     
     // Obtener el día de la semana
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[getDay(selectedDate)]
+    const dayName = dayNames[getDay(date)]
     
     // Determinar qué horario usar (profesional o clínica)
-    let activeSchedule = clinic?.schedule
+    let activeSchedule = clinic?.schedule?.monday ? clinic.schedule : FALLBACK_SCHEDULE
     if (selectedProfessional && selectedProfessional.schedule && !selectedProfessional.schedule.useClinicSchedule) {
       activeSchedule = selectedProfessional.schedule
     }
     
-    if (!activeSchedule || !activeSchedule[dayName] || !activeSchedule[dayName].isOpen) {
+    // Si el profesional seleccionado está en descanso
+    if (selectedProfessional?.is_on_break) {
+      return []
+    }
+    
+    const dayConfig = activeSchedule?.[dayName] || FALLBACK_SCHEDULE[dayName]
+    if (!dayConfig || dayConfig.isOpen === false) {
       return [] // Cerrado ese día
     }
     
-    const dayConfig = activeSchedule[dayName]
-    const slots = []
+    if (!dayConfig.openTime || !dayConfig.closeTime) return []
+    
+    const slots: TimeSlot[] = []
     const durationMinutes = totalDuration
     
     // Parse times
-    let currentTime = parse(dayConfig.openTime, 'HH:mm', selectedDate)
-    const endTime = parse(dayConfig.closeTime, 'HH:mm', selectedDate)
+    let currentTime = parse(dayConfig.openTime, 'HH:mm', date)
+    const endTime = parse(dayConfig.closeTime, 'HH:mm', date)
     
-    let breakStart = null
-    let breakEnd = null
+    let breakStart: Date | null = null
+    let breakEnd: Date | null = null
     if (dayConfig.breakStart && dayConfig.breakEnd) {
-      breakStart = parse(dayConfig.breakStart, 'HH:mm', selectedDate)
-      breakEnd = parse(dayConfig.breakEnd, 'HH:mm', selectedDate)
+      breakStart = parse(dayConfig.breakStart, 'HH:mm', date)
+      breakEnd = parse(dayConfig.breakEnd, 'HH:mm', date)
     }
     
     const now = new Date()
     
+    // Incremento de inicio: adaptativo empezando en la hora de apertura exacta
+    const stepIncrement = durationMinutes <= 20 ? 15 : 30
+    
     while (isBefore(currentTime, endTime)) {
       const slotEnd = addMinutes(currentTime, durationMinutes)
       
-      // Si el slot excede la hora de cierre, no lo añadimos
-      if (!isBefore(slotEnd, endTime) && slotEnd.getTime() !== endTime.getTime()) {
+      // Si el slot excede la hora de cierre del negocio, no cabe
+      if (isBefore(endTime, slotEnd)) {
         break
       }
       
       // Si el slot se solapa con el almuerzo, saltamos al final del almuerzo
-      if (breakStart && breakEnd && isBefore(currentTime, breakEnd) && isBefore(breakStart, slotEnd)) {
-        currentTime = breakEnd
-        continue
+      if (breakStart && breakEnd) {
+        const overlapsBreak = (
+          (currentTime >= breakStart && currentTime < breakEnd) ||
+          (slotEnd > breakStart && slotEnd <= breakEnd) ||
+          (currentTime <= breakStart && slotEnd >= breakEnd)
+        )
+        if (overlapsBreak) {
+          currentTime = breakEnd
+          continue
+        }
       }
       
       const timeStr = format(currentTime, 'HH:mm')
-      const slotStartISOString = `${format(selectedDate, 'yyyy-MM-dd')}T${timeStr}:00`
+      const endTimeStr = format(slotEnd, 'HH:mm')
+      const slotStartISOString = `${format(date, 'yyyy-MM-dd')}T${timeStr}:00`
       const slotStartISO = new Date(slotStartISOString)
       const slotEndISO = new Date(slotStartISO.getTime() + durationMinutes * 60000)
 
-      // Verificar si hay alguna cita que se solape con este slot para el profesional seleccionado
-      const isReserved = appointments.some((apt: any) => {
-        if (apt.status === 'cancelled') return false
-        const aptStart = new Date(apt.start_time)
-        const aptEnd = new Date(apt.end_time || (new Date(apt.start_time).getTime() + 30 * 60000))
-
-        const overlaps = (slotStartISO < aptEnd && slotEndISO > aptStart)
-        if (!overlaps) return false
-
-        if (selectedProfessional) {
+      // Verificar si hay alguna cita que se solape con este slot
+      let isReserved = false
+      if (selectedProfessional) {
+        isReserved = appointments.some((apt: any) => {
+          if (apt.status === 'cancelled') return false
+          const aptStart = new Date(apt.start_time)
+          const aptEnd = new Date(apt.end_time || (new Date(apt.start_time).getTime() + 30 * 60000))
+          const overlaps = (slotStartISO < aptEnd && slotEndISO > aptStart)
+          if (!overlaps) return false
           return apt.staff_id === selectedProfessional.id || apt.staff_id === null
+        })
+      } else if (professionals && professionals.length > 0) {
+        const activePros = professionals.filter((p: any) => !p.is_on_break)
+        if (activePros.length === 0) {
+          isReserved = true
         } else {
-          return apt.staff_id === null
+          const bookedStaffIds = new Set<string>()
+          let clinicWideBlocked = false
+          for (const apt of appointments) {
+            if (apt.status === 'cancelled') continue
+            const aptStart = new Date(apt.start_time)
+            const aptEnd = new Date(apt.end_time || (new Date(apt.start_time).getTime() + 30 * 60000))
+            if (slotStartISO < aptEnd && slotEndISO > aptStart) {
+              if (apt.staff_id) {
+                bookedStaffIds.add(apt.staff_id)
+              } else {
+                clinicWideBlocked = true
+              }
+            }
+          }
+          isReserved = clinicWideBlocked || activePros.every((p: any) => bookedStaffIds.has(p.id))
         }
-      })
-      
-      // Validar que la hora ya no haya pasado si es hoy
-      if (!isReserved && isBefore(now, currentTime)) {
-        slots.push(timeStr)
+      } else {
+        isReserved = appointments.some((apt: any) => {
+          if (apt.status === 'cancelled') return false
+          const aptStart = new Date(apt.start_time)
+          const aptEnd = new Date(apt.end_time || (new Date(apt.start_time).getTime() + 30 * 60000))
+          return slotStartISO < aptEnd && slotEndISO > aptStart
+        })
       }
       
-      // Incremento de inicio flexible
-      const stepIncrement = Math.min(30, durationMinutes)
+      // Validar que la hora ya no haya pasado si es hoy
+      const isPastHour = isSameDay(date, now) && isBefore(currentTime, now)
+
+      if (!isReserved && !isPastHour) {
+        const hourNum = parseInt(timeStr.split(':')[0], 10)
+        const period: 'morning' | 'afternoon' | 'evening' = 
+          hourNum < 12 ? 'morning' : (hourNum < 18 ? 'afternoon' : 'evening')
+
+        slots.push({
+          time: timeStr,
+          endTime: endTimeStr,
+          period
+        })
+      }
+      
       currentTime = addMinutes(currentTime, stepIncrement)
     }
     
     return slots
   }
 
-  const availableTimes = getAvailableTimes()
+  // Días del mes y sus estados calculados para el calendario visual
+  const monthDays = useMemo(() => {
+    const start = startOfMonth(currentMonth)
+    const daysCount = getDaysInMonth(currentMonth)
+    const today = startOfToday()
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+    let activeSchedule = clinic?.schedule?.monday ? clinic.schedule : FALLBACK_SCHEDULE
+    if (selectedProfessional && selectedProfessional.schedule && !selectedProfessional.schedule.useClinicSchedule) {
+      activeSchedule = selectedProfessional.schedule
+    }
+
+    return Array.from({ length: daysCount }).map((_, i) => {
+      const date = addDays(start, i)
+      const isPast = date < today && !isSameDay(date, today)
+      const dayName = dayNames[getDay(date)]
+      const dayConfig = activeSchedule?.[dayName] || FALLBACK_SCHEDULE[dayName]
+      const isDayClosed = !dayConfig || dayConfig.isOpen === false || !!selectedProfessional?.is_on_break
+
+      let status: 'past' | 'closed' | 'full' | 'available' = 'available'
+
+      if (isPast) {
+        status = 'past'
+      } else if (isDayClosed) {
+        status = 'closed'
+      } else {
+        const slots = getTimesForDate(date)
+        status = slots.length > 0 ? 'available' : 'full'
+      }
+
+      return {
+        date,
+        dayNumber: format(date, 'd'),
+        status,
+        isToday: isSameDay(date, today),
+        isSelected: isSameDay(date, selectedDate)
+      }
+    })
+  }, [currentMonth, selectedDate, selectedProfessional, selectedServices, clinic?.schedule, appointments, totalDuration, professionals])
+
+  // Desfase para que la semana empiece en Lunes (Lunes = 0, Domingo = 6)
+  const startDayOffset = useMemo(() => {
+    const start = startOfMonth(currentMonth)
+    return (getDay(start) + 6) % 7
+  }, [currentMonth])
+
+  // Horarios disponibles para el día actualmente seleccionado
+  const availableSlots = useMemo(() => {
+    return getTimesForDate(selectedDate)
+  }, [selectedDate, selectedProfessional, selectedServices, clinic?.schedule, appointments, totalDuration, professionals])
+
+  // Agrupación por jornada
+  const morningSlots = useMemo(() => availableSlots.filter(s => s.period === 'morning'), [availableSlots])
+  const afternoonSlots = useMemo(() => availableSlots.filter(s => s.period === 'afternoon'), [availableSlots])
+  const eveningSlots = useMemo(() => availableSlots.filter(s => s.period === 'evening'), [availableSlots])
+
+  // Si el día seleccionado no tiene disponibilidad, buscar el primer día libre del mes
+  useEffect(() => {
+    if (step === 3 && monthDays.length > 0) {
+      const currentSelectedDay = monthDays.find(d => isSameDay(d.date, selectedDate))
+      if (!currentSelectedDay || currentSelectedDay.status !== 'available') {
+        const firstAvailable = monthDays.find(d => d.status === 'available')
+        if (firstAvailable) {
+          setSelectedDate(firstAvailable.date)
+        }
+      }
+    }
+  }, [step, currentMonth, monthDays])
 
   const onSubmit = async (data: BookingFormData) => {
     if (selectedServices.length === 0 || !selectedTime) return
@@ -667,90 +827,346 @@ export default function BookingClient({ clinic, services, professionals, appoint
               </div>
 
               {/* Resumen superior */}
-              <div className="bg-gray-50 p-3 rounded-xl mb-4 border border-gray-200 text-xs">
-                <span className="font-bold text-gray-900 block mb-0.5 line-clamp-1">
-                  🛠️ {selectedServices.map(s => s.name).join(' + ')}
-                </span>
-                <span className="text-gray-600 font-medium">
-                  ⏱️ Tiempo estimado: {totalDuration} min • 💰 Total: ${totalPrice.toLocaleString('es-CO')}
-                </span>
+              <div className="bg-gray-50 p-3.5 rounded-2xl mb-5 border border-gray-200 text-xs">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="font-bold text-gray-900 line-clamp-1">
+                    🛠️ {selectedServices.map(s => s.name).join(' + ')}
+                  </span>
+                  {selectedProfessional && (
+                    <span className="text-[11px] font-semibold text-gray-700 bg-white px-2 py-0.5 rounded-md border border-gray-200 shrink-0">
+                      👤 {selectedProfessional.name}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 text-gray-600 font-medium">
+                  <span>⏱️ Tiempo estimado: <strong className="text-gray-900">{totalDuration} min</strong></span>
+                  <span>•</span>
+                  <span>💰 Total: <strong className="text-gray-900">${totalPrice.toLocaleString('es-CO')}</strong></span>
+                </div>
               </div>
               
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold">
-                  {professionals.length <= 1 ? '2. Fecha y Hora' : '3. Fecha y Hora'}
-                </h2>
+              {/* Encabezado del mes y navegación */}
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <CalendarIcon className="w-5 h-5 text-brand" />
+                    {professionals.length <= 1 ? '2. Elige tu Fecha' : '3. Elige tu Fecha'}
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Selecciona un día libre para ver los horarios
+                  </p>
+                </div>
                 
-                <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-100">
+                <div className="flex items-center gap-1.5 bg-gray-50 rounded-xl p-1 border border-gray-200 shadow-xs">
                   <button 
+                    type="button"
                     onClick={() => setCurrentMonth(prev => addMonths(prev, -1))}
                     disabled={isBefore(addMonths(currentMonth, -1), startOfMonth(startOfToday()))}
-                    className="p-1.5 rounded-md hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none transition-all"
+                    className="p-1.5 rounded-lg hover:bg-white hover:shadow-xs disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                    title="Mes anterior"
                   >
-                    <ChevronLeft className="w-4 h-4 text-gray-600" />
+                    <ChevronLeft className="w-4 h-4 text-gray-700" />
                   </button>
-                  <span className="text-xs font-semibold px-2 min-w-[90px] text-center capitalize text-gray-700">
+                  <span className="text-xs font-bold px-2 min-w-[100px] text-center capitalize text-gray-800">
                     {format(currentMonth, 'MMMM yyyy', { locale: es })}
                   </span>
                   <button 
+                    type="button"
                     onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
-                    className="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all"
+                    className="p-1.5 rounded-lg hover:bg-white hover:shadow-xs transition-all"
+                    title="Siguiente mes"
                   >
-                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                    <ChevronRight className="w-4 h-4 text-gray-700" />
                   </button>
                 </div>
               </div>
-              
-              <div className="mb-6">
-                <div className="flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar">
-                  {availableDates.length === 0 ? (
-                    <div className="text-sm text-gray-500 w-full text-center py-4">No hay días disponibles en este mes.</div>
-                  ) : (
-                    availableDates.map(date => (
-                      <motion.button
-                        key={date.toISOString()}
-                        whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
-                        onClick={() => setSelectedDate(date)}
-                        className={`snap-start flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-xl border transition-colors ${
-                          selectedDate.getTime() === date.getTime() 
-                            ? 'bg-brand text-white border-brand shadow-md' 
-                            : 'hover:border-brand bg-white'
-                        }`}
-                      >
-                        <span className="text-xs uppercase opacity-80">{format(date, 'eee', { locale: es })}</span>
-                        <span className="text-xl font-medium mt-1">{format(date, 'dd')}</span>
-                      </motion.button>
-                    ))
-                  )}
-                </div>
+
+              {/* Días de la semana */}
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-1.5 text-center">
+                {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(d => (
+                  <div key={d} className="text-[11px] font-bold text-gray-500 py-1 uppercase tracking-wider">
+                    {d}
+                  </div>
+                ))}
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                {availableTimes.length === 0 ? (
-                  <div className="col-span-3 text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-gray-100">
-                    <Clock className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                    No hay horarios disponibles para este día con {totalDuration} min requeridos.
-                  </div>
-                ) : (
-                  availableTimes.map(time => (
+              {/* Cuadrícula interactiva del Calendario Mensual */}
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3">
+                {/* Días vacíos para alinear el primer día en lunes */}
+                {Array.from({ length: startDayOffset }).map((_, idx) => (
+                  <div key={`offset-${idx}`} className="h-14 sm:h-16 rounded-xl bg-gray-50/20 border border-transparent" />
+                ))}
+
+                {/* Días del mes con sus estados visuales */}
+                {monthDays.map(d => {
+                  if (d.status === 'past') {
+                    return (
+                      <div
+                        key={d.date.toISOString()}
+                        className="h-14 sm:h-16 rounded-xl border border-gray-100 bg-gray-50/60 flex flex-col items-center justify-center text-gray-300 cursor-not-allowed select-none"
+                      >
+                        <span className="text-xs sm:text-sm font-medium">{d.dayNumber}</span>
+                      </div>
+                    )
+                  }
+
+                  if (d.status === 'closed') {
+                    return (
+                      <div
+                        key={d.date.toISOString()}
+                        className="h-14 sm:h-16 rounded-xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 cursor-not-allowed select-none"
+                        title="Cerrado este día"
+                      >
+                        <span className="text-xs sm:text-sm font-semibold">{d.dayNumber}</span>
+                        <span className="text-[9px] font-medium text-gray-400 mt-0.5">Cerrado</span>
+                      </div>
+                    )
+                  }
+
+                  if (d.status === 'full') {
+                    return (
+                      <div
+                        key={d.date.toISOString()}
+                        className="h-14 sm:h-16 rounded-xl border border-rose-200 bg-rose-50/80 flex flex-col items-center justify-center text-rose-700 cursor-not-allowed select-none relative"
+                        title="Día sin horarios disponibles"
+                      >
+                        <span className="text-xs sm:text-sm font-bold">{d.dayNumber}</span>
+                        <span className="text-[9px] font-bold text-rose-700 bg-rose-200/80 px-1.5 py-0.2 rounded-sm mt-0.5">
+                          Lleno
+                        </span>
+                      </div>
+                    )
+                  }
+
+                  // d.status === 'available'
+                  const isSelected = d.isSelected
+
+                  return (
                     <motion.button
-                      key={time}
+                      key={d.date.toISOString()}
+                      type="button"
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.02 }}
                       onClick={() => {
-                        setSelectedTime(time)
-                        setStep(4)
+                        setSelectedDate(d.date)
+                        setSelectedTime(null)
                       }}
-                      className={`py-3 rounded-lg border text-sm font-medium transition-all ${
-                        selectedTime === time
-                          ? 'bg-brand text-white border-brand shadow-lg'
-                          : 'hover:border-brand hover:bg-gray-50 bg-white'
+                      className={`h-14 sm:h-16 rounded-xl flex flex-col items-center justify-center transition-all relative ${
+                        isSelected
+                          ? 'bg-brand text-white border-2 border-brand shadow-md ring-2 ring-brand/30'
+                          : 'bg-white text-gray-900 border-2 border-emerald-300 hover:border-brand hover:shadow-sm'
                       }`}
                     >
-                      {time}
+                      {d.isToday && !isSelected && (
+                        <span className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500" title="Hoy" />
+                      )}
+                      <span className={`text-xs sm:text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                        {d.dayNumber}
+                      </span>
+                      <span
+                        className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full mt-0.5 flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-white/20 text-white'
+                            : 'bg-emerald-50 text-emerald-700'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-emerald-500'}`} />
+                        {isSelected ? 'Elegido' : 'Libre'}
+                      </span>
                     </motion.button>
-                  ))
+                  )
+                })}
+              </div>
+
+              {/* Leyenda explicativa de colores */}
+              <div className="flex flex-wrap items-center justify-center gap-4 py-2 px-3 bg-gray-50/80 rounded-xl border border-gray-100 text-[11px] text-gray-600 mb-6">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-200" />
+                  <span className="font-medium">Día libre</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-rose-200" />
+                  <span className="font-medium">Día ocupado / Lleno</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-gray-300 ring-2 ring-gray-100" />
+                  <span className="font-medium">Cerrado</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand ring-2 ring-brand/30" />
+                  <span className="font-medium">Día seleccionado</span>
+                </div>
+              </div>
+
+              {/* SECCIÓN DE HORARIOS DINÁMICOS POR JORNADA */}
+              <div className="border-t border-gray-200 pt-5 mt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 capitalize flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-brand" />
+                      Horarios para el {format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Turnos adaptados según horario de apertura, almuerzos y duración ({totalDuration} min)
+                    </p>
+                  </div>
+                  {availableSlots.length > 0 && (
+                    <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full shrink-0 self-start sm:self-auto">
+                      {availableSlots.length} horarios disponibles
+                    </span>
+                  )}
+                </div>
+
+                {availableSlots.length === 0 ? (
+                  <div className="text-center py-8 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                    <Clock className="w-8 h-8 mx-auto mb-2 text-gray-400 opacity-40" />
+                    <h4 className="text-sm font-semibold text-gray-800 mb-1">
+                      No hay horarios disponibles para esta fecha
+                    </h4>
+                    <p className="text-xs text-gray-500 max-w-sm mx-auto mb-3">
+                      Los turnos de este día ya están reservados o el servicio de {totalDuration} min excede la hora de cierre. Por favor selecciona otro día en el calendario.
+                    </p>
+                    {monthDays.some(d => d.status === 'available') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextFree = monthDays.find(d => d.status === 'available')
+                          if (nextFree) {
+                            setSelectedDate(nextFree.date)
+                            setSelectedTime(null)
+                          }
+                        }}
+                        className="text-xs font-semibold text-brand hover:underline inline-flex items-center gap-1"
+                      >
+                        Ir al próximo día libre →
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Jornada Mañana */}
+                    {morningSlots.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">
+                          <Sunrise className="w-4 h-4 text-amber-500" />
+                          Mañana ({morningSlots.length})
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                          {morningSlots.map(slot => (
+                            <motion.button
+                              key={slot.time}
+                              type="button"
+                              whileTap={{ scale: 0.96 }}
+                              whileHover={{ scale: 1.02 }}
+                              onClick={() => {
+                                setSelectedTime(slot.time)
+                                setStep(4)
+                              }}
+                              className={`p-3 rounded-xl border text-left transition-all ${
+                                selectedTime === slot.time
+                                  ? 'bg-brand text-white border-brand shadow-lg ring-2 ring-brand/30'
+                                  : 'bg-white hover:border-brand hover:shadow-sm border-gray-200 text-gray-900 group'
+                              }`}
+                            >
+                              <div className="flex items-baseline justify-between">
+                                <span className={`text-base font-bold ${selectedTime === slot.time ? 'text-white' : 'text-gray-900 group-hover:text-brand'}`}>
+                                  {slot.time}
+                                </span>
+                                <span className={`text-[10px] font-medium ${selectedTime === slot.time ? 'text-white/80' : 'text-gray-400'}`}>
+                                  {formatSlotDisplay(slot.time)}
+                                </span>
+                              </div>
+                              <div className={`text-[11px] mt-0.5 ${selectedTime === slot.time ? 'text-white/90' : 'text-gray-500'}`}>
+                                hasta las {slot.endTime}
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Jornada Tarde */}
+                    {afternoonSlots.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-orange-700 uppercase tracking-wider mb-2">
+                          <Sun className="w-4 h-4 text-orange-500" />
+                          Tarde ({afternoonSlots.length})
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                          {afternoonSlots.map(slot => (
+                            <motion.button
+                              key={slot.time}
+                              type="button"
+                              whileTap={{ scale: 0.96 }}
+                              whileHover={{ scale: 1.02 }}
+                              onClick={() => {
+                                setSelectedTime(slot.time)
+                                setStep(4)
+                              }}
+                              className={`p-3 rounded-xl border text-left transition-all ${
+                                selectedTime === slot.time
+                                  ? 'bg-brand text-white border-brand shadow-lg ring-2 ring-brand/30'
+                                  : 'bg-white hover:border-brand hover:shadow-sm border-gray-200 text-gray-900 group'
+                              }`}
+                            >
+                              <div className="flex items-baseline justify-between">
+                                <span className={`text-base font-bold ${selectedTime === slot.time ? 'text-white' : 'text-gray-900 group-hover:text-brand'}`}>
+                                  {slot.time}
+                                </span>
+                                <span className={`text-[10px] font-medium ${selectedTime === slot.time ? 'text-white/80' : 'text-gray-400'}`}>
+                                  {formatSlotDisplay(slot.time)}
+                                </span>
+                              </div>
+                              <div className={`text-[11px] mt-0.5 ${selectedTime === slot.time ? 'text-white/90' : 'text-gray-500'}`}>
+                                hasta las {slot.endTime}
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Jornada Noche */}
+                    {eveningSlots.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">
+                          <Moon className="w-4 h-4 text-indigo-500" />
+                          Noche ({eveningSlots.length})
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                          {eveningSlots.map(slot => (
+                            <motion.button
+                              key={slot.time}
+                              type="button"
+                              whileTap={{ scale: 0.96 }}
+                              whileHover={{ scale: 1.02 }}
+                              onClick={() => {
+                                setSelectedTime(slot.time)
+                                setStep(4)
+                              }}
+                              className={`p-3 rounded-xl border text-left transition-all ${
+                                selectedTime === slot.time
+                                  ? 'bg-brand text-white border-brand shadow-lg ring-2 ring-brand/30'
+                                  : 'bg-white hover:border-brand hover:shadow-sm border-gray-200 text-gray-900 group'
+                              }`}
+                            >
+                              <div className="flex items-baseline justify-between">
+                                <span className={`text-base font-bold ${selectedTime === slot.time ? 'text-white' : 'text-gray-900 group-hover:text-brand'}`}>
+                                  {slot.time}
+                                </span>
+                                <span className={`text-[10px] font-medium ${selectedTime === slot.time ? 'text-white/80' : 'text-gray-400'}`}>
+                                  {formatSlotDisplay(slot.time)}
+                                </span>
+                              </div>
+                              <div className={`text-[11px] mt-0.5 ${selectedTime === slot.time ? 'text-white/90' : 'text-gray-500'}`}>
+                                hasta las {slot.endTime}
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </motion.div>
