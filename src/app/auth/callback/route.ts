@@ -13,7 +13,22 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      let finalNext = next
+      if (finalNext === '/dashboard') {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, clinic_id, partner_code')
+            .eq('id', user.id)
+            .maybeSingle()
+
+          if (!profile?.clinic_id && (profile?.role === 'partner' || profile?.partner_code)) {
+            finalNext = '/dashboard/partners'
+          }
+        }
+      }
+      return NextResponse.redirect(`${origin}${finalNext}`)
     }
   }
 

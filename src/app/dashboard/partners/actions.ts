@@ -241,21 +241,125 @@ export async function getPartnerData() {
 }
 
 /**
+ * Envía un código OTP de 6 dígitos al correo del asesor para verificar su condición humana y titularidad del correo.
+ */
+export async function sendPartnerEmailOtp(email: string, name: string) {
+  if (!email || !email.trim()) {
+    return { success: false, error: 'Correo electrónico es requerido' }
+  }
+
+  const normalizedEmail = email.trim().toLowerCase()
+  const adminClient = createAdminClient()
+
+  // 1. Rate limiting: verificar que no haya solicitado un código en los últimos 45 segundos
+  const fortyFiveSecondsAgo = new Date(Date.now() - 45 * 1000).toISOString()
+  const { data: recentOtp } = await adminClient
+    .from('otp_verifications')
+    .select('id')
+    .eq('email', normalizedEmail)
+    .gt('created_at', fortyFiveSecondsAgo)
+    .limit(1)
+
+  if (recentOtp && recentOtp.length > 0) {
+    return { success: false, error: 'Por favor espera 45 segundos antes de solicitar otro código de seguridad.' }
+  }
+
+  // 2. Generar código de 6 dígitos
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+
+  // 3. Fecha de expiración (10 minutos)
+  const expiresAt = new Date()
+  expiresAt.setMinutes(expiresAt.getMinutes() + 10)
+
+  // 4. Guardar en otp_verifications
+  const { error: insertError } = await adminClient
+    .from('otp_verifications')
+    .insert({
+      email: normalizedEmail,
+      otp_code: otpCode,
+      expires_at: expiresAt.toISOString()
+    })
+
+  if (insertError) {
+    console.error('Error guardando OTP de partner:', insertError)
+    return { success: false, error: 'No se pudo generar el código de seguridad. Intenta nuevamente.' }
+  }
+
+  // 5. Enviar correo vía Resend
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    await resend.emails.send({
+      from: 'AgendaClick Seguridad <no-reply@agendaclick.com.co>',
+      to: normalizedEmail,
+      subject: `Tu código de verificación como Asesor AgendaClick: ${otpCode}`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <h1 style="color: #09090b; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">AgendaClick</h1>
+            <p style="color: #71717a; font-size: 13px; margin-top: 4px;">Programa Oficial de Asesores Comerciales & Partners</p>
+          </div>
+
+          <p style="color: #18181b; font-size: 15px; line-height: 24px;">
+            Hola <strong>${name || 'Asesor/a'}</strong>,
+          </p>
+          <p style="color: #3f3f46; font-size: 14px; line-height: 22px;">
+            Para validar tu cuenta y confirmar que eres humano y titular de este correo, ingresa el siguiente código de 6 dígitos en tu formulario de registro:
+          </p>
+
+          <div style="background: #f4f4f5; border: 2px dashed #10b981; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+            <span style="font-family: monospace; font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #047857; display: block;">
+              ${otpCode}
+            </span>
+            <span style="color: #71717a; font-size: 12px; display: block; margin-top: 8px;">
+              Válido durante los próximos 10 minutos
+            </span>
+          </div>
+
+          <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 12px 16px; border-radius: 6px; margin-bottom: 24px;">
+            <p style="color: #854d0e; font-size: 12px; margin: 0; line-height: 18px;">
+              🛡️ <strong>Aviso de Seguridad:</strong> Tus comisiones se depositarán únicamente en la cuenta bancaria suministrada y vinculada a tu cédula. Asegúrate de verificar cada dígito.
+            </p>
+          </div>
+
+          <p style="color: #a1a1aa; font-size: 11px; text-align: center; margin-top: 32px; border-top: 1px solid #f4f4f5; padding-top: 16px;">
+            AgendaClick Colombia • Todos los derechos reservados. Si no solicitaste este código, puedes ignorar este mensaje.
+          </p>
+        </div>
+      `
+    })
+
+    return { success: true, message: 'Código de verificación enviado exitosamente a tu correo.' }
+  } catch (err: any) {
+    console.error('Error enviando correo OTP:', err)
+    return { success: false, error: `Error enviando correo: ${err?.message || 'Verifica tu conexión'}` }
+  }
+}
+
+/**
  * Registro de un nuevo vendedor desde la landing o formulario de vendedores.
  */
 export async function registerPartnerAccount(formData: FormData) {
   const name = (formData.get('name') as string)?.trim()
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const password = formData.get('password') as string
-  const phone = (formData.get('phone') as string)?.trim()
+  const rawPhone = (formData.get('phone') as string)?.trim() || ''
+  const phone = rawPhone.replace(/\D/g, '')
+
+  const country = (formData.get('country') as string)?.trim() || 'Colombia'
+  const department = (formData.get('department') as string)?.trim() || 'Antioquia'
   const city = (formData.get('city') as string)?.trim() || 'Medellín'
   const customCode = (formData.get('custom_code') as string)?.trim().toUpperCase()
 
   const bankName = (formData.get('bank_name') as string)?.trim() || 'Nequi'
   const accountType = (formData.get('account_type') as string)?.trim() || 'Billetera'
-  const accountNumber = (formData.get('account_number') as string)?.trim() || phone
+  const rawAccountNumber = (formData.get('account_number') as string)?.trim() || phone
+  const accountNumber = rawAccountNumber.replace(/\D/g, '')
   const accountHolderName = (formData.get('account_holder_name') as string)?.trim() || name
-  const documentId = (formData.get('document_id') as string)?.trim() || ''
+  const rawDocumentId = (formData.get('document_id') as string)?.trim() || ''
+  const documentId = rawDocumentId.replace(/\D/g, '')
+
+  const termsAccepted = formData.get('terms_accepted') === 'true'
+  const otpCode = (formData.get('otp_code') as string)?.trim()
 
   if (!name || !email || !password) {
     return { success: false, error: 'Nombre, correo y contraseña son obligatorios' }
@@ -265,7 +369,43 @@ export async function registerPartnerAccount(formData: FormData) {
     return { success: false, error: 'La contraseña debe tener al menos 6 caracteres' }
   }
 
+  // 1. Validar números estrictos en teléfono, cédula y cuenta
+  if (!phone || phone.length < 7) {
+    return { success: false, error: 'El número de teléfono/WhatsApp debe contener sólo números (mínimo 7 dígitos, sin letras)' }
+  }
+
+  if (!documentId || documentId.length < 5) {
+    return { success: false, error: 'La cédula o NIT debe contener sólo números (mínimo 5 dígitos, sin puntos ni letras)' }
+  }
+
+  if (!accountNumber || accountNumber.length < 5) {
+    return { success: false, error: 'El número de cuenta o celular para pagos debe contener sólo números (sin letras ni caracteres especiales)' }
+  }
+
+  // 2. Validar aceptación expresa de términos de blindaje
+  if (!termsAccepted) {
+    return { success: false, error: 'Debes aceptar los Términos y Condiciones y la cláusula de exoneración de pagos erróneos para continuar.' }
+  }
+
+  // 3. Validar código OTP de correo
+  if (!otpCode || otpCode.length !== 6) {
+    return { success: false, error: 'Debes ingresar el código de verificación de 6 dígitos enviado a tu correo.' }
+  }
+
   const adminClient = createAdminClient()
+
+  const { data: validOtp, error: otpError } = await adminClient
+    .from('otp_verifications')
+    .select('id')
+    .eq('email', email)
+    .eq('otp_code', otpCode)
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  if (otpError || !validOtp || validOtp.length === 0) {
+    return { success: false, error: 'Código de verificación incorrecto o expirado. Por favor solicita uno nuevo.' }
+  }
 
   // 1. Determinar el código del vendedor
   let finalPartnerCode = ''
@@ -310,7 +450,7 @@ export async function registerPartnerAccount(formData: FormData) {
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, phone, city }
+      user_metadata: { name, phone, city, country, department }
     })
 
     if (authError || !newAuth?.user) {
@@ -319,15 +459,26 @@ export async function registerPartnerAccount(formData: FormData) {
     userId = newAuth.user.id
   }
 
-  // 3. Guardar datos básicos y datos bancarios en el perfil
+  // 3. Guardar datos básicos y datos bancarios en el perfil con blindaje de términos
+  const locationLabel = country === 'Colombia' 
+    ? `${city}, ${department} (Colombia)` 
+    : `${city} (${country})`
+
   const payoutData = {
     phone,
-    city,
+    country,
+    department,
+    city: locationLabel,
+    rawCity: city,
     bankName,
     accountType,
     accountNumber,
     accountHolderName,
     documentId,
+    termsAccepted: true,
+    termsAcceptedAt: new Date().toISOString(),
+    termsVersion: '1.0',
+    emailVerified: true,
     registeredAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
@@ -580,13 +731,24 @@ export async function savePayoutInfo(formData: FormData) {
   }
 
   const name = (formData.get('name') as string)?.trim()
-  const phone = (formData.get('phone') as string)?.trim()
+  const rawPhone = (formData.get('phone') as string)?.trim() || ''
+  const phone = rawPhone.replace(/\D/g, '')
   const city = (formData.get('city') as string)?.trim()
   const bankName = formData.get('bank_name') as string
   const accountType = formData.get('account_type') as string
-  const accountNumber = formData.get('account_number') as string
+  const rawAccountNumber = (formData.get('account_number') as string)?.trim() || ''
+  const accountNumber = rawAccountNumber.replace(/\D/g, '')
   const accountHolderName = formData.get('account_holder_name') as string
-  const documentId = formData.get('document_id') as string
+  const rawDocumentId = (formData.get('document_id') as string)?.trim() || ''
+  const documentId = rawDocumentId.replace(/\D/g, '')
+
+  if (documentId && documentId.length < 5) {
+    return { success: false, error: 'La cédula o NIT debe contener sólo números (mínimo 5 dígitos)' }
+  }
+
+  if (accountNumber && accountNumber.length < 5) {
+    return { success: false, error: 'El número de cuenta o celular debe contener sólo números' }
+  }
 
   const adminClient = createAdminClient()
 

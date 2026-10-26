@@ -15,14 +15,36 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
+  const nextParam = formData.get('next') as string
+
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/login?message=No+se+pudo+iniciar+sesión')
+    const errorQuery = nextParam ? `&next=${encodeURIComponent(nextParam)}` : ''
+    redirect(`/login?message=No+se+pudo+iniciar+sesión${errorQuery}`)
+  }
+
+  let targetUrl = '/dashboard'
+  if (nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') && !nextParam.includes('\\')) {
+    targetUrl = nextParam
+  } else {
+    // Si no especificó ruta de destino, verificar si es un vendedor
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, clinic_id, partner_code')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (!profile?.clinic_id && (profile?.role === 'partner' || profile?.partner_code)) {
+        targetUrl = '/dashboard/partners'
+      }
+    }
   }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect(targetUrl)
 }
 
 export async function signup(formData: FormData) {

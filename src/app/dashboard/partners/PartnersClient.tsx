@@ -669,15 +669,19 @@ export default function PartnersClient({ initialData }: { initialData: any }) {
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Número de Cuenta o Celular *</label>
+                <label className="block font-bold text-gray-700 mb-1">Número de Cuenta o Celular (Sólo Números) *</label>
                 <input 
                   type="text" 
                   name="account_number" 
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onInput={(e: any) => e.target.value = e.target.value.replace(/\D/g, '')}
                   defaultValue={partner.bankPayoutInfo?.accountNumber || ''}
                   placeholder="Ej: 3101234567 o 12345678901"
                   required
-                  className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-black font-mono"
                 />
+                <p className="text-[10px] text-gray-500 mt-0.5">Sin espacios, guiones ni letras</p>
               </div>
 
               <div>
@@ -693,15 +697,29 @@ export default function PartnersClient({ initialData }: { initialData: any }) {
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Cédula o NIT *</label>
+                <label className="block font-bold text-gray-700 mb-1">Cédula o NIT del Titular (Sólo Números) *</label>
                 <input 
                   type="text" 
                   name="document_id" 
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onInput={(e: any) => e.target.value = e.target.value.replace(/\D/g, '')}
                   defaultValue={partner.bankPayoutInfo?.documentId || ''}
                   placeholder="Ej: 1020304050"
                   required
-                  className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs text-black focus:outline-none focus:ring-2 focus:ring-black font-mono"
                 />
+                <p className="text-[10px] text-gray-500 mt-0.5">Sin puntos ni letras</p>
+              </div>
+
+              {/* AVISO DE SEGURIDAD Y BLINDAJE LEGAL */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1">
+                <p className="font-bold flex items-center gap-1">
+                  ⚠️ Atención: Verifica bien tu número de cuenta y cédula
+                </p>
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  Por seguridad jurídica y blindaje contractual, los pagos de comisiones se giran de manera automatizada a estos datos exactos. Un error en la digitación causará el envío de tus fondos a otra persona sin posibilidad de reembolso por parte de AgendaClick.
+                </p>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">

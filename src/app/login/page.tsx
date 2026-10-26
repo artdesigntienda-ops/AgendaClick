@@ -1,16 +1,24 @@
+import Link from 'next/link'
+import { Sparkles } from 'lucide-react'
 import { login, signup, loginWithGoogle } from './actions'
 import { GoogleLoginButton } from './GoogleLoginButton'
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string; next?: string }>
 }) {
   const params = await searchParams
   return (
-    <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20">
+    <div className="flex-1 flex flex-col w-full min-h-screen bg-white text-black px-8 sm:max-w-md justify-center gap-2 mx-auto pt-20 pb-12">
       <form className="flex-1 flex flex-col w-full justify-center gap-2 text-black">
-        <img src="/full-logo.png" alt="AgendaClick Logo" className="h-20 mx-auto mb-8 object-contain" />
+        <Link href="/" className="inline-block mx-auto mb-6">
+          <img src="/full-logo.png" alt="AgendaClick Logo" className="h-16 mx-auto object-contain hover:opacity-85 transition-opacity" />
+        </Link>
+        
+        {params?.next && (
+          <input type="hidden" name="next" value={params.next} />
+        )}
         
         <GoogleLoginButton action={loginWithGoogle} />
 
@@ -46,7 +54,7 @@ export default async function LoginPage({
         
         <button
           formAction={login}
-          className="bg-black text-white rounded-md px-4 py-2 mb-2"
+          className="bg-black text-white rounded-md px-4 py-2 mb-2 hover:bg-neutral-800 transition-colors font-bold"
         >
           Iniciar Sesión
         </button>
@@ -62,6 +70,29 @@ export default async function LoginPage({
             {params.message}
           </p>
         )}
+
+        {/* Acceso para Asesores Comerciales y Vendedores */}
+        <div className="mt-6 pt-5 border-t border-gray-200 text-center space-y-2">
+          <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            ¿Eres Asesor Comercial o Vendedor?
+          </p>
+          <div className="flex justify-center items-center gap-3 text-xs">
+            <Link 
+              href="/vendedores" 
+              className="font-bold text-emerald-600 hover:text-emerald-700 underline"
+            >
+              Crear cuenta de Vendedor
+            </Link>
+            <span className="text-gray-300">•</span>
+            <Link 
+              href="/login?next=/dashboard/partners" 
+              className="font-bold text-gray-700 hover:text-black"
+            >
+              Acceso a Portal Comercial
+            </Link>
+          </div>
+        </div>
       </form>
     </div>
   )
