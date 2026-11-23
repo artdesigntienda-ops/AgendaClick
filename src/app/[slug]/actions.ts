@@ -353,15 +353,25 @@ export async function createAppointment(data: {
       
       await calendar.events.insert({
         calendarId: googleCalendarId,
+        sendUpdates: 'all', // Notifica e invita automáticamente al cliente a su propio Google Calendar
         requestBody: {
           summary: `${serviceName} - ${data.clientName}`,
-          description: `Teléfono: ${data.clientPhone}\nCorreo: ${data.clientEmail}\nServicio: ${serviceName}`,
+          description: `Cita en ${clinicName}\nServicio: ${serviceName}\nCliente: ${data.clientName}\nTeléfono: ${data.clientPhone}\nCorreo: ${data.clientEmail}\n\nAgendado vía AgendaClick (https://agendaclick.com.co)`,
           start: {
             dateTime: new Date(data.startTime).toISOString(),
+            timeZone: 'America/Bogota'
           },
           end: {
             dateTime: new Date(data.endTime).toISOString(),
+            timeZone: 'America/Bogota'
           },
+          attendees: [
+            {
+              email: data.clientEmail,
+              displayName: data.clientName,
+              responseStatus: 'accepted'
+            }
+          ]
         }
       })
     }
@@ -402,6 +412,11 @@ export async function createAppointment(data: {
     const cancelToken = generateCancellationHash(appointmentId, data.clientEmail)
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}?token=${cancelToken}`
 
+    // Generar enlace directo en 1 clic para añadir al Google Calendar del cliente
+    const gCalStart = new Date(data.startTime).toISOString().replace(/-|:|\.\d\d\d/g, "")
+    const gCalEnd = new Date(data.endTime).toISOString().replace(/-|:|\.\d\d\d/g, "")
+    const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${serviceName} - ${clinicName}`)}&dates=${gCalStart}/${gCalEnd}&details=${encodeURIComponent(`Cita en ${clinicName} para ${serviceName}.\nCliente: ${data.clientName}\nTeléfono: ${data.clientPhone}\n\nGestión de cita: ${cancelUrl}`)}&location=${encodeURIComponent(clinicName)}`
+
     // 5. Enviar correo a la Clienta
     await resend.emails.send({
       from: FROM_ADDRESS,
@@ -414,12 +429,21 @@ export async function createAppointment(data: {
           <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
           <p><strong>Servicio:</strong> ${serviceName}</p>
           <p><strong>Fecha y Hora:</strong> ${formattedDate}</p>
-          <br/>
-          <p style="font-size: 14px; color: #71717a;">Abre el archivo adjunto (cita.ics) para guardarlo en tu calendario.</p>
+          
+          <!-- Botón de Sincronización en 1 Clic con Google Calendar -->
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="${gCalUrl}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              📅 Añadir a mi Google Calendar en 1 clic
+            </a>
+            <p style="font-size: 12px; color: #71717a; margin-top: 8px;">
+              O abre el archivo adjunto <strong>cita.ics</strong> para guardarla en Apple Calendar o Outlook.
+            </p>
+          </div>
+
           <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
           <p style="font-size: 13px; color: #71717a; text-align: center; margin-bottom: 0;">
             ¿Necesitas cancelar o reprogramar tu cita? 
-            <a href="${cancelUrl}" style="color: #ef4444; font-weight: bold; text-decoration: underline; margin-left: 5px;">Cancela tu cita aquí</a>
+            <a href="${cancelUrl}" style="color: #ef4444; font-weight: bold; text-decoration: underline; margin-left: 5px;">Cancela o reprograma tu cita aquí</a>
           </p>
         </div>
       `,
@@ -846,6 +870,11 @@ export async function rescheduleAppointmentFromClient(
     const cancelToken = generateCancellationHash(appointmentId, appointment.client_email)
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}?token=${cancelToken}`
 
+    // Generar enlace directo en 1 clic para añadir al Google Calendar del cliente
+    const gCalStart = new Date(newStartTime).toISOString().replace(/-|:|\.\d\d\d/g, "")
+    const gCalEnd = new Date(newEndTime).toISOString().replace(/-|:|\.\d\d\d/g, "")
+    const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${serviceName} - ${clinicName}`)}&dates=${gCalStart}/${gCalEnd}&details=${encodeURIComponent(`Cita reprogramada en ${clinicName} para ${serviceName}.\nCliente: ${appointment.client_name}\n\nGestión de cita: ${cancelUrl}`)}&location=${encodeURIComponent(clinicName)}`
+
     // Correo al cliente
     await resend.emails.send({
       from: FROM_ADDRESS,
@@ -857,12 +886,21 @@ export async function rescheduleAppointmentFromClient(
           <p>Te confirmamos que tu cita para <strong>${serviceName}</strong> en <strong>${clinicName}</strong> ha sido reprogramada.</p>
           <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
           <p><strong>Nuevo Horario Confirmado:</strong> ${formattedNewDate}</p>
-          <br/>
-          <p style="font-size: 14px; color: #71717a;">Abre el archivo adjunto (cita.ics) para guardar tu nuevo horario en tu calendario de Google o Apple.</p>
+          
+          <!-- Botón de Sincronización en 1 Clic con Google Calendar -->
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="${gCalUrl}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              📅 Actualizar mi Google Calendar en 1 clic
+            </a>
+            <p style="font-size: 12px; color: #71717a; margin-top: 8px;">
+              O abre el archivo adjunto <strong>cita-reprogramada.ics</strong> para actualizar Apple Calendar o Outlook.
+            </p>
+          </div>
+
           <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
           <p style="font-size: 13px; color: #71717a; text-align: center; margin-bottom: 0;">
             ¿Necesitas hacer otro cambio? 
-            <a href="${cancelUrl}" style="color: #ef4444; font-weight: bold; text-decoration: underline; margin-left: 5px;">Gestiona tu cita aquí</a>
+            <a href="${cancelUrl}" style="color: #ef4444; font-weight: bold; text-decoration: underline; margin-left: 5px;">Gestiona o reprograma tu cita aquí</a>
           </p>
         </div>
       `,
