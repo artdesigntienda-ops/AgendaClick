@@ -48,7 +48,7 @@ export default async function StaffPage() {
   // Fetch staff
   const { data: staff } = await supabase
     .from('profiles')
-    .select('id, name, email, role, google_calendar_id')
+    .select('id, name, email, role, google_calendar_id, default_commission_rate, bank_payout_info')
     .eq('clinic_id', clinicId)
     .order('created_at', { ascending: true })
 

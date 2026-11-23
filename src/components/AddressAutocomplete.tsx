@@ -84,9 +84,9 @@ export default function AddressAutocomplete({
       {/* Sugerencias de Google */}
       {status === 'OK' && Array.isArray(data) && data.length > 0 && (
         <ul className="absolute z-10 w-full bg-white border border-gray-200 shadow-lg rounded-md mt-1 max-h-60 overflow-auto">
-          {data.map((suggestion) => {
+          {data.map((suggestion, index) => {
             if (!suggestion) return null
-            const placeId = suggestion.place_id || suggestion.description || Math.random().toString()
+            const placeId = suggestion.place_id || suggestion.description || `place-${index}`
             const mainText = suggestion.structured_formatting?.main_text || suggestion.description || ''
             const secondaryText = suggestion.structured_formatting?.secondary_text || ''
 

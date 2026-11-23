@@ -179,3 +179,87 @@ export async function addStaffMemberByEmail(email: string, name: string) {
 
   revalidatePath('/dashboard/staff')
 }
+
+export async function updateStaffCompensation(
+  staffId: string,
+  compensation: {
+    compensation_type: 'percentage' | 'fixed_salary' | 'base_plus_target'
+    commission_rate: number
+    base_salary?: number
+    target_amount?: number
+    target_commission_rate?: number
+  }
+) {
+  await requireActiveSubscription()
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('No autenticado')
+  }
+
+  // 1. Verificar que el usuario actual es dueño
+  const { data: ownerProfile } = await supabase
+    .from('profiles')
+    .select('role, clinic_id')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (ownerProfile?.role !== 'owner' || !ownerProfile.clinic_id) {
+    throw new Error('Solo el administrador del negocio puede configurar comisiones y salarios.')
+  }
+
+  const adminClient = createAdminClient()
+
+  // 2. Obtener el perfil del profesional
+  const { data: targetProfile, error: targetError } = await adminClient
+    .from('profiles')
+    .select('id, clinic_id, bank_payout_info')
+    .eq('id', staffId)
+    .eq('clinic_id', ownerProfile.clinic_id)
+    .maybeSingle()
+
+  if (targetError || !targetProfile) {
+    throw new Error('No se encontró al profesional en tu negocio.')
+  }
+
+  const existingPayout = (targetProfile.bank_payout_info && typeof targetProfile.bank_payout_info === 'object') 
+    ? targetProfile.bank_payout_info 
+    : {}
+
+  const updatedPayout = {
+    ...existingPayout,
+    compensation: {
+      compensation_type: compensation.compensation_type,
+      commission_rate: Number(compensation.commission_rate) || 0,
+      base_salary: Number(compensation.base_salary) || 0,
+      target_amount: Number(compensation.target_amount) || 0,
+      target_commission_rate: Number(compensation.target_commission_rate) || 0,
+      updated_at: new Date().toISOString()
+    }
+  }
+
+  const effectiveCommissionRate = compensation.compensation_type === 'percentage'
+    ? Number(compensation.commission_rate) || 0
+    : compensation.compensation_type === 'base_plus_target'
+      ? Number(compensation.target_commission_rate) || 0
+      : 0
+
+  const { error: updateError } = await adminClient
+    .from('profiles')
+    .update({
+      default_commission_rate: effectiveCommissionRate,
+      bank_payout_info: updatedPayout
+    })
+    .eq('id', staffId)
+
+  if (updateError) {
+    console.error('Error updating staff compensation:', updateError)
+    throw new Error('No se pudo actualizar el esquema de compensación.')
+  }
+
+  revalidatePath('/dashboard/staff')
+  revalidatePath('/dashboard/finances')
+  return { success: true }
+}

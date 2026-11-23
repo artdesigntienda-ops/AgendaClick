@@ -109,14 +109,28 @@ export async function POST(req: Request) {
         return NextResponse.json({ received: true, message: 'Transaction already processed' })
       }
 
-      // 4. VALIDACIÓN DE MONTO EXACTO / PRORRATEADO (Anti-Bypass Financiero)
+      // 4. VALIDACIÓN DE MONTO EXACTO / PRORRATEADO (Anti-Bypass Financiero con protección anti-time drift para PSE)
       const period = (billingPeriod === 'annual' ? 'annual' : 'monthly') as 'monthly' | 'annual'
-      const { finalPrice } = calculateProratedAmount(
+      
+      // Extraer timestamp de referencia para evitar que la demora de PSE/bancos descalibre el prorrateo
+      let calculationDate = new Date()
+      const rawTimestamp = parts[4]
+      if (rawTimestamp) {
+        const parsedTs = parseInt(rawTimestamp, 10)
+        const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+        const oneHourInFuture = Date.now() + 60 * 60 * 1000
+        if (!isNaN(parsedTs) && parsedTs >= sevenDaysAgo && parsedTs <= oneHourInFuture) {
+          calculationDate = new Date(parsedTs)
+        }
+      }
+
+      const { finalPrice, unusedCredit } = calculateProratedAmount(
         plan.id,
         period,
         existingClinic.plan_type,
         existingClinic.subscription_ends_at,
-        existingClinic.subscription_status === 'active'
+        existingClinic.subscription_status === 'active',
+        calculationDate
       )
       const expectedAmountInCents = finalPrice * 100
 
@@ -126,8 +140,18 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Insufficient payment amount' }, { status: 400 })
       }
 
-      // 5. CALCULAR FECHA DE VENCIMIENTO
-      const endsAt = new Date()
+      // 5. CALCULAR FECHA DE VENCIMIENTO ACUMULATIVA
+      const now = new Date()
+      const currentEndsAt = existingClinic.subscription_ends_at ? new Date(existingClinic.subscription_ends_at) : null
+
+      // Si tiene crédito a favor (upgrade prorrateado), el ciclo se reinicia hoy con el nuevo plan
+      // Si NO hubo crédito a favor (renovación del mismo plan o compra desde vencido), sumamos al vencimiento actual si sigue vigente en el futuro
+      const hasProratedCredit = unusedCredit > 0
+      const baseDate = (!hasProratedCredit && currentEndsAt && currentEndsAt > now)
+        ? currentEndsAt
+        : now
+
+      const endsAt = new Date(baseDate)
       if (billingPeriod === 'annual') {
         endsAt.setDate(endsAt.getDate() + 365)
       } else {

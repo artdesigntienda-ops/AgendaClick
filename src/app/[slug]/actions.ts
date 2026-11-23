@@ -234,6 +234,27 @@ export async function createAppointment(data: {
     calculatedServiceNames = dbServices.map(s => s.name).join(', ')
   }
 
+  // 1.9 Calcular comisión estimada ganada por el profesional si aplica
+  let calculatedCommissionEarned = 0
+  if (data.staffId) {
+    const { data: staffMember } = await getSupabaseAdmin()
+      .from('profiles')
+      .select('default_commission_rate, bank_payout_info, role')
+      .eq('id', data.staffId)
+      .maybeSingle()
+
+    if (staffMember && staffMember.role !== 'owner') {
+      const comp = staffMember.bank_payout_info?.compensation
+      const compType = comp?.compensation_type || 'percentage'
+      if (compType === 'percentage') {
+        const rate = comp?.commission_rate !== undefined 
+          ? Number(comp.commission_rate) 
+          : (staffMember.default_commission_rate !== undefined ? Number(staffMember.default_commission_rate) : 50)
+        calculatedCommissionEarned = Math.round(calculatedTotalPrice * (rate / 100))
+      }
+    }
+  }
+
   // 2. Guardar en la DB (usamos admin para saltar RLS, ya que la legitimidad fue validada por el OTP)
   const appointmentPayload: any = {
     clinic_id: data.clinicId,
@@ -245,7 +266,8 @@ export async function createAppointment(data: {
     start_time: data.startTime,
     end_time: data.endTime,
     status: 'confirmed',
-    total_price: calculatedTotalPrice
+    total_price: calculatedTotalPrice,
+    commission_earned: calculatedCommissionEarned
   }
 
   const { data: newApp, error } = await getSupabaseAdmin()
@@ -474,7 +496,17 @@ export async function cancelAppointmentFromClient(appointmentId: string, token?:
     return { success: false, error: 'Hubo un error al cancelar la cita en el sistema.' }
   }
 
-  // 3. Obtener el perfil del dueño
+  // 3. Obtener el perfil del dueño y del profesional asignado para notificaciones y calendario
+  let staffProfile: any = null
+  if (appointment.staff_id) {
+    const { data: sProf } = await supabase
+      .from('profiles')
+      .select('email, google_refresh_token, google_calendar_id')
+      .eq('id', appointment.staff_id)
+      .maybeSingle()
+    staffProfile = sProf
+  }
+
   const { data: ownerProfile } = await supabase
     .from('profiles')
     .select('email, google_refresh_token, google_calendar_id')
@@ -534,51 +566,63 @@ export async function cancelAppointmentFromClient(appointmentId: string, token?:
     console.error('Error sending cancellation emails:', mailError)
   }
 
-  // 6. Eliminar el evento en Google Calendar si la integración está activa
-  const rawRefreshToken = decryptSensitiveToken(ownerProfile?.google_refresh_token)
-  if (rawRefreshToken && ownerProfile?.google_calendar_id) {
-    try {
-      const oauth2Client = new google.auth.OAuth2(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET
-      )
-      oauth2Client.setCredentials({ refresh_token: rawRefreshToken })
-      const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+  // 6. Eliminar el evento en Google Calendar si la integración está activa (en calendario de staff o de dueño)
+  const calendarProfilesToClean = []
+  if (staffProfile?.google_refresh_token && staffProfile?.google_calendar_id) {
+    calendarProfilesToClean.push(staffProfile)
+  }
+  if (ownerProfile?.google_refresh_token && ownerProfile?.google_calendar_id) {
+    if (!calendarProfilesToClean.some(p => p.google_calendar_id === ownerProfile.google_calendar_id)) {
+      calendarProfilesToClean.push(ownerProfile)
+    }
+  }
 
-      // Buscar el evento en ese rango de fecha/hora
-      const timeMin = new Date(appointment.start_time)
-      timeMin.setMinutes(timeMin.getMinutes() - 5) // margen de 5 minutos antes
-      const timeMax = new Date(appointment.end_time)
-      timeMax.setMinutes(timeMax.getMinutes() + 5) // margen de 5 minutos después
+  for (const calProf of calendarProfilesToClean) {
+    const rawRefreshToken = decryptSensitiveToken(calProf.google_refresh_token)
+    if (rawRefreshToken && calProf.google_calendar_id) {
+      try {
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET
+        )
+        oauth2Client.setCredentials({ refresh_token: rawRefreshToken })
+        const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
 
-      const res = await calendar.events.list({
-        calendarId: ownerProfile.google_calendar_id,
-        timeMin: timeMin.toISOString(),
-        timeMax: timeMax.toISOString(),
-        singleEvents: true
-      })
+        // Buscar el evento en ese rango de fecha/hora
+        const timeMin = new Date(appointment.start_time)
+        timeMin.setMinutes(timeMin.getMinutes() - 5) // margen de 5 minutos antes
+        const timeMax = new Date(appointment.end_time)
+        timeMax.setMinutes(timeMax.getMinutes() + 5) // margen de 5 minutos después
 
-      const events = res.data.items || []
-      const clientNameLower = appointment.client_name.toLowerCase()
-      const clientEmailLower = appointment.client_email.toLowerCase()
-
-      // Buscar el evento correcto en Google Calendar
-      const matchedEvent = events.find(event => {
-        const summaryMatch = event.summary?.toLowerCase().includes(clientNameLower)
-        const descMatch = event.description?.toLowerCase().includes(clientEmailLower) ||
-                           event.description?.includes(appointment.client_phone)
-        return summaryMatch || descMatch
-      })
-
-      if (matchedEvent && matchedEvent.id) {
-        await calendar.events.delete({
-          calendarId: ownerProfile.google_calendar_id,
-          eventId: matchedEvent.id
+        const res = await calendar.events.list({
+          calendarId: calProf.google_calendar_id,
+          timeMin: timeMin.toISOString(),
+          timeMax: timeMax.toISOString(),
+          singleEvents: true
         })
-        console.log('Google Calendar event deleted successfully:', matchedEvent.id)
+
+        const events = res.data.items || []
+        const clientNameLower = appointment.client_name.toLowerCase()
+        const clientEmailLower = appointment.client_email.toLowerCase()
+
+        // Buscar el evento correcto en Google Calendar
+        const matchedEvent = events.find(event => {
+          const summaryMatch = event.summary?.toLowerCase().includes(clientNameLower)
+          const descMatch = event.description?.toLowerCase().includes(clientEmailLower) ||
+                             event.description?.includes(appointment.client_phone)
+          return summaryMatch || descMatch
+        })
+
+        if (matchedEvent && matchedEvent.id) {
+          await calendar.events.delete({
+            calendarId: calProf.google_calendar_id,
+            eventId: matchedEvent.id
+          })
+          console.log(`Google Calendar event deleted successfully from calendar ${calProf.google_calendar_id}:`, matchedEvent.id)
+        }
+      } catch (calError) {
+        console.error('Error removing event from Google Calendar on client cancel:', calError)
       }
-    } catch (calError) {
-      console.error('Error removing event from Google Calendar on client cancel:', calError)
     }
   }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar as CalendarIcon, TrendingUp, Users, Clock, MessageCircle, X, AlertTriangle, ChevronLeft, ChevronRight, UserPlus, CheckCircle, Sparkles, ArrowRight, Settings2, XCircle, Eye } from 'lucide-react'
@@ -254,6 +254,48 @@ export default function DashboardClient({
   uniqueStaff.forEach((name, i) => {
     staffColors[name] = COLORS[i % COLORS.length]
   })
+
+  // Funciones de formato de nombre de staff limpio
+  const cleanStaffName = (fullName: string): string => {
+    if (!fullName) return 'Sin Asignar'
+    if (fullName === 'Sin Asignar') return 'Sin Asignar'
+    if (fullName.includes(' - ')) {
+      return fullName.split(' - ')[0].trim()
+    }
+    return fullName.trim()
+  }
+
+  const getStaffInitials = (fullName: string): string => {
+    const clean = cleanStaffName(fullName)
+    if (clean === 'Sin Asignar') return '?'
+    const parts = clean.replace(/^(Dr\.|Dra\.)\s*/i, '').trim().split(' ')
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    }
+    return clean.slice(0, 2).toUpperCase()
+  }
+
+  // Conteo de citas por staff en el período actual
+  const staffCountMap = useMemo(() => {
+    const map: Record<string, number> = { all: 0 }
+    const inRange = localAppointments.filter(apt => {
+      if (apt.status === 'cancelled') return false
+      const aptDate = parseISO(apt.start_time)
+      if (viewMode === 'day') return isSameDay(aptDate, currentDate)
+      if (viewMode === 'week') return isSameWeek(aptDate, currentDate, { weekStartsOn: 1 })
+      if (viewMode === 'month') return isSameMonth(aptDate, currentDate)
+      if (viewMode === 'year') return isSameYear(aptDate, currentDate)
+      return true
+    })
+
+    map.all = inRange.length
+    inRange.forEach(apt => {
+      const name = apt.profiles?.name || 'Sin Asignar'
+      map[name] = (map[name] || 0) + 1
+    })
+
+    return map
+  }, [localAppointments, viewMode, currentDate])
 
   // Citas filtradas por rango de fecha y por staff seleccionado (base para métricas)
   const baseRangeAppointments = localAppointments.filter(apt => {
@@ -671,32 +713,83 @@ export default function DashboardClient({
             </button>
           </div>
 
-          {/* Fila 4: Filtro por Staff — estilo igual al selector de vista */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-gray-400 font-bold uppercase mr-1">Filtrar por Staff:</span>
-            <div className="flex bg-gray-100 p-1 rounded-xl gap-1 flex-wrap">
-              {uniqueStaff.map(staffName => {
-                const isSelected = selectedStaff === staffName
+          {/* Fila 4: Filtro por Staff Moderno & Ordenado */}
+          <div className="pt-3 border-t border-gray-100 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <Users className="w-3.5 h-3.5 text-gray-400" />
+                <span>Filtrar por Profesional:</span>
+                {selectedStaff && (
+                  <span className="ml-1 text-[11px] bg-black text-white px-2.5 py-0.5 rounded-full font-bold">
+                    {cleanStaffName(selectedStaff)}
+                  </span>
+                )}
+              </div>
+
+              {selectedStaff && (
+                <button 
+                  onClick={() => setSelectedStaff(null)} 
+                  className="text-xs font-bold text-gray-500 hover:text-black flex items-center gap-1 transition-colors hover:underline"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Ver Todos</span>
+                </button>
+              )}
+            </div>
+
+            {/* Contenedor de Chips con scroll horizontal fluido y bordes definidos */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin">
+              {/* Botón Ver Todos */}
+              <button
+                type="button"
+                onClick={() => setSelectedStaff(null)}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                  !selectedStaff 
+                    ? 'bg-black text-white shadow-sm' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                <span>Todos</span>
+                <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono ${
+                  !selectedStaff ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
+                }`}>
+                  {staffCountMap['all'] || 0}
+                </span>
+              </button>
+
+              {/* Botones de cada profesional */}
+              {uniqueStaff.map(staffFullName => {
+                const isSelected = selectedStaff === staffFullName
+                const shortName = cleanStaffName(staffFullName)
+                const count = staffCountMap[staffFullName] || 0
+                const initials = getStaffInitials(staffFullName)
+
                 return (
                   <button 
-                    key={staffName} 
-                    onClick={() => setSelectedStaff(isSelected ? null : staffName)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    key={staffFullName} 
+                    onClick={() => setSelectedStaff(isSelected ? null : staffFullName)}
+                    title={staffFullName}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs transition-all shrink-0 border cursor-pointer ${
                       isSelected 
-                        ? 'bg-black text-white shadow-sm' 
-                        : 'text-gray-500 hover:text-black'
+                        ? 'bg-black text-white border-black shadow-sm font-bold' 
+                        : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300 font-medium'
                     }`}
                   >
-                    {staffName}
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black uppercase shrink-0 ${
+                      isSelected ? 'bg-emerald-400 text-black' : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {initials}
+                    </span>
+                    <span className="whitespace-nowrap">{shortName}</span>
+                    <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono ${
+                      isSelected ? 'bg-white/20 text-white font-bold' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {count}
+                    </span>
                   </button>
                 )
               })}
             </div>
-            {selectedStaff && (
-              <button onClick={() => setSelectedStaff(null)} className="px-2 py-1 text-xs text-gray-500 hover:text-black underline ml-1">
-                Limpiar filtro
-              </button>
-            )}
           </div>
         </div>
         

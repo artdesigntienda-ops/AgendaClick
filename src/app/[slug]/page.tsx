@@ -89,12 +89,14 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
     .eq('clinic_id', clinic.id)
     .order('name', { ascending: true })
 
-  // Buscar todas las citas activas de la clínica para filtrar disponibilidad y prevenir double bookings
+  // Buscar citas activas futuras de la clínica para disponibilidad (evita descargar histórico masivo)
+  const nowIso = new Date().toISOString()
   const { data: appointments } = await adminClient
     .from('appointments')
     .select('start_time, end_time, staff_id')
     .eq('clinic_id', clinic.id)
     .neq('status', 'cancelled')
+    .gte('end_time', nowIso)
 
   // 2. AEO (Answer Engine Optimization) - Schema Markup Dinámico
   // Dependiendo del business_type, inyectamos un esquema distinto para los asistentes de IA

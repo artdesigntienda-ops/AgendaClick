@@ -9,8 +9,11 @@ export async function GET(req: Request) {
     const authHeader = req.headers.get('authorization')
     const isVercelCron = req.headers.get('x-vercel-cron') === '1'
 
-    // Seguridad Fail-Closed: Autorizado por Vercel Cron automático o mediante header Bearer
-    if (!isVercelCron && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
+    // Seguridad Fail-Closed: Vercel inyecta Bearer ${CRON_SECRET} automáticamente en invocaciones de cron
+    const isAuthorized = (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
+                         (isVercelCron && (!cronSecret || authHeader === `Bearer ${cronSecret}`))
+
+    if (!isAuthorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

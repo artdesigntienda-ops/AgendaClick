@@ -4,11 +4,14 @@ import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { generateCancellationHash } from '@/utils/securityTokens'
+import { requireActiveSubscription } from '@/utils/billingGuard'
 
 /**
  * Helper de seguridad para obtener el clinic_id y rol del usuario autenticado actual
  */
 async function getAuthenticatedUserClinic() {
+  await requireActiveSubscription()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

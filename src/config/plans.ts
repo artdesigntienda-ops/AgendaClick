@@ -98,7 +98,8 @@ export function calculateProratedAmount(
   billingPeriod: 'monthly' | 'annual',
   currentPlanId: string | null,
   currentEndsAtIso: string | null,
-  isSubscriptionActive: boolean
+  isSubscriptionActive: boolean,
+  calculationDate: Date = new Date()
 ): { basePrice: number; unusedCredit: number; finalPrice: number } {
   const basePrice = calculatePlanPrice(targetPlanId, billingPeriod)
 
@@ -112,7 +113,7 @@ export function calculateProratedAmount(
   }
 
   const endsAt = new Date(currentEndsAtIso)
-  const now = new Date()
+  const now = calculationDate
   const diffTime = endsAt.getTime() - now.getTime()
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
