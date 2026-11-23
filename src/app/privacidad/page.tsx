@@ -49,10 +49,18 @@ export default function PrivacidadPage() {
               </li>
             </ul>
 
-            <h3 className="text-base font-semibold text-blue-950 pt-2">2.3. Cumplimiento de la Política de Uso Limitado (Google API Limited Use Disclosure)</h3>
+            <h3 className="text-base font-semibold text-blue-950 pt-2">2.3. Cumplimiento de la Política de Uso Limitado (Google API Services User Data Policy & Limited Use Disclosure)</h3>
             <p className="text-sm text-blue-900">
-              El uso y la transferencia por parte de AgendaClick a cualquier otra aplicación de la información recibida a través de las API de Google se realizarán de estricta conformidad con la <a href="https://developers.google.com/identity/protocols/oauth2/policies#limited-unofficial-tokens" target="_blank" rel="noreferrer" className="underline font-semibold hover:text-blue-700">Política de datos del usuario de los servicios de las API de Google</a>, incluidos los requisitos de Uso Limitado (Limited Use Requirements).
+              El uso y la transferencia por parte de <strong>AgendaClick</strong> a cualquier otra aplicación de la información recibida a través de las API de Google se realizarán de estricta conformidad con la <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer" className="underline font-semibold hover:text-blue-700">Política de datos del usuario de los servicios de las API de Google</a>, incluidos los requisitos de Uso Limitado (Limited Use Requirements).
             </p>
+            <div className="bg-white/80 border border-blue-200 p-4 rounded-xl mt-2 text-xs font-mono text-gray-800 space-y-2">
+              <p>
+                <strong>Declaración Oficial en Español:</strong> &quot;El uso y la transferencia a cualquier otra aplicación por parte de AgendaClick de la información recibida de las API de Google se ajustarán a la Política de datos del usuario de los servicios de las API de Google, incluidos los requisitos de uso limitado.&quot;
+              </p>
+              <p>
+                <strong>Official English Disclosure:</strong> &quot;AgendaClick&apos;s use and transfer to any other app of information received from Google APIs will adhere to <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer" className="underline font-bold text-blue-600">Google API Services User Data Policy</a>, including the Limited Use requirements.&quot;
+              </p>
+            </div>
           </div>
         </section>
 
