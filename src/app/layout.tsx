@@ -3,6 +3,8 @@ import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import ReferralTracker from "@/components/ReferralTracker";
+import PwaRegister from "@/components/PwaRegister";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -53,6 +55,12 @@ export const metadata: Metadata = {
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+  },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AgendaClick'
   },
   robots: {
     index: true,
@@ -130,6 +138,8 @@ export default function RootLayout({
 
         {children}
         <ReferralTracker />
+        <PwaRegister />
+        <PwaInstallPrompt />
         <Toaster position="bottom-center" richColors />
       </body>
     </html>

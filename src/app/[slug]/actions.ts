@@ -278,6 +278,9 @@ export async function createAppointment(data: {
 
   if (error || !newApp) {
     console.error('Error creating appointment:', error)
+    if ((error as any)?.code === '23P01' || error?.message?.includes('prevent_overlapping_appointments')) {
+      return { error: true, message: 'Lo sentimos, este horario acaba de ser ocupado. Por favor elige otro turno.' }
+    }
     return { error: true, message: 'Error interno guardando la cita.' }
   }
 
@@ -628,4 +631,275 @@ export async function cancelAppointmentFromClient(appointmentId: string, token?:
 
   revalidatePath('/dashboard')
   return { success: true, appointment }
+}
+
+/**
+ * Consulta de horarios disponibles para reprogramar una cita existente
+ */
+export async function getAvailableRescheduleSlots(
+  appointmentId: string, 
+  targetDateIso: string, 
+  token?: string
+) {
+  const supabase = getSupabaseAdmin()
+
+  // 1. Obtener cita y clínica
+  const { data: appointment } = await supabase
+    .from('appointments')
+    .select('id, client_email, clinic_id, staff_id, services(duration_minutes), clinics(schedule)')
+    .eq('id', appointmentId)
+    .maybeSingle()
+
+  if (!appointment) return { success: false, error: 'Cita no encontrada' }
+
+  // Validar token anti-IDOR
+  const isTokenValid = verifyCancellationHash(appointment.id, appointment.client_email, token)
+  if (!isTokenValid) {
+    const sessionClient = await createClient()
+    const { data: { user } } = await sessionClient.auth.getUser()
+    if (!user) return { success: false, error: 'No autorizado' }
+  }
+
+  // 2. Horario del día según la clínica
+  const targetDate = new Date(targetDateIso)
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  const dayName = dayNames[targetDate.getDay()]
+  const clinicSchedule = (appointment.clinics as any)?.schedule || {}
+  const daySchedule = clinicSchedule[dayName]
+
+  if (!daySchedule || !daySchedule.isOpen) {
+    return { success: true, slots: [], message: 'El negocio no labora en este día' }
+  }
+
+  // 3. Duración del servicio en minutos
+  const durationMinutes = (appointment.services as any)?.duration_minutes || 30
+
+  // 4. Citas existentes ese día para la clínica y staff
+  const startOfDay = new Date(targetDate)
+  startOfDay.setHours(0, 0, 0, 0)
+  const endOfDay = new Date(startOfDay)
+  endOfDay.setDate(endOfDay.getDate() + 1)
+
+  let existingQuery = supabase
+    .from('appointments')
+    .select('id, start_time, end_time, staff_id')
+    .eq('clinic_id', appointment.clinic_id)
+    .neq('status', 'cancelled')
+    .neq('id', appointment.id)
+    .gte('start_time', startOfDay.toISOString())
+    .lt('start_time', endOfDay.toISOString())
+
+  if (appointment.staff_id) {
+    existingQuery = existingQuery.or(`staff_id.eq.${appointment.staff_id},staff_id.is.null`)
+  }
+
+  const { data: existingApts } = await existingQuery
+  const existingList = existingApts || []
+
+  // 5. Generar slots de tiempo
+  const [openH, openM] = (daySchedule.openTime || '08:00').split(':').map(Number)
+  const [closeH, closeM] = (daySchedule.closeTime || '18:00').split(':').map(Number)
+
+  let slotCursor = new Date(targetDate)
+  slotCursor.setHours(openH, openM, 0, 0)
+
+  const closingTime = new Date(targetDate)
+  closingTime.setHours(closeH, closeM, 0, 0)
+
+  const now = new Date()
+  const slots: Array<{ startTime: string; endTime: string; label: string }> = []
+
+  while (slotCursor < closingTime) {
+    const slotEnd = new Date(slotCursor.getTime() + durationMinutes * 60 * 1000)
+    if (slotEnd > closingTime) break
+
+    // Si la fecha es hoy, no permitir horarios en el pasado (+20 min de margen)
+    if (slotCursor > new Date(now.getTime() + 20 * 60 * 1000)) {
+      // Verificar descanso
+      let inBreak = false
+      if (daySchedule.breakStart && daySchedule.breakEnd) {
+        const [bStartH, bStartM] = daySchedule.breakStart.split(':').map(Number)
+        const [bEndH, bEndM] = daySchedule.breakEnd.split(':').map(Number)
+        const breakStart = new Date(targetDate)
+        breakStart.setHours(bStartH, bStartM, 0, 0)
+        const breakEnd = new Date(targetDate)
+        breakEnd.setHours(bEndH, bEndM, 0, 0)
+
+        if (slotCursor < breakEnd && slotEnd > breakStart) {
+          inBreak = true
+        }
+      }
+
+      // Verificar si choca con otra cita
+      const hasOverlap = existingList.some(apt => {
+        const aStart = new Date(apt.start_time)
+        const aEnd = new Date(apt.end_time)
+        return slotCursor < aEnd && slotEnd > aStart
+      })
+
+      if (!inBreak && !hasOverlap) {
+        const hh = String(slotCursor.getHours()).padStart(2, '0')
+        const mm = String(slotCursor.getMinutes()).padStart(2, '0')
+        slots.push({
+          startTime: slotCursor.toISOString(),
+          endTime: slotEnd.toISOString(),
+          label: `${hh}:${mm}`
+        })
+      }
+    }
+
+    slotCursor = new Date(slotCursor.getTime() + 30 * 60 * 1000)
+  }
+
+  return { success: true, slots }
+}
+
+/**
+ * Reprogramación autónoma de cita por parte del cliente
+ */
+export async function rescheduleAppointmentFromClient(
+  appointmentId: string,
+  newStartTime: string,
+  newEndTime: string,
+  token?: string
+) {
+  const supabase = getSupabaseAdmin()
+
+  // 1. Obtener la cita
+  const { data: appointment } = await supabase
+    .from('appointments')
+    .select('*, services(name, duration_minutes), clinics(name, owner_id)')
+    .eq('id', appointmentId)
+    .maybeSingle()
+
+  if (!appointment) {
+    return { success: false, error: 'Cita no encontrada.' }
+  }
+
+  // 2. Validar token anti-IDOR
+  const isTokenValid = verifyCancellationHash(appointment.id, appointment.client_email, token)
+  let isAuthorized = isTokenValid
+
+  if (!isAuthorized) {
+    const sessionClient = await createClient()
+    const { data: { user } } = await sessionClient.auth.getUser()
+    if (user && (appointment.clinics?.owner_id === user.id)) {
+      isAuthorized = true
+    }
+  }
+
+  if (!isAuthorized) {
+    return { success: false, error: 'Enlace no autorizado o token de seguridad inválido.' }
+  }
+
+  // 3. Validar disponibilidad del nuevo horario (anti-colisión)
+  let overlapQuery = supabase
+    .from('appointments')
+    .select('id')
+    .eq('clinic_id', appointment.clinic_id)
+    .neq('status', 'cancelled')
+    .neq('id', appointmentId)
+    .lt('start_time', newEndTime)
+    .gt('end_time', newStartTime)
+
+  if (appointment.staff_id) {
+    overlapQuery = overlapQuery.or(`staff_id.eq.${appointment.staff_id},staff_id.is.null`)
+  }
+
+  const { data: overlapping } = await overlapQuery
+  if (overlapping && overlapping.length > 0) {
+    return { success: false, error: 'El horario seleccionado acaba de ser ocupado. Por favor elige otro turno.' }
+  }
+
+  // 4. Actualizar en Supabase
+  const { error: updateError } = await supabase
+    .from('appointments')
+    .update({
+      start_time: newStartTime,
+      end_time: newEndTime,
+      status: 'confirmed'
+    })
+    .eq('id', appointmentId)
+
+  if (updateError) {
+    console.error('Error al actualizar fecha de cita:', updateError)
+    return { success: false, error: 'No se pudo actualizar el horario de la cita.' }
+  }
+
+  // 5. Enviar correos de confirmación
+  const serviceName = appointment.services?.name || 'Cita'
+  const clinicName = appointment.clinics?.name || 'AgendaClick'
+  const formattedNewDate = format(new Date(newStartTime), "dd 'de' MMMM, yyyy 'a las' HH:mm", { locale: es })
+
+  const appointmentUid = `${appointmentId}@agendaclick.com`
+  const icsContent = generateICS(
+    appointmentUid,
+    newStartTime,
+    newEndTime,
+    `${serviceName} - ${appointment.client_name}`,
+    `Cita reprogramada vía AgendaClick.\nCliente: ${appointment.client_name}\nTeléfono: ${appointment.client_phone}`,
+    clinicName
+  )
+
+  try {
+    const resend = getResend()
+    const cancelToken = generateCancellationHash(appointmentId, appointment.client_email)
+    const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'}/cancelar/${appointmentId}?token=${cancelToken}`
+
+    // Correo al cliente
+    await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: appointment.client_email,
+      subject: `Cita Reprogramada con éxito en ${clinicName}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+          <h2 style="color: #10b981; margin-top: 0;">¡Tu cita ha sido reprogramada con éxito!</h2>
+          <p>Te confirmamos que tu cita para <strong>${serviceName}</strong> en <strong>${clinicName}</strong> ha sido reprogramada.</p>
+          <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
+          <p><strong>Nuevo Horario Confirmado:</strong> ${formattedNewDate}</p>
+          <br/>
+          <p style="font-size: 14px; color: #71717a;">Abre el archivo adjunto (cita.ics) para guardar tu nuevo horario en tu calendario de Google o Apple.</p>
+          <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
+          <p style="font-size: 13px; color: #71717a; text-align: center; margin-bottom: 0;">
+            ¿Necesitas hacer otro cambio? 
+            <a href="${cancelUrl}" style="color: #ef4444; font-weight: bold; text-decoration: underline; margin-left: 5px;">Gestiona tu cita aquí</a>
+          </p>
+        </div>
+      `,
+      attachments: [{
+        filename: 'cita-reprogramada.ics',
+        content: Buffer.from(icsContent).toString('base64'),
+        contentType: 'text/calendar'
+      }]
+    })
+
+    // Correo al dueño
+    const { data: ownerProf } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', appointment.clinics.owner_id)
+      .maybeSingle()
+
+    if (ownerProf?.email) {
+      await resend.emails.send({
+        from: 'AgendaClick Notificaciones <no-reply@agendaclick.com.co>',
+        to: ownerProf.email,
+        subject: `Cita Reprogramada por Cliente: ${serviceName} - ${appointment.client_name}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
+            <h2 style="color: #10b981; margin-top: 0;">Un cliente reprogramó su cita</h2>
+            <p>El cliente <strong>${appointment.client_name}</strong> ha actualizado el horario de su cita para <strong>${serviceName}</strong>.</p>
+            <hr style="border: 0; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
+            <p><strong>Nuevo Horario:</strong> ${formattedNewDate}</p>
+            <p><strong>Datos del cliente:</strong> ${appointment.client_name} (${appointment.client_phone})</p>
+          </div>
+        `
+      })
+    }
+  } catch (mailErr) {
+    console.error('Error enviando correos de reprogramación:', mailErr)
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true, newStartTime, newEndTime }
 }

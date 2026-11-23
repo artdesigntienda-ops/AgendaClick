@@ -2,16 +2,45 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { HeartHandshake, CircleAlert, CheckCircle2, AlertTriangle, ArrowDownUp, X, Calendar, ClipboardList } from 'lucide-react'
+import { HeartHandshake, CircleAlert, CheckCircle2, AlertTriangle, ArrowDownUp, X, Calendar, ClipboardList, MessageCircle, Sparkles } from 'lucide-react'
 import { formatDistanceToNow, parseISO, format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { saveAppointmentNotes } from '../actions'
 import { toast } from 'sonner'
 
-export default function ClientsTable({ clients }: { clients: any[] }) {
+export default function ClientsTable({ 
+  clients,
+  clinicName = 'Nuestro Negocio',
+  clinicSlug = ''
+}: { 
+  clients: any[]
+  clinicName?: string
+  clinicSlug?: string
+}) {
   const [filter, setFilter] = useState<'all' | 'active' | 'risk' | 'lost'>('all')
   const [sortBy, setSortBy] = useState<'date' | 'name'>('date')
   const [selectedClient, setSelectedClient] = useState<any>(null)
+
+  const buildWhatsAppUrl = (client: any) => {
+    const rawPhone = (client.phone || '').replace(/\D/g, '')
+    if (!rawPhone || rawPhone.length < 7) return null
+    const phone = (rawPhone.length === 10 && rawPhone.startsWith('3')) ? `57${rawPhone}` : rawPhone
+    
+    const statusId = client.statusInfo?.id
+    const bookingLink = clinicSlug ? `https://agendaclick.com.co/${clinicSlug}` : 'https://agendaclick.com.co'
+    const firstName = client.name ? client.name.split(' ')[0] : 'Hola'
+
+    let message = ''
+    if (statusId === 'lost') {
+      message = `¡Hola ${firstName}! Te extrañamos en ${clinicName}. Hace un tiempo no nos visitas y nos encantaría volver a atenderte. Si deseas apartar tu espacio esta semana, puedes agendar aquí: ${bookingLink}`
+    } else if (statusId === 'risk') {
+      message = `¡Hola ${firstName}! Esperamos que estés muy bien. Hace un mes fue tu última visita a ${clinicName}. ¿Te gustaría asegurar tu cita para estos días? Aquí puedes ver los turnos disponibles: ${bookingLink}`
+    } else {
+      message = `¡Hola ${firstName}! Gracias por confiar en ${clinicName}. Recuerda que cuando desees agendar tu próximo turno, puedes hacerlo fácilmente aquí: ${bookingLink}`
+    }
+
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+  }
 
   const getRetentionStatus = (lastVisitISO: string) => {
     const lastVisit = parseISO(lastVisitISO)
@@ -116,6 +145,7 @@ export default function ClientsTable({ clients }: { clients: any[] }) {
               <th className="p-4 font-semibold">Atendido por</th>
               <th className="p-4 font-semibold">Hace Cuánto</th>
               <th className="p-4 font-semibold">Semáforo de Retención</th>
+              <th className="p-4 font-semibold text-right">Fidelización</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -127,39 +157,58 @@ export default function ClientsTable({ clients }: { clients: any[] }) {
                   exit={{ opacity: 0 }}
                   key="empty"
                 >
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                  <td colSpan={6} className="p-8 text-center text-gray-500">
                     No hay clientes que coincidan con estos filtros.
                   </td>
                 </motion.tr>
               ) : (
-                filtered.map((client, i) => (
-                  <motion.tr 
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    key={client.email} 
-                    onClick={() => setSelectedClient(client)}
-                    className="hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <td className="p-4">
-                      <p className="font-bold text-gray-900">{client.name}</p>
-                      <p className="text-xs text-gray-500">{client.phone} • {client.email}</p>
-                    </td>
-                    <td className="p-4 text-gray-900 font-medium">{client.lastService}</td>
-                    <td className="p-4 text-gray-600">{client.lastStaff}</td>
-                    <td className="p-4 text-sm text-gray-500 capitalize">
-                      {formatDistanceToNow(parseISO(client.lastVisit), { addSuffix: true, locale: es })}
-                    </td>
-                    <td className="p-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${client.statusInfo.bgColor} ${client.statusInfo.color}`}>
-                        {client.statusInfo.icon}
-                        {client.statusInfo.text}
-                      </span>
-                    </td>
-                  </motion.tr>
-                ))
+                filtered.map((client, i) => {
+                  const waUrl = buildWhatsAppUrl(client)
+                  return (
+                    <motion.tr 
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      key={client.email} 
+                      onClick={() => setSelectedClient(client)}
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <td className="p-4">
+                        <p className="font-bold text-gray-900">{client.name}</p>
+                        <p className="text-xs text-gray-500">{client.phone} • {client.email}</p>
+                      </td>
+                      <td className="p-4 text-gray-900 font-medium">{client.lastService}</td>
+                      <td className="p-4 text-gray-600">{client.lastStaff}</td>
+                      <td className="p-4 text-sm text-gray-500 capitalize">
+                        {formatDistanceToNow(parseISO(client.lastVisit), { addSuffix: true, locale: es })}
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${client.statusInfo.bgColor} ${client.statusInfo.color}`}>
+                          {client.statusInfo.icon}
+                          {client.statusInfo.text}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        {waUrl ? (
+                          <a
+                            href={waUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-emerald-600/20"
+                            title="Reactivar cliente por WhatsApp con mensaje pre-redactado"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-400">Sin cel</span>
+                        )}
+                      </td>
+                    </motion.tr>
+                  )
+                })
               )}
             </AnimatePresence>
           </tbody>
@@ -243,12 +292,24 @@ export default function ClientsTable({ clients }: { clients: any[] }) {
                 </div>
               </div>
 
-              <div className="p-6 border-t bg-gray-50 flex justify-end">
+              <div className="p-6 border-t bg-gray-50 flex items-center justify-between gap-3">
+                {buildWhatsAppUrl(selectedClient) ? (
+                  <a
+                    href={buildWhatsAppUrl(selectedClient)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-emerald-600/20"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Escribir por WhatsApp</span>
+                  </a>
+                ) : <div />}
+
                 <button 
                   onClick={() => setSelectedClient(null)}
                   className="px-6 py-2.5 bg-black text-white font-bold rounded-xl hover:bg-gray-900 transition-colors text-sm"
                 >
-                  Cerrar Historial
+                  Cerrar
                 </button>
               </div>
             </motion.div>

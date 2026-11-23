@@ -1,99 +1,22 @@
-import { createClient } from '@/utils/supabase/server'
-import { createAdminClient } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 import { AutoLogout } from './AutoLogout'
 import Sidebar from './Sidebar'
 import TopNavbar from '@/components/TopNavbar'
 import { OnboardingTour } from './OnboardingTour'
+import { getCachedDashboardContext } from '@/utils/dashboardSession'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const context = await getCachedDashboardContext()
 
-  if (!user) {
+  if (!context || !context.user) {
     redirect('/login')
   }
 
-  let { data: profile } = await supabase
-    .from('profiles')
-    .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  // FALLBACK / CREACIÓN AUTOMÁTICA O VINCULACIÓN POR CORREO SI NO EXISTE PERFIL POR ID
-  if (!profile) {
-    // 1. Buscar si el administrador ya pre-registró este correo
-    const { data: existingEmailProfile } = await supabase
-      .from('profiles')
-      .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
-      .eq('email', user.email)
-      .maybeSingle()
-
-    if (existingEmailProfile) {
-      // Vinculamos su cuenta de auth al perfil actualizando el ID (admin para bypass RLS)
-      const adminClient = createAdminClient()
-      const { data: linkedProfile } = await adminClient
-        .from('profiles')
-        .update({ id: user.id })
-        .eq('id', existingEmailProfile.id)
-        .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
-        .maybeSingle()
-
-      if (linkedProfile) {
-        profile = linkedProfile
-      }
-    } else {
-      // 2. Si no pre-registró el correo, creamos un nuevo perfil por defecto (dueño)
-      const adminClient = createAdminClient()
-      const { data: newProfile } = await adminClient
-        .from('profiles')
-        .insert([{
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
-          role: 'owner',
-          clinic_id: null,
-          is_bookable: true,
-          is_on_break: false,
-          has_seen_tutorial: false
-        }])
-        .select('id, role, clinic_id, has_seen_tutorial, is_on_break, is_bookable')
-        .maybeSingle()
-
-      if (newProfile) {
-        profile = newProfile
-      }
-    }
-  }
-
-  let clinic = null
-  let clinicId = profile?.clinic_id
-  const adminClient = createAdminClient()
-
-  if (clinicId) {
-    const { data } = await adminClient
-      .from('clinics')
-      .select('id, name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
-      .eq('id', clinicId)
-      .maybeSingle()
-    clinic = data
-  }
-
-  if (!clinic && profile?.role === 'owner') {
-    const { data } = await adminClient
-      .from('clinics')
-      .select('id, name, slug, business_type, sidebar_color, sidebar_text_color, dashboard_accent_color, booking_bg_color, booking_text_color, booking_card_color')
-      .eq('owner_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    clinic = data
-  }
+  const { profile, clinic } = context
 
   return (
     <div className="flex flex-col h-screen bg-white text-black font-sans selection:bg-black selection:text-white overflow-hidden">

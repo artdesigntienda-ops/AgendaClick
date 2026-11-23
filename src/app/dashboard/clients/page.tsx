@@ -1,38 +1,21 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { requireActiveSubscription } from '@/utils/billingGuard'
+import { getCachedDashboardContext } from '@/utils/dashboardSession'
 import ClientsTable from './ClientsTable'
 
 export default async function ClientsCRMPage() {
   await requireActiveSubscription()
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
+  const context = await getCachedDashboardContext()
+  if (!context || !context.user) {
     redirect('/login')
   }
 
-  // Obtener perfil para saber el rol y clinic_id
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, clinic_id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  let clinicId = profile?.clinic_id
-
-  if (!clinicId && profile?.role === 'owner') {
-    const { data } = await supabase
-      .from('clinics')
-      .select('id')
-      .eq('owner_id', user.id)
-      .limit(1)
-      .maybeSingle()
-    if (data) clinicId = data.id
-  }
+  const { user, profile, clinic, clinicId, clinicSlug, role } = context
 
   if (!clinicId) {
-    if (profile?.role === 'owner') {
+    if (role === 'owner') {
       return (
         <div className="text-center py-20">
           <h2 className="text-2xl font-bold mb-2">Aún no has creado tu perfil</h2>
@@ -44,7 +27,8 @@ export default async function ClientsCRMPage() {
     }
   }
 
-  const isOwner = profile?.role === 'owner'
+  const isOwner = role === 'owner'
+  const supabase = await createClient()
 
   let appointmentsQuery = supabase
     .from('appointments')
@@ -143,7 +127,11 @@ export default async function ClientsCRMPage() {
         <p className="text-gray-500 mt-2">Retén a tus clientes. Usa el semáforo para saber a quién deberías volver a contactar.</p>
       </div>
 
-      <ClientsTable clients={clients} />
+      <ClientsTable 
+        clients={clients} 
+        clinicName={clinic?.name || 'Nuestro Negocio'} 
+        clinicSlug={clinicSlug} 
+      />
     </div>
   )
 }

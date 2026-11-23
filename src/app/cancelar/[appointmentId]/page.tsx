@@ -114,12 +114,12 @@ export default async function CancelPage({
             <>
               {/* Encabezado */}
               <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <AlertTriangle className="w-6 h-6" />
+                <div className="w-12 h-12 bg-zinc-100 text-black rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Calendar className="w-6 h-6" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">¿Deseas cancelar tu cita?</h2>
-                <p className="text-sm text-gray-500">
-                  Estás a punto de cancelar tu reserva en <strong>{clinicName}</strong>. Esta acción liberará tu espacio.
+                <h2 className="text-xl font-bold text-gray-900">Gestión de tu Reserva</h2>
+                <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                  Reserva en <strong>{clinicName}</strong>. Puedes reprogramar tu turno para otra fecha u hora, o cancelarlo.
                 </p>
               </div>
 
