@@ -338,7 +338,7 @@ Por favor responde con un *SÍ* para confirmar o toca aquí si necesitas reprogr
 
           <h3 className="text-xl font-bold text-gray-900 mt-6">2. Ficha de Google Mi Negocio (Google Maps)</h3>
           <p className="text-gray-600 leading-relaxed">
-            En tu perfil de empresa en Google Maps, añade tu URL en la casilla <strong>&quot;Enlace para citas&quot;</strong>. Cuando los usuarios busquen servicios cerca de su ubicación, podrán agendar inmediatamente sin salir del mapa.
+            Puedes dar de alta tu empresa en Google Maps usando nuestro <strong>Asistente Oficial de Google Maps</strong> disponible en tu panel (<strong>Configuración &gt; Integraciones</strong> o durante el registro rápido). El asistente precarga tu nombre, categoría y teléfono, te guía a verificar por SMS o video, y te proporciona el enlace directo para que lo pegues en el botón <strong>&quot;Reservar cita&quot;</strong> de Google Maps.
           </p>
         </div>
       )
@@ -355,7 +355,28 @@ Por favor responde con un *SÍ* para confirmar o toca aquí si necesitas reprogr
           <details className="border border-gray-200 rounded-2xl p-5 bg-white open:bg-gray-50 transition-colors">
             <summary className="font-bold text-gray-900 cursor-pointer text-base">¿Mis clientes necesitan descargar una app?</summary>
             <p className="text-gray-600 text-sm mt-3 leading-relaxed">
-              <strong>No.</strong> Tus clientes entran desde cualquier navegador móvil o de escritorio, seleccionan el servicio y agendan en menos de 60 segundos sin contraseñas engorrosas.
+              <strong>No es obligatorio, pero pueden hacerlo si quieren.</strong> Tus clientes entran desde cualquier navegador en 1 clic. Además, AgendaClick cuenta con tecnología PWA para que tus clientes o tu equipo instalen un icono directo en su pantalla de inicio en Android o iPhone, funcionando como una app nativa ultra-rápida.
+            </p>
+          </details>
+
+          <details className="border border-gray-200 rounded-2xl p-5 bg-white open:bg-gray-50 transition-colors">
+            <summary className="font-bold text-gray-900 cursor-pointer text-base">¿Qué pasa si un cliente necesita cambiar la fecha de su cita?</summary>
+            <p className="text-gray-600 text-sm mt-3 leading-relaxed">
+              <strong>El cliente puede reagendar solo sin llamarte.</strong> En su correo de confirmación tiene un botón de &quot;Reagendar Cita&quot; que abre un calendario con tus próximos 14 días y tus franjas horarias libres. Elige su nuevo horario y se actualiza en tiempo real tanto en Supabase como en tu Google Calendar.
+            </p>
+          </details>
+
+          <details className="border border-gray-200 rounded-2xl p-5 bg-white open:bg-gray-50 transition-colors">
+            <summary className="font-bold text-gray-900 cursor-pointer text-base">¿Cómo funciona el Asistente de Google Maps?</summary>
+            <p className="text-gray-600 text-sm mt-3 leading-relaxed">
+              En tu panel (en el onboarding o en Configuración &gt; Integraciones) encuentras el asistente. Pre-rellena automáticamente el nombre comercial, el teléfono y la categoría oficial de tu negocio, abriendo Google Business Profile. Solo recibes un SMS de Google para validar tu titularidad y pegas tu enlace de reservas oficial.
+            </p>
+          </details>
+
+          <details className="border border-gray-200 rounded-2xl p-5 bg-white open:bg-gray-50 transition-colors">
+            <summary className="font-bold text-gray-900 cursor-pointer text-base">¿Cómo funciona la reactivación de clientes por WhatsApp?</summary>
+            <p className="text-gray-600 text-sm mt-3 leading-relaxed">
+              En tu módulo de <strong>Clientes</strong>, el sistema clasifica de forma inteligente a los clientes que llevan entre 45 y 90 días sin reservar (&quot;En Riesgo&quot;) o más de 90 días (&quot;Inactivos&quot;). Con solo presionar el botón de WhatsApp, se abre un chat con un mensaje amigable personalizado listo para enviar.
             </p>
           </details>
 

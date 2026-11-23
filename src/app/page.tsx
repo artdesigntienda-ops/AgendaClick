@@ -3,7 +3,30 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, CheckCircle2, Scissors, Sparkles, Heart, CalendarCheck, MessageCircle, Bot, Shield, User, XCircle, Stethoscope, Trophy, Car, GraduationCap, PawPrint } from 'lucide-react'
+import { 
+  ArrowRight, 
+  CheckCircle2, 
+  Scissors, 
+  Sparkles, 
+  Heart, 
+  CalendarCheck, 
+  MessageCircle, 
+  Bot, 
+  Shield, 
+  User, 
+  XCircle, 
+  Stethoscope, 
+  Trophy, 
+  Car, 
+  GraduationCap, 
+  PawPrint,
+  MapPin,
+  RefreshCw,
+  Smartphone,
+  TrendingUp,
+  Zap,
+  ExternalLink
+} from 'lucide-react'
 
 // Variantes de animación para hacer la página fluida y elegante
 const fadeInUp = {
@@ -103,6 +126,22 @@ export default function LandingPage() {
             <Link href="/login" className="flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-0.5">
               Transformar mi negocio <ArrowRight className="w-5 h-5" />
             </Link>
+          </motion.div>
+
+          {/* Badges de Funcionalidades Estrella */}
+          <motion.div variants={fadeInUp} className="flex flex-wrap gap-2.5 pt-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
+              <MapPin className="w-3.5 h-3.5" /> Alta Oficial en Google Maps
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+              <RefreshCw className="w-3.5 h-3.5" /> Reagendamiento Autónomo
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+              <Smartphone className="w-3.5 h-3.5" /> App Móvil Instalable
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+              <CalendarCheck className="w-3.5 h-3.5" /> Google Calendar en Vivo
+            </span>
           </motion.div>
         </motion.div>
 
@@ -345,37 +384,79 @@ export default function LandingPage() {
             variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {/* Box 1 */}
-            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm lg:col-span-2 hover:shadow-md transition-shadow">
-              <CalendarCheck className="w-10 h-10 text-black mb-6" />
-              <h3 className="text-2xl font-bold mb-3">Agenda 24/7 Inteligente</h3>
-              <p className="text-gray-500 leading-relaxed max-w-md">Tus clientes pueden ver tu disponibilidad real y agendar citas incluso cuando estás durmiendo o atendiendo. El calendario se sincroniza al instante y bloquea horarios ocupados automáticamente.</p>
-            </motion.div>
-
-            {/* Box 2 */}
-            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-              <User className="w-10 h-10 text-black mb-6" />
-              <h3 className="text-xl font-bold mb-3">CRM y Base de Datos</h3>
-              <p className="text-gray-500 leading-relaxed">Conoce el historial de cada cliente, cuántas veces te visitan, y qué servicios prefieren. Fideliza a los mejores.</p>
-            </motion.div>
-
-            {/* Box 3 */}
-            <motion.div variants={fadeInUp} className="bg-black text-white p-8 rounded-[2rem] shadow-sm hover:shadow-lg transition-shadow relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-10"><Sparkles className="w-32 h-32" /></div>
-              <Shield className="w-10 h-10 text-white mb-6 relative z-10" />
-              <h3 className="text-xl font-bold mb-3 relative z-10">Control de Empleados</h3>
-              <p className="text-gray-400 leading-relaxed relative z-10">Gestiona múltiples profesionales. Cada uno con su propio horario, tiempos de descanso y cálculo automático de comisiones a fin de mes.</p>
-            </motion.div>
-
-            {/* Box 4 */}
-            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm lg:col-span-2 hover:shadow-md transition-shadow">
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="flex-1">
-                  <MessageCircle className="w-10 h-10 text-black mb-6" />
-                  <h3 className="text-2xl font-bold mb-3">Notificaciones a WhatsApp</h3>
-                  <p className="text-gray-500 leading-relaxed">Olvídate de confirmar citas manualmente. El sistema envía al cliente directamente a tu WhatsApp con todos los detalles de su reserva confirmada. Ahorras tiempo y dinero en mensajes SMS.</p>
+            {/* Box 1: Google Maps Oficial */}
+            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/40 p-8 rounded-[2rem] border border-blue-200/80 shadow-sm lg:col-span-2 hover:shadow-md transition-all group">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-md">
+                  <MapPin className="w-6 h-6" />
                 </div>
+                <span className="text-xs font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full uppercase tracking-wider">
+                  Novedad Oficial
+                </span>
               </div>
+              <h3 className="text-2xl font-bold mb-3 text-gray-900 group-hover:text-blue-900 transition-colors">
+                Tu Negocio en Google Maps con Botón "Reservar Cita"
+              </h3>
+              <p className="text-gray-600 leading-relaxed max-w-xl mb-5">
+                Consigue clientes nuevos todos los días desde Google Maps. Nuestro asistente pre-rellena la ficha oficial de tu empresa, te guía en la validación por SMS o video en 1 minuto y agrega tu botón de reservas de AgendaClick.
+              </p>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-blue-200 text-xs font-semibold text-blue-900 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Punto en mapa + Botón oficial de reservas activo</span>
+              </div>
+            </motion.div>
+
+            {/* Box 2: Reagendamiento Autónomo */}
+            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
+                <RefreshCw className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-emerald-900 transition-colors">
+                Reagendamiento Autónomo
+              </h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                ¿A tu cliente le surgió un imprevisto? Puede cambiar su fecha y franja horaria directamente desde su confirmación según tus turnos libres. Cero llamadas ni interrupciones.
+              </p>
+            </motion.div>
+
+            {/* Box 3: App Móvil Instalable (PWA) */}
+            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 bg-purple-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-purple-900 transition-colors">
+                App Instalable en Celular (PWA)
+              </h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Tus clientes y empleados pueden guardar tu agenda en su pantalla de inicio como una app en Android, iPhone o PC. Carga en milisegundos sin pasar por tiendas ni comisiones.
+              </p>
+            </motion.div>
+
+            {/* Box 4: CRM Reactivación WhatsApp */}
+            <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
+              <div className="w-12 h-12 bg-green-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-green-900 transition-colors">
+                Reactivación CRM por WhatsApp
+              </h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Detecta clientes que llevan 45 o 90 días sin reservar. Con 1 solo toque en WhatsApp les envías un saludo personalizado para reactivarlos sin pagar campañas caras de SMS.
+              </p>
+            </motion.div>
+
+            {/* Box 5: Sincronización Google Calendar */}
+            <motion.div variants={fadeInUp} className="bg-black text-white p-8 rounded-[2rem] shadow-sm hover:shadow-lg transition-all lg:col-span-2 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10"><CalendarCheck className="w-40 h-40" /></div>
+              <div className="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center mb-6 shadow-md relative z-10">
+                <CalendarCheck className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 relative z-10">
+                Google Calendar en Tiempo Real por Profesional
+              </h3>
+              <p className="text-gray-300 leading-relaxed max-w-xl relative z-10">
+                Citas agregadas o canceladas se sincronizan al instante en el Google Calendar personal de cada profesional. Si alguien agenda un compromiso personal, el horario se bloquea solo en AgendaClick, eliminando al 100% las citas dobles.
+              </p>
             </motion.div>
           </motion.div>
         </div>
@@ -414,11 +495,12 @@ export default function LandingPage() {
 
             <div className="divide-y divide-gray-100">
               {[
-                ["Pierdes clientes si no respondes rápido", "Los clientes reservan solos al instante"],
-                ["Cruce de horarios y errores manuales", "El calendario bloquea horas ocupadas"],
-                ["Citas falsas o cancelaciones de última hora", "Filtro OTP de seguridad en cada reserva"],
-                ["Cálculo manual de comisiones de empleados", "Reportes automáticos en tiempo real"],
-                ["Dependes 100% de que te busquen a ti", "Las IAs te recomiendan automáticamente"]
+                ["No apareces en Google Maps o sin botón de reserva", "Punto oficial en Google Maps con botón directo 'Reservar Cita'"],
+                ["Clientes te interrumpen para cambiar horario o no van", "Reagendamiento 100% autónomo por el cliente en 1 clic"],
+                ["Clientes inactivos se olvidan de tu negocio", "CRM con reactivación personalizada por WhatsApp en 1 toque"],
+                ["Pagar millones por una app móvil en App Store", "App Móvil PWA instalable gratis en Android, iPhone y PC"],
+                ["Cruce de horarios y citas duplicadas", "Sincronización en vivo con Google Calendar por empleado"],
+                ["Citas falsas de la competencia", "Escudo OTP de 6 dígitos que valida clientes reales"]
               ].map((row, i) => (
                 <div key={i} className="grid grid-cols-2 hover:bg-gray-50 transition-colors">
                   <div className="p-6 text-sm text-gray-500 border-r border-gray-200 flex items-start gap-3">
@@ -465,11 +547,11 @@ export default function LandingPage() {
                 target: 'Ideal para personas que trabajan solas en su consultorio o espacio.',
                 features: [
                   '1 Profesional / Bahía / Cancha',
-                  'Agendamiento 24/7 con filtro OTP',
-                  'Selección de 1 servicio por cita',
-                  'Enlace y confirmación a WhatsApp',
-                  'Página de reservas pública',
-                  'Soporte estándar por correo'
+                  '📍 Asistente de Alta en Google Maps',
+                  '🔄 Reagendamiento autónomo de clientes',
+                  '📱 App móvil instalable (PWA)',
+                  '🛡️ Agendamiento 24/7 con filtro OTP',
+                  '📲 Enlace y confirmación a WhatsApp'
                 ]
               },
               {
@@ -479,10 +561,10 @@ export default function LandingPage() {
                 target: 'Para negocios con equipo que necesitan agendar múltiples servicios.',
                 features: [
                   'Hasta 4 Profesionales / Bahías',
-                  '✨ Agendamiento Multi-Servicio',
-                  '🚗 Campos Pro (Placa, Marcas)',
+                  'Todo lo del Plan Independiente',
+                  '💬 CRM con Reactivación WhatsApp en 1 clic',
                   '📅 Google Calendar por empleado',
-                  '🎨 Personalización con Logo y Colores',
+                  '✨ Agendamiento Multi-Servicio',
                   '⚡ Soporte prioritario por WhatsApp'
                 ]
               },
@@ -497,7 +579,6 @@ export default function LandingPage() {
                   '💰 Finanzas y Comisiones automáticas',
                   '🏷️ Marca Blanca 100% (Sin nuestro logo)',
                   '📊 Exportar Base de Clientes a Excel',
-                  '💳 Habilitado para Pagos Online',
                   '⭐ Soporte VIP Inmediato 24/7'
                 ]
               },
@@ -507,7 +588,7 @@ export default function LandingPage() {
                 limit: 'Capacidad Ilimitada (999+)',
                 target: 'Para grandes concesionarios, franquicias y centros de alto volumen.',
                 features: [
-                  '🚀 Staff y Bahías Ilimitadas',
+                  '🚀 Staff y Bahías Ilimitadas (999+)',
                   'Todo lo del Plan Negocio',
                   '🏢 Soporte Multi-Sede / Ubicaciones',
                   '🤝 Onboarding y Configuración VIP',
