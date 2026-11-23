@@ -50,7 +50,8 @@ Invoke-RestMethod -Uri "https://api.resend.com/domains" -Headers @{ "Authorizati
 ---
 
 ## 🚀 Tareas Pendientes y Roadmap Futuro
-* [ ] **Sincronización con Google My Business (Google Business Profile):** Permitir a los dueños de negocios vincular su ficha de Google Maps directamente desde el dashboard de AgendaClick para sincronizar citas, reseñas y enlaces automáticos. *(Recordatorio guardado para implementar al finalizar el alta en directorios).*
+* [x] **Asistente Automatizado de Alta en Google Maps (Google Business Profile):** Integrado en QuickSetupWizard, SetupProgressBar y SettingsForm para que los negocios publiquen su local en Google Maps con datos pre-rellenados y botón de reservas en 1-clic.
+* [ ] **Sincronización de Reseñas de Google:** Posibilidad futura de leer y mostrar reseñas de Google en la página pública del negocio.
 
 ---
 
@@ -120,6 +121,26 @@ Planes genéricos aplicables a todo el mercado de reservas posicionados al 50% d
 ---
 
 ## 🔄 Cambios Recientes Importantes
+
+### 23 de Noviembre de 2026 (Auditoría EGM & Mejoras 100% Gratuitas)
+1. **Asistente Oficial de Alta en Google Maps:**
+   - Creado `GoogleMapsOnboardingModal.tsx` integrado en `QuickSetupWizard` (paso final de onboarding), `SetupProgressBar` (paso 5 de la barra de configuración rápida) y `SettingsForm` (pestaña Integraciones).
+   - Pre-configura deep-links directos a Google Business Profile con el nombre comercial, teléfono, dirección y mapeo automático de categorías oficiales de Google según el tipo de negocio.
+   - Guía interactiva paso a paso para la verificación por SMS o video de Google, e inyección de la URL de reservas en 1-clic en el botón oficial "Reservar cita" de Google Maps.
+2. **Reagendamiento Autónomo de Citas (Self-Service Rescheduling):**
+   - Implementado en `src/app/cancelar/[appointmentId]` y `src/app/[slug]/actions.ts`. Permite a los clientes elegir una nueva fecha y franja horaria disponible en un calendario de 14 días sin cancelar ni molestar al dueño. Sincroniza y actualiza automáticamente Google Calendar y Supabase.
+3. **PWA Standalone (Instalable como App en Celular y PC):**
+   - Configurado `manifest.ts`, `sw.js` (Service Worker offline-first), `PwaRegister.tsx` y banner flotante no intrusivo `PwaInstallPrompt.tsx` con soporte para Android, iOS y Desktop.
+4. **CRM de Reactivación por WhatsApp (100% Gratis sin APIs de Pago):**
+   - Añadido botón interactivo `wa.me` en `src/app/dashboard/clients/ClientsTable.tsx` que detecta clientes en riesgo (45-90 días sin cita) o perdidos (>90 días) y genera enlaces directos con mensajes de reactivación personalizados.
+5. **Caché de Sesión de Dashboard con `React.cache()`:**
+   - Creado `src/utils/dashboardSession.ts` eliminando entre 4 y 6 consultas redundantes a Supabase en cada carga de página en el App Router.
+6. **Correcciones Críticas EGM (Wompi, Double-Booking, Cron y Google Calendar):**
+   - Wompi webhook: Corrección de time-drift en PSE usando el timestamp de la referencia y matemática acumulativa de renovación.
+   - Restricción de exclusión PostgreSQL anti double-booking (`btree_gist`) en `migrations_exclusion_constraint.sql`.
+   - Google Calendar: Manejo de desvinculación limpia de eventos por ID de staff al cancelar.
+   - Cron reminders: Validación obligatoria de Bearer token `CRON_SECRET`.
+   - Consulta O(N) eliminada en la página de reservas pública (`.gte('end_time', nowIso)`).
 
 ### 8 de Agosto de 2026
 1.  **Migración de SMTP a Resend API:** Se reemplazó `nodemailer` (SMTP) por el SDK de `Resend` en `src/app/[slug]/actions.ts` para enviar OTP, confirmaciones y cancelaciones. SMTP fallaba con error `535 5.7.8 Authentication failed` en Vercel.
