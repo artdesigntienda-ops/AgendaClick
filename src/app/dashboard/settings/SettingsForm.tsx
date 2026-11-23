@@ -24,8 +24,11 @@ import {
   Briefcase,
   ShieldCheck,
   Tag,
-  CheckCircle2
+  CheckCircle2,
+  MapPin,
+  ExternalLink
 } from 'lucide-react'
+import GoogleMapsOnboardingModal from '@/components/GoogleMapsOnboardingModal'
 
 const PHONE_PREFIX_TO_COUNTRY: Record<string, string> = {
   '+57': 'CO',
@@ -199,6 +202,7 @@ export default function SettingsForm({
   const [logoPreview, setLogoPreview] = useState<string | null>(clinic?.logo_url || null)
   const [activeTab, setActiveTab] = useState<'basic' | 'design' | 'social' | 'integrations' | 'legal'>('basic')
   const [isCopied, setIsCopied] = useState(false)
+  const [showGoogleMapsModal, setShowGoogleMapsModal] = useState(false)
 
   // Estado para la sección Legal
   const [isFormalized, setIsFormalized] = useState<boolean>(() => {
@@ -1437,6 +1441,36 @@ export default function SettingsForm({
             onDisconnect={handleDisconnectCalendar} 
           />
         </div>
+
+        {/* Ficha Oficial de Google Maps */}
+        <div className="border-b pb-6">
+          <div className="flex items-center gap-2 mb-1.5">
+            <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">Ficha y Punto en Google Maps</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">
+            Publica tu local en Google Maps para que cualquier usuario encuentre tu negocio y reserve directamente desde Google.
+          </p>
+          <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50 via-indigo-50 to-white border border-blue-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-900">Asistente Oficial de Alta y Verificación</p>
+                <p className="text-xs text-gray-600">Genera tu alta en Google con tus datos y enlace oficial de reservas de AgendaClick.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowGoogleMapsModal(true)}
+              className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Abrir Asistente Google Maps</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* PESTAÑA 5: INFORMACIÓN LEGAL Y POLÍTICAS */}
@@ -1804,6 +1838,12 @@ export default function SettingsForm({
           ) : 'Guardar Todos los Cambios'}
         </button>
       </div>
+
+      <GoogleMapsOnboardingModal 
+        isOpen={showGoogleMapsModal}
+        onClose={() => setShowGoogleMapsModal(false)}
+        clinic={clinic || {}}
+      />
     </form>
   )
 }

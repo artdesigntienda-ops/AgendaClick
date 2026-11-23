@@ -14,9 +14,11 @@ import {
   MessageCircle, 
   X, 
   ChevronDown, 
-  ChevronUp 
+  ChevronUp,
+  MapPin
 } from 'lucide-react'
 import { toast } from 'sonner'
+import GoogleMapsOnboardingModal from '@/components/GoogleMapsOnboardingModal'
 
 interface Props {
   clinic: any
@@ -34,6 +36,7 @@ export function SetupProgressBar({
   const [isCopied, setIsCopied] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
   const [isExpanded, setIsExpanded] = useState(true)
+  const [showGoogleMapsModal, setShowGoogleMapsModal] = useState(false)
 
   useEffect(() => {
     const dismissed = localStorage.getItem('agendaclick_setup_bar_dismissed')
@@ -125,12 +128,12 @@ export function SetupProgressBar({
 
       {/* Pasos desplegables */}
       {isExpanded && (
-        <div className="mt-4 pt-3 border-t border-blue-100/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <div className="mt-4 pt-3 border-t border-blue-100/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
           {/* Paso 1: Cuenta */}
           <div className="flex items-center gap-2.5 p-2.5 bg-white/80 rounded-xl border border-blue-100">
             <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
             <div className="text-xs">
-              <span className="font-bold text-gray-900 block">1. Cuenta creada</span>
+              <span className="font-bold text-gray-900 block">1. Cuenta</span>
               <span className="text-gray-500">Sesión iniciada</span>
             </div>
           </div>
@@ -144,7 +147,7 @@ export function SetupProgressBar({
                 <Circle className="w-4 h-4 text-amber-500 shrink-0" />
               )}
               <div className="text-xs truncate">
-                <span className="font-bold text-gray-900 block">2. Perfil de Negocio</span>
+                <span className="font-bold text-gray-900 block">2. Negocio</span>
                 <span className="text-gray-500 truncate">{hasClinic ? clinic.name : 'Pendiente'}</span>
               </div>
             </div>
@@ -188,7 +191,7 @@ export function SetupProgressBar({
                 <Circle className="w-4 h-4 text-gray-400 shrink-0" />
               )}
               <div className="text-xs truncate">
-                <span className="font-bold text-gray-900 block">4. Enlace a clientes</span>
+                <span className="font-bold text-gray-900 block">4. Enlace</span>
                 <span className="text-gray-500 truncate">{hasClinic ? `/${clinic.slug}` : 'Por activar'}</span>
               </div>
             </div>
@@ -202,8 +205,32 @@ export function SetupProgressBar({
               </button>
             )}
           </div>
+
+          {/* Paso 5: Google Maps */}
+          <div className="flex items-center justify-between gap-2 p-2.5 bg-white/80 rounded-xl border border-blue-100">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <MapPin className="w-4 h-4 text-indigo-600 shrink-0" />
+              <div className="text-xs truncate">
+                <span className="font-bold text-gray-900 block">5. Google Maps</span>
+                <span className="text-gray-500 truncate">Punto local</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowGoogleMapsModal(true)}
+              className="text-[11px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded-md shrink-0 flex items-center gap-1 shadow-xs"
+            >
+              <span>Publicar</span>
+            </button>
+          </div>
         </div>
       )}
+
+      {/* Modal de Asistente de Google Maps */}
+      <GoogleMapsOnboardingModal 
+        isOpen={showGoogleMapsModal}
+        onClose={() => setShowGoogleMapsModal(false)}
+        clinic={clinic || {}}
+      />
 
       {/* Asistencia Directa Concierge WhatsApp */}
       {isExpanded && (

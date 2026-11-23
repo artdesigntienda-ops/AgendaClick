@@ -20,11 +20,13 @@ import {
   Plus, 
   Trash2,
   Smile,
-  Tag
+  Tag,
+  MapPin
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { quickSetupClinic, QuickSetupInput } from './actions'
 import { validatePartnerCode } from '@/app/dashboard/partners/actions'
+import GoogleMapsOnboardingModal from '@/components/GoogleMapsOnboardingModal'
 
 interface Props {
   isOpen: boolean
@@ -148,6 +150,7 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createdSlug, setCreatedSlug] = useState('')
   const [isCopied, setIsCopied] = useState(false)
+  const [showGoogleMapsModal, setShowGoogleMapsModal] = useState(false)
 
   // Cargar código de referido si vino por URL o cookie/localStorage
   useEffect(() => {
@@ -689,6 +692,26 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
                   </button>
                 </div>
 
+                {/* Tarjeta Google Maps Onboarding */}
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl text-left flex items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-900 leading-tight">Publicar local en Google Maps</p>
+                      <p className="text-[11px] text-gray-600">Muestra tu punto en el mapa y agrega tu botón oficial de reservas.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowGoogleMapsModal(true)}
+                    className="shrink-0 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-colors shadow-sm flex items-center gap-1.5"
+                  >
+                    <span>Publicar</span>
+                  </button>
+                </div>
+
                 {/* Botón Ver mi página */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <a
@@ -760,6 +783,18 @@ export function QuickSetupWizard({ isOpen, onClose }: Props) {
             </a>
           </div>
         )}
+
+        {/* Modal de Asistente de Google Maps */}
+        <GoogleMapsOnboardingModal 
+          isOpen={showGoogleMapsModal}
+          onClose={() => setShowGoogleMapsModal(false)}
+          clinic={{
+            name: businessName,
+            businessType,
+            phone,
+            slug: createdSlug
+          }}
+        />
       </motion.div>
     </div>
   )
