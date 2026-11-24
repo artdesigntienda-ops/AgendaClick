@@ -11,7 +11,12 @@ export default function DashboardError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  const [showDetails, setShowDetails] = useState(false)
+  // Re-lanzar redirecciones de Next.js para que no sean interceptadas por el Error Boundary
+  if (error?.message === 'NEXT_REDIRECT' || error?.digest?.startsWith('NEXT_REDIRECT')) {
+    throw error
+  }
+
+  const [showDetails, setShowDetails] = useState(true)
 
   useEffect(() => {
     console.error('[Dashboard Error Boundary]', error)
@@ -39,7 +44,7 @@ export default function DashboardError({
 
   return (
     <div className="min-h-[50vh] flex items-center justify-center p-4">
-      <div className="bg-white border border-gray-200 shadow-xl rounded-2xl p-6 sm:p-8 max-w-md w-full text-center space-y-4">
+      <div className="bg-white border border-gray-200 shadow-xl rounded-2xl p-6 sm:p-8 max-w-lg w-full text-center space-y-4">
         <div className="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
           <AlertCircle className="w-7 h-7" />
         </div>
@@ -61,13 +66,13 @@ export default function DashboardError({
               <button
                 type="button"
                 onClick={() => setShowDetails(!showDetails)}
-                className="text-[11px] text-gray-400 hover:text-gray-700 flex items-center gap-1 mx-auto transition-colors font-medium"
+                className="text-[11px] text-gray-500 hover:text-gray-800 flex items-center gap-1 mx-auto transition-colors font-semibold"
               >
                 <span>Detalle técnico</span>
                 {showDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </button>
               {showDetails && (
-                <div className="mt-2 p-3 bg-red-50/60 border border-red-100 rounded-xl text-[11px] text-red-800 font-mono break-all max-h-32 overflow-y-auto">
+                <div className="mt-2 p-3 bg-red-50/70 border border-red-200 rounded-xl text-[11px] text-red-900 font-mono break-all max-h-48 overflow-y-auto">
                   {error.message}
                 </div>
               )}

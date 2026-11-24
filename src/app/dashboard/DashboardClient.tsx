@@ -79,7 +79,6 @@ export default function DashboardClient({
   userEmail?: string
 }) {
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
   const [isWizardOpen, setIsWizardOpen] = useState(initialNeedsSetup)
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null)
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
@@ -92,6 +91,51 @@ export default function DashboardClient({
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [isAssigningStaff, setIsAssigningStaff] = useState(false)
   const [isRescheduling, setIsRescheduling] = useState(false)
+
+  // Block time States
+  const [isBlockTimeModalOpen, setIsBlockTimeModalOpen] = useState(false)
+  const [blockStaffId, setBlockStaffId] = useState('')
+  const [blockDate, setBlockDate] = useState(() => format(new Date(), 'yyyy-MM-dd'))
+  const [blockTimeVal, setBlockTimeVal] = useState('08:00')
+  const [blockDuration, setBlockDuration] = useState(60)
+  const [isSavingBlock, setIsSavingBlock] = useState(false)
+
+  // Emergencia State
+  const [isEmergencyMode, setIsEmergencyMode] = useState(false)
+  const [affectedClients, setAffectedClients] = useState<any[]>([])
+  const [isCancelling, setIsCancelling] = useState(false)
+
+  // Sincronizar el estado cuando cambie la prop
+  useEffect(() => {
+    setLocalAppointments(appointments)
+  }, [appointments])
+
+  // Conteo de citas por staff en el período actual (Hook llamado siempre incondicionalmente arriba)
+  const staffCountMap = useMemo(() => {
+    const map: Record<string, number> = { all: 0 }
+    const inRange = localAppointments.filter(apt => {
+      if (apt.status === 'cancelled' || !apt.start_time) return false
+      try {
+        const aptDate = parseISO(apt.start_time)
+        if (isNaN(aptDate.getTime())) return false
+        if (viewMode === 'day') return isSameDay(aptDate, currentDate)
+        if (viewMode === 'week') return isSameWeek(aptDate, currentDate, { weekStartsOn: 1 })
+        if (viewMode === 'month') return isSameMonth(aptDate, currentDate)
+        if (viewMode === 'year') return isSameYear(aptDate, currentDate)
+        return true
+      } catch {
+        return false
+      }
+    })
+
+    map.all = inRange.length
+    inRange.forEach(apt => {
+      const name = apt.profiles?.name || 'Sin Asignar'
+      map[name] = (map[name] || 0) + 1
+    })
+
+    return map
+  }, [localAppointments, viewMode, currentDate])
 
   const handleTimeChange = async (appointmentId: string, newStartTime: string) => {
     setIsRescheduling(true)
@@ -120,29 +164,27 @@ export default function DashboardClient({
     setIsRescheduling(false)
   }
 
-  // Block time States
-  const [isBlockTimeModalOpen, setIsBlockTimeModalOpen] = useState(false)
-  const [blockStaffId, setBlockStaffId] = useState('')
-  const [blockDate, setBlockDate] = useState(() => format(new Date(), 'yyyy-MM-dd'))
-  const [blockTimeVal, setBlockTimeVal] = useState('08:00')
-  const [blockDuration, setBlockDuration] = useState(60)
-  const [isSavingBlock, setIsSavingBlock] = useState(false)
-
-  // Sincronizar el estado cuando cambie la prop
-  useEffect(() => {
-    setLocalAppointments(appointments)
-  }, [appointments])
-
   // Horas de operación comercial estándar (Lunes a Sábado de 8:00 a 12:00 y 14:00 a 18:00)
   const businessHours = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00']
 
   const getFreeSlotsForDay = (date: Date) => {
     if (date.getDay() === 0) return [] // Domingo cerrado
     const dayApts = localAppointments.filter(apt => {
-      if (apt.status === 'cancelled') return false
-      return isSameDay(parseISO(apt.start_time), date)
+      if (apt.status === 'cancelled' || !apt.start_time) return false
+      try {
+        const d = parseISO(apt.start_time)
+        return !isNaN(d.getTime()) && isSameDay(d, date)
+      } catch {
+        return false
+      }
     })
-    const reservedHours = dayApts.map(apt => format(parseISO(apt.start_time), 'HH:mm'))
+    const reservedHours = dayApts.map(apt => {
+      try {
+        return format(parseISO(apt.start_time), 'HH:mm')
+      } catch {
+        return ''
+      }
+    }).filter(Boolean)
     return businessHours.filter(hour => !reservedHours.includes(hour))
   }
 
@@ -227,15 +269,6 @@ export default function DashboardClient({
     }
   }
 
-  // Emergencia State
-  const [isEmergencyMode, setIsEmergencyMode] = useState(false)
-  const [affectedClients, setAffectedClients] = useState<any[]>([])
-  const [isCancelling, setIsCancelling] = useState(false)
-
-  useEffect(() => setMounted(true), [])
-
-  if (!mounted) return null 
-
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -267,39 +300,24 @@ export default function DashboardClient({
 
   const getStaffInitials = (fullName: string): string => {
     const clean = cleanStaffName(fullName)
-    if (clean === 'Sin Asignar') return '?'
-    const parts = clean.replace(/^(Dr\.|Dra\.)\s*/i, '').trim().split(' ')
-    if (parts.length >= 2) {
+    if (!clean || clean === 'Sin Asignar') return '?'
+    const parts = clean.replace(/^(Dr\.|Dra\.)\s*/i, '').trim().split(/\s+/).filter(Boolean)
+    if (parts.length >= 2 && parts[0]?.[0] && parts[1]?.[0]) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
     }
-    return clean.slice(0, 2).toUpperCase()
+    return (clean.slice(0, 2) || '?').toUpperCase()
   }
-
-  // Conteo de citas por staff en el período actual
-  const staffCountMap = useMemo(() => {
-    const map: Record<string, number> = { all: 0 }
-    const inRange = localAppointments.filter(apt => {
-      if (apt.status === 'cancelled') return false
-      const aptDate = parseISO(apt.start_time)
-      if (viewMode === 'day') return isSameDay(aptDate, currentDate)
-      if (viewMode === 'week') return isSameWeek(aptDate, currentDate, { weekStartsOn: 1 })
-      if (viewMode === 'month') return isSameMonth(aptDate, currentDate)
-      if (viewMode === 'year') return isSameYear(aptDate, currentDate)
-      return true
-    })
-
-    map.all = inRange.length
-    inRange.forEach(apt => {
-      const name = apt.profiles?.name || 'Sin Asignar'
-      map[name] = (map[name] || 0) + 1
-    })
-
-    return map
-  }, [localAppointments, viewMode, currentDate])
 
   // Citas filtradas por rango de fecha y por staff seleccionado (base para métricas)
   const baseRangeAppointments = localAppointments.filter(apt => {
-    const aptDate = parseISO(apt.start_time)
+    if (!apt.start_time) return false
+    let aptDate: Date
+    try {
+      aptDate = parseISO(apt.start_time)
+      if (isNaN(aptDate.getTime())) return false
+    } catch {
+      return false
+    }
     
     if (selectedStaff) {
       const staffName = apt.profiles?.name || 'Sin Asignar'
@@ -840,10 +858,16 @@ export default function DashboardClient({
                         <div className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-gray-400" />
                           <span>
-                            {viewMode === 'day' 
-                              ? format(parseISO(apt.start_time), 'hh:mm a')
-                              : format(parseISO(apt.start_time), "eee d MMM - hh:mm a", { locale: es })
-                            }
+                            {(() => {
+                              try {
+                                const d = parseISO(apt.start_time)
+                                return viewMode === 'day' 
+                                  ? format(d, 'hh:mm a')
+                                  : format(d, "eee d MMM - hh:mm a", { locale: es })
+                              } catch {
+                                return apt.start_time || 'Hora no definida'
+                              }
+                            })()}
                           </span>
                         </div>
                       </td>
