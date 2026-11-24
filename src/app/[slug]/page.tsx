@@ -13,13 +13,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const supabase = await createClient()
   const { data: clinic } = await supabase.from('clinics').select('name, business_type').eq('slug', slug).maybeSingle()
   
-  if (!clinic) return { title: 'No Encontrado | AgendaClick' }
+  if (!clinic) return { title: 'Negocio no encontrado' }
 
   const description = `Agenda tu cita rápida y fácilmente en ${clinic.name}. Elige el servicio, la fecha y reserva en menos de 1 minuto sin crear cuentas.`
 
   return {
-    title: `Agendar cita en ${clinic.name} | AgendaClick`,
+    title: `Agendar cita en ${clinic.name}`,
     description: description,
+    alternates: {
+      canonical: `/${slug}`,
+    },
     openGraph: {
       title: `${clinic.name} - Reserva Online`,
       description: description,
@@ -166,7 +169,7 @@ export default async function PublicClinicPage({ params }: { params: Promise<{ s
           
           <div className="mt-8 text-center">
             <a 
-              href="https://agendaclick.com" 
+              href="https://agendaclick.com.co" 
               target="_blank" 
               rel="noreferrer"
               className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-black transition-colors"

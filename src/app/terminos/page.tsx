@@ -1,8 +1,18 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Términos y Condiciones del Servicio',
+  description: 'Términos legales y condiciones de uso de la plataforma de agendamiento y reservas AgendaClick en Colombia.',
+  alternates: {
+    canonical: '/terminos',
+  },
+}
+
 export default function TerminosPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 bg-white">
       <h1 className="text-3xl font-bold mb-8">Términos y Condiciones de Uso</h1>
-      <p className="text-sm text-gray-500 mb-8">Última actualización: {new Date().toLocaleDateString()}</p>
+      <p className="text-sm text-gray-500 mb-8">Última actualización: 20 de agosto de 2026</p>
       
       <div className="prose prose-sm text-gray-700 space-y-6">
         <section>

@@ -1,13 +1,13 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://agendaclick.com' // Cambiar por tu dominio real
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://agendaclick.com.co'
 
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard/', '/api/'], // Protegemos rutas privadas y APIs de los crawlers
+      disallow: ['/dashboard/', '/api/', '/cancelar/'], // Protegemos rutas privadas, APIs y tokens de cancelación
     },
     sitemap: `${baseUrl}/sitemap.xml`,
   }

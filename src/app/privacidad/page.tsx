@@ -1,3 +1,13 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Política de Privacidad y Tratamiento de Datos',
+  description: 'Conoce cómo AgendaClick protege tus datos personales y cumple con la Google API User Data Policy y la Ley 1581 de Habeas Data en Colombia.',
+  alternates: {
+    canonical: '/privacidad',
+  },
+}
+
 export default function PrivacidadPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 bg-white font-sans text-gray-800">

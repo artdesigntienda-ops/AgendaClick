@@ -113,11 +113,14 @@ export default function LandingPage() {
               <span>Sincronización Oficial con Google Maps & Google Calendar</span>
             </motion.div>
 
-            <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
+            <motion.h1 variants={fadeInUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
               AgendaClick
+              <span className="block text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-700 mt-2 tracking-tight">
+                Software de Reservas y Citas Online en Colombia
+              </span>
             </motion.h1>
-            <motion.h2 variants={fadeInUp} className="text-2xl lg:text-3xl font-semibold text-gray-600">
-              Haz que tu negocio <span className="text-gray-500">brille con luz propia.</span>
+            <motion.h2 variants={fadeInUp} className="text-xl lg:text-2xl font-medium text-gray-500">
+              Haz que tu negocio <span className="text-gray-400">brille con luz propia.</span>
             </motion.h2>
             
             <motion.div variants={fadeInUp} className="space-y-4">
