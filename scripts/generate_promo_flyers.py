@@ -3,8 +3,10 @@ import os
 import subprocess
 import tempfile
 
-OUTPUT_DIR = "/home/rocua/Proyectos/AgendaClick/public/promos/explicacion"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+EXPLICACION_DIR = "/home/rocua/Proyectos/AgendaClick/public/promos/explicacion"
+SOCIOS_DIR = "/home/rocua/Proyectos/AgendaClick/public/promos/socios"
+os.makedirs(EXPLICACION_DIR, exist_ok=True)
+os.makedirs(SOCIOS_DIR, exist_ok=True)
 
 # Common SVG icons
 CALENDAR_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>"""
@@ -15,6 +17,7 @@ PHONE_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" vi
 MAP_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>"""
 SYNC_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>"""
 SPARKLE_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>"""
+WHATSAPP_ICON = """<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>"""
 
 COMMON_HEAD = """
 <head>
@@ -91,6 +94,23 @@ COMMON_HEAD = """
   </style>
 </head>
 """
+
+def make_footer(cta_btn_text="14 Días Gratis →", url_text="www.agendaclick.com.co"):
+    return f"""
+    <!-- FOOTER CON WHATSAPP Y ENLACE -->
+    <div style="border-top: 1.5px solid rgba(255, 255, 255, 0.15); padding-top: 26px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+          {WHATSAPP_ICON}
+          <span style="font-size: 26px; font-weight: 800; color: #ffffff;">WhatsApp: <strong style="color: #34d399;">+57 323 9306599</strong></span>
+        </div>
+        <p style="font-size: 34px; font-weight: 900; color: #38bdf8; letter-spacing: -0.5px;">{url_text}</p>
+      </div>
+      <div style="background: #10b981; color: #000000; font-size: 24px; font-weight: 900; padding: 22px 42px; border-radius: 9999px; box-shadow: 0 0 40px rgba(16,185,129,0.5);">
+        {cta_btn_text}
+      </div>
+    </div>
+    """
 
 # ==========================================
 # FLYER 1: ¿CÓMO FUNCIONA AGENDACLICK?
@@ -209,16 +229,7 @@ HTML_FLYER_1 = f"""<!DOCTYPE html>
       <div style="font-size: 38px;">⚡</div>
     </div>
 
-    <!-- FOOTER CTA -->
-    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 30px; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <p style="font-size: 20px; color: #94a3b8; font-weight: 600;">14 Días de Prueba Gratis sin Tarjeta</p>
-        <p style="font-size: 36px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">www.agendaclick.com.co</p>
-      </div>
-      <div style="background: #10b981; color: #000000; font-size: 24px; font-weight: 900; padding: 22px 42px; border-radius: 9999px; box-shadow: 0 0 40px rgba(16,185,129,0.5);">
-        Probar Gratis →
-      </div>
-    </div>
+    {make_footer("14 Días Gratis →", "www.agendaclick.com.co")}
 
   </div>
 </body>
@@ -327,7 +338,7 @@ HTML_FLYER_2 = f"""<!DOCTYPE html>
 
     </div>
 
-    <!-- MOCKUP TESTIMONIAL / BENEFICIO VISUAL -->
+    <!-- MOCKUP BENEFICIO VISUAL -->
     <div style="display: flex; gap: 20px;">
       <div class="card-glass" style="flex: 1; padding: 26px 30px; border-color: rgba(16, 185, 129, 0.4); text-align: center;">
         <p style="font-size: 38px; font-weight: 900; color: #10b981; margin-bottom: 2px;">+30%</p>
@@ -346,16 +357,7 @@ HTML_FLYER_2 = f"""<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- FOOTER CTA -->
-    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 30px; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <p style="font-size: 20px; color: #94a3b8; font-weight: 600;">Configuración en menos de 5 minutos</p>
-        <p style="font-size: 36px; font-weight: 900; color: #ffffff;">www.agendaclick.com.co</p>
-      </div>
-      <div style="background: #10b981; color: #000000; font-size: 24px; font-weight: 900; padding: 22px 42px; border-radius: 9999px; box-shadow: 0 0 40px rgba(16,185,129,0.5);">
-        Probar 14 Días Gratis →
-      </div>
-    </div>
+    {make_footer("Probar 14 Días Gratis →", "www.agendaclick.com.co")}
 
   </div>
 </body>
@@ -468,16 +470,7 @@ HTML_FLYER_3 = f"""<!DOCTYPE html>
       <span style="background: #10b981; color: #000; font-size: 20px; font-weight: 900; padding: 12px 26px; border-radius: 12px;">100% Online</span>
     </div>
 
-    <!-- FOOTER CTA -->
-    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 30px; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <p style="font-size: 20px; color: #94a3b8; font-weight: 600;">14 Días de Prueba Gratis sin Tarjeta</p>
-        <p style="font-size: 36px; font-weight: 900; color: #ffffff;">www.agendaclick.com.co</p>
-      </div>
-      <div style="background: #10b981; color: #000000; font-size: 24px; font-weight: 900; padding: 22px 42px; border-radius: 9999px; box-shadow: 0 0 40px rgba(16,185,129,0.5);">
-        Comenzar Gratis →
-      </div>
-    </div>
+    {make_footer("Comenzar Gratis →", "www.agendaclick.com.co")}
 
   </div>
 </body>
@@ -592,16 +585,211 @@ HTML_FLYER_4 = f"""<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- FOOTER CTA -->
-    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 30px; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <p style="font-size: 20px; color: #94a3b8; font-weight: 600;">14 Días de Prueba Gratis sin Tarjeta</p>
-        <p style="font-size: 36px; font-weight: 900; color: #ffffff;">www.agendaclick.com.co</p>
+    {make_footer("Crear mi Agenda Gratis →", "www.agendaclick.com.co")}
+
+  </div>
+</body>
+</html>
+"""
+
+# ==========================================
+# FLYER SOCIOS 1: LA FÓRMULA DEL 70%
+# ==========================================
+HTML_SOCIOS_1 = f"""<!DOCTYPE html>
+<html>
+{COMMON_HEAD}
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow-emerald" style="top: -100px; right: -150px;"></div>
+  <div class="glow-cyan" style="bottom: 250px; left: -100px;"></div>
+
+  <div style="padding: 75px 65px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 10;">
+    
+    <!-- HEADER -->
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px;">
+        <div class="brand-title">
+          <div style="width: 64px; height: 64px; border-radius: 18px; background: rgba(16, 185, 129, 0.15); border: 2px solid #10b981; display: flex; align-items: center; justify-content: center;">
+            {CALENDAR_SVG}
+          </div>
+          <span style="font-size: 46px; font-weight: 900; letter-spacing: -1px;">Agenda<span style="color: #10b981;">Click</span></span>
+        </div>
+        <div class="badge-pill">
+          {SPARKLE_SVG}
+          Distribuidores Oficiales
+        </div>
       </div>
-      <div style="background: #10b981; color: #000000; font-size: 24px; font-weight: 900; padding: 22px 42px; border-radius: 9999px; box-shadow: 0 0 40px rgba(16,185,129,0.5);">
-        Crear mi Agenda Gratis →
+
+      <h1 style="font-size: 58px; font-weight: 900; line-height: 1.12; letter-spacing: -1.5px; margin-bottom: 14px;">
+        ¿CÓMO SE CALCULA <br>TU <span class="gradient-text">70% DE COMISIÓN?</span>
+      </h1>
+      <p style="font-size: 25px; color: #94a3b8; line-height: 1.4; max-width: 950px;">
+        Cifras reales en Pesos Colombianos. Sin multinivel ni trucos: software real que los negocios pagan mes a mes.
+      </p>
+    </div>
+
+    <!-- 3 PASOS DE LA FÓRMULA -->
+    <div style="display: flex; flex-direction: column; gap: 26px;">
+      
+      <!-- PASO 1 -->
+      <div class="card-glass" style="padding: 36px 42px; border-left: 8px solid #10b981; display: flex; align-items: center; gap: 30px;">
+        <div style="min-width: 76px; height: 76px; border-radius: 22px; background: rgba(16, 185, 129, 0.2); border: 2.5px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; color: #10b981;">
+          1
+        </div>
+        <div style="flex: 1;">
+          <h3 style="font-size: 30px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">Recomiendas AgendaClick</h3>
+          <p style="font-size: 21px; color: #cbd5e1; line-height: 1.45;">
+            Le regalas 14 días de prueba gratis a una peluquería, barbería, cancha sintética o consultorio de tu ciudad.
+          </p>
+        </div>
+      </div>
+
+      <!-- PASO 2 -->
+      <div class="card-glass" style="padding: 36px 42px; border-left: 8px solid #06b6d4; display: flex; align-items: center; gap: 30px;">
+        <div style="min-width: 76px; height: 76px; border-radius: 22px; background: rgba(6, 182, 212, 0.2); border: 2.5px solid #06b6d4; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; color: #06b6d4;">
+          2
+        </div>
+        <div style="flex: 1;">
+          <h3 style="font-size: 30px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">El Negocio Paga su Suscripción</h3>
+          <p style="font-size: 21px; color: #cbd5e1; line-height: 1.45;">
+            El negocio paga su mensualidad de <strong style="color: #38bdf8;">$349.000 COP al mes</strong> para seguir recibiendo reservas automáticas.
+          </p>
+        </div>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="card-glass" style="padding: 36px 42px; border-left: 8px solid #a855f7; display: flex; align-items: center; gap: 30px;">
+        <div style="min-width: 76px; height: 76px; border-radius: 22px; background: rgba(168, 85, 247, 0.2); border: 2.5px solid #a855f7; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; color: #a855f7;">
+          3
+        </div>
+        <div style="flex: 1;">
+          <h3 style="font-size: 30px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">¡Recibes el 70% de Comisión!</h3>
+          <p style="font-size: 21px; color: #cbd5e1; line-height: 1.45;">
+            Te corresponden <strong style="color: #34d399;">$244.300 COP mensuales</strong> por cada negocio, mientras mantenga su plan activo.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TARJETA DESTACADA: 5 NEGOCIOS = SUELDO RECURRENTE -->
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.12) 100%); border: 3px solid #10b981; border-radius: 30px; padding: 36px 42px; box-shadow: 0 0 50px rgba(16,185,129,0.25);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-size: 20px; font-weight: 900; text-transform: uppercase; color: #34d399; letter-spacing: 1px;">
+          Meta Real de Ingresos Pasivos
+        </span>
+        <span style="background: #10b981; color: #000; font-size: 16px; font-weight: 900; padding: 6px 16px; border-radius: 8px;">
+          RECURRENTE
+        </span>
+      </div>
+      <p style="font-size: 38px; font-weight: 900; color: #ffffff; margin-bottom: 8px;">
+        Con solo 5 negocios ganas: <span style="color: #34d399;">$1.221.500 COP/mes</span>
+      </p>
+      <p style="font-size: 21px; color: #cbd5e1;">
+        Consignaciones automáticas a Nequi, Daviplata o Cuenta Bancaria.
+      </p>
+    </div>
+
+    {make_footer("Quiero ser Distribuidor →", "agendaclick.com.co/socios")}
+
+  </div>
+</body>
+</html>
+"""
+
+# ==========================================
+# FLYER SOCIOS 2: TABLA DE INGRESOS
+# ==========================================
+HTML_SOCIOS_2 = f"""<!DOCTYPE html>
+<html>
+{COMMON_HEAD}
+<body>
+  <div class="grid-bg"></div>
+  <div class="glow-emerald" style="bottom: 100px; right: -100px;"></div>
+  <div class="glow-cyan" style="top: -100px; left: -100px;"></div>
+
+  <div style="padding: 75px 65px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 10;">
+    
+    <!-- HEADER -->
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px;">
+        <div class="brand-title">
+          <div style="width: 64px; height: 64px; border-radius: 18px; background: rgba(16, 185, 129, 0.15); border: 2px solid #10b981; display: flex; align-items: center; justify-content: center;">
+            {CALENDAR_SVG}
+          </div>
+          <span style="font-size: 46px; font-weight: 900; letter-spacing: -1px;">Agenda<span style="color: #10b981;">Click</span></span>
+        </div>
+        <div class="badge-pill">
+          Distribuidores Comerciales
+        </div>
+      </div>
+
+      <h1 style="font-size: 56px; font-weight: 900; line-height: 1.12; letter-spacing: -1.5px; margin-bottom: 14px;">
+        TU CARTERA DE CLIENTES = <br><span class="gradient-text">TU SUELDO PASIVO MENSUAL</span>
+      </h1>
+      <p style="font-size: 25px; color: #94a3b8; line-height: 1.4;">
+        Ganas el 70% recurrente de cada negocio (<strong style="color: #34d399;">$244.300 COP/mes</strong> por cliente activo):
+      </p>
+    </div>
+
+    <!-- TABLA DE INGRESOS PASIVOS EN 4 TARJETAS -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <div class="card-glass" style="padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; border-left: 8px solid #94a3b8;">
+        <div>
+          <p style="font-size: 30px; font-weight: 800; color: #ffffff;">3 Negocios Activos</p>
+          <p style="font-size: 18px; color: #94a3b8;">Ingreso extra para tus gastos</p>
+        </div>
+        <div style="font-size: 36px; font-weight: 900; color: #38bdf8;">
+          $732.900 COP <span style="font-size: 20px; color: #94a3b8; font-weight: 600;">/ mes</span>
+        </div>
+      </div>
+
+      <div class="card-glass" style="padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; border-left: 8px solid #10b981; background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.4);">
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+            <p style="font-size: 32px; font-weight: 900; color: #ffffff;">5 Negocios Activos</p>
+            <span style="background: #10b981; color: #000; font-size: 14px; font-weight: 900; padding: 4px 10px; border-radius: 6px;">SUELDO MENSUAL</span>
+          </div>
+          <p style="font-size: 19px; color: #cbd5e1;">Equivale a un salario mínimo mensual garantizado</p>
+        </div>
+        <div style="font-size: 40px; font-weight: 900; color: #34d399;">
+          $1.221.500 COP <span style="font-size: 20px; color: #cbd5e1; font-weight: 600;">/ mes</span>
+        </div>
+      </div>
+
+      <div class="card-glass" style="padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; border-left: 8px solid #06b6d4;">
+        <div>
+          <p style="font-size: 30px; font-weight: 800; color: #ffffff;">10 Negocios Activos</p>
+          <p style="font-size: 18px; color: #94a3b8;">Libertad financiera y trabajo remoto</p>
+        </div>
+        <div style="font-size: 36px; font-weight: 900; color: #38bdf8;">
+          $2.443.000 COP <span style="font-size: 20px; color: #94a3b8; font-weight: 600;">/ mes</span>
+        </div>
+      </div>
+
+      <div class="card-glass" style="padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; border-left: 8px solid #a855f7;">
+        <div>
+          <p style="font-size: 30px; font-weight: 800; color: #ffffff;">20 Negocios Activos</p>
+          <p style="font-size: 18px; color: #94a3b8;">Agencia de digitalización propia</p>
+        </div>
+        <div style="font-size: 36px; font-weight: 900; color: #c084fc;">
+          $4.886.000 COP <span style="font-size: 20px; color: #94a3b8; font-weight: 600;">/ mes</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TARJETA DE RECURRENCIA -->
+    <div style="background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 24px 34px; display: flex; align-items: center; gap: 20px;">
+      <span style="font-size: 42px;">🔒</span>
+      <div>
+        <p style="font-size: 22px; font-weight: 800; color: #ffffff;">Ingreso 100% Recurrente</p>
+        <p style="font-size: 18px; color: #94a3b8;">El negocio renueva el software mes a mes para funcionar. Tú cobras mes a mes sin falta.</p>
       </div>
     </div>
+
+    {make_footer("Obtener mi Código →", "agendaclick.com.co/socios")}
 
   </div>
 </body>
@@ -609,14 +797,16 @@ HTML_FLYER_4 = f"""<!DOCTYPE html>
 """
 
 FLYERS = [
-    ("promo_1_como_funciona.png", HTML_FLYER_1),
-    ("promo_2_antes_vs_despues.png", HTML_FLYER_2),
-    ("promo_3_sectores_negocios.png", HTML_FLYER_3),
-    ("promo_4_funciones_clave.png", HTML_FLYER_4),
+    (os.path.join(EXPLICACION_DIR, "promo_1_como_funciona.png"), HTML_FLYER_1),
+    (os.path.join(EXPLICACION_DIR, "promo_2_antes_vs_despues.png"), HTML_FLYER_2),
+    (os.path.join(EXPLICACION_DIR, "promo_3_sectores_negocios.png"), HTML_FLYER_3),
+    (os.path.join(EXPLICACION_DIR, "promo_4_funciones_clave.png"), HTML_FLYER_4),
+    (os.path.join(SOCIOS_DIR, "promo_1_formula_70.jpg"), HTML_SOCIOS_1),
+    (os.path.join(SOCIOS_DIR, "promo_2_tabla_ingresos.jpg"), HTML_SOCIOS_2),
 ]
 
-for filename, html_content in FLYERS:
-    out_path = os.path.join(OUTPUT_DIR, filename)
+for out_path, html_content in FLYERS:
+    filename = os.path.basename(out_path)
     with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False) as f:
         f.write(html_content)
         temp_html = f.name
@@ -636,4 +826,4 @@ for filename, html_content in FLYERS:
     os.remove(temp_html)
     print(f"✓ Guardado: {out_path} ({os.path.getsize(out_path)} bytes)")
 
-print("\n¡Todas las imágenes fueron renderizadas con éxito en 1080x1920 HD!")
+print("\n¡Todas las imágenes fueron renderizadas con éxito incluyendo el número +57 323 9306599!")
