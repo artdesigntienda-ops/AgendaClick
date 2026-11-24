@@ -99,66 +99,114 @@ export default function LandingPage() {
       {/* MAIN CONTENT LANDMARK */}
       <main>
         {/* HERO SECTION */}
-      <section className="pt-36 pb-20 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="space-y-8"
-        >
-          <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
-            AgendaClick
-          </motion.h1>
-          <motion.h2 variants={fadeInUp} className="text-2xl lg:text-3xl font-semibold text-gray-600">
-            Haz que tu negocio <span className="text-gray-500">brille con luz propia.</span>
-          </motion.h2>
-          
-          <motion.div variants={fadeInUp} className="space-y-4">
-            <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-              <strong>El propósito de AgendaClick es ser el sistema central de reservas para tu negocio.</strong> Permite a tus clientes agendar citas online 24/7 y sincroniza automáticamente todas las reservas con tu <strong>Google Calendar</strong> personal y el de tus empleados, evitando cruces de horarios.
-            </p>
-            <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-              Libérate de contestar mensajes todo el día. Cuando un cliente busque Canchas Sintéticas, Consultorios, Spas, Centros de Estética o Estaciones de Carga cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick.
-            </p>
-          </motion.div>
-          
-          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Link href="/login" className="flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-0.5">
-              Transformar mi negocio <ArrowRight className="w-5 h-5" />
-            </Link>
+      <section className="pt-36 pb-16 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="space-y-8"
+          >
+            {/* Tag / Micro-Badge de Pre-lanzamiento arriba del Título */}
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-xs font-bold text-emerald-800 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Sincronización Oficial con Google Maps & Google Calendar</span>
+            </motion.div>
+
+            <motion.h1 variants={fadeInUp} className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[1.1] text-gray-900">
+              AgendaClick
+            </motion.h1>
+            <motion.h2 variants={fadeInUp} className="text-2xl lg:text-3xl font-semibold text-gray-600">
+              Haz que tu negocio <span className="text-gray-500">brille con luz propia.</span>
+            </motion.h2>
+            
+            <motion.div variants={fadeInUp} className="space-y-4">
+              <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
+                <strong>El propósito de AgendaClick es ser el sistema central de reservas para tu negocio.</strong> Permite a tus clientes agendar citas online 24/7 y sincroniza automáticamente todas las reservas con tu <strong>Google Calendar</strong> personal y el de tus empleados, evitando cruces de horarios.
+              </p>
+              <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
+                Libérate de contestar mensajes todo el día. Cuando un cliente busque Canchas Sintéticas, Consultorios, Spas, Centros de Estética o Estaciones de Carga cerca, las IAs recomendarán automáticamente a los negocios que usan AgendaClick.
+              </p>
+            </motion.div>
+            
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
+              <Link href="/login" className="flex items-center justify-center gap-2 bg-black text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-neutral-800 transition-all shadow-lg hover:-translate-y-0.5">
+                Transformar mi negocio <ArrowRight className="w-5 h-5" />
+              </Link>
+              <div className="flex items-center gap-2 text-xs text-gray-500 font-medium pl-1">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Prueba gratis de 30 días sin tarjetas</span>
+              </div>
+            </motion.div>
           </motion.div>
 
-          {/* Badges de Funcionalidades Estrella */}
-          <motion.div variants={fadeInUp} className="flex flex-wrap gap-2.5 pt-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
-              <MapPin className="w-3.5 h-3.5" /> Alta Oficial en Google Maps
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-              <RefreshCw className="w-3.5 h-3.5" /> Reagendamiento Autónomo
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
-              <Smartphone className="w-3.5 h-3.5" /> App Móvil Instalable
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
-              <CalendarCheck className="w-3.5 h-3.5" /> Google Calendar en Vivo
-            </span>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+            className="relative flex justify-center lg:justify-end"
+          >
+            <div className="relative w-full max-w-md aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-gray-100 bg-gray-50 transform hover:scale-[1.02] transition-transform duration-500">
+               <Image 
+                  src="/hero-mockup.png" 
+                  alt="AgendaClick App Interface" 
+                  fill 
+                  className="object-cover"
+                  priority
+               />
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
 
+        {/* HERO CAPABILITIES STRIP - TECNOLOGÍA NATIVA INTEGRADA */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          className="relative flex justify-center lg:justify-end"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="mt-16 pt-8 border-t border-gray-200/80 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
         >
-          <div className="relative w-full max-w-md aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-gray-100 bg-gray-50 transform hover:scale-[1.02] transition-transform duration-500">
-             <Image 
-                src="/hero-mockup.png" 
-                alt="AgendaClick App Interface" 
-                fill 
-                className="object-cover"
-                priority
-             />
+          {/* 1. Google Maps */}
+          <div className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-gray-50/80 border border-gray-200/80 hover:bg-white hover:border-black/30 hover:shadow-sm transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+              <MapPin className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900 truncate">Google Maps Oficial</h4>
+              <p className="text-[11px] text-gray-500 truncate mt-0.5">Botón reservar en 1 clic</p>
+            </div>
+          </div>
+
+          {/* 2. Reagendamiento */}
+          <div className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-gray-50/80 border border-gray-200/80 hover:bg-white hover:border-black/30 hover:shadow-sm transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+              <RefreshCw className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900 truncate">Reagendamiento 24/7</h4>
+              <p className="text-[11px] text-gray-500 truncate mt-0.5">Auto-gestión sin llamadas</p>
+            </div>
+          </div>
+
+          {/* 3. App Móvil */}
+          <div className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-gray-50/80 border border-gray-200/80 hover:bg-white hover:border-black/30 hover:shadow-sm transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+              <Smartphone className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900 truncate">App Móvil Instalable</h4>
+              <p className="text-[11px] text-gray-500 truncate mt-0.5">PWA en iPhone y Android</p>
+            </div>
+          </div>
+
+          {/* 4. Google Calendar */}
+          <div className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-gray-50/80 border border-gray-200/80 hover:bg-white hover:border-black/30 hover:shadow-sm transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+              <CalendarCheck className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900 truncate">Google Calendar Vivo</h4>
+              <p className="text-[11px] text-gray-500 truncate mt-0.5">Sincronización en tiempo real</p>
+            </div>
           </div>
         </motion.div>
       </section>
@@ -385,22 +433,22 @@ export default function LandingPage() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {/* Box 1: Google Maps Oficial */}
-            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-blue-50/70 via-white to-indigo-50/40 p-8 rounded-[2rem] border border-blue-200/80 shadow-sm lg:col-span-2 hover:shadow-md transition-all group">
+            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-emerald-50/40 via-white to-gray-50/60 p-8 rounded-[2rem] border border-emerald-200/60 shadow-sm lg:col-span-2 hover:shadow-md transition-all group">
               <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-md">
-                  <MapPin className="w-6 h-6" />
+                <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center shadow-md">
+                  <MapPin className="w-6 h-6 text-emerald-400" />
                 </div>
-                <span className="text-xs font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full uppercase tracking-wider">
+                <span className="text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
                   Novedad Oficial
                 </span>
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900 group-hover:text-blue-900 transition-colors">
+              <h3 className="text-2xl font-bold mb-3 text-gray-900 group-hover:text-black transition-colors">
                 Tu Negocio en Google Maps con Botón "Reservar Cita"
               </h3>
               <p className="text-gray-600 leading-relaxed max-w-xl mb-5">
                 Consigue clientes nuevos todos los días desde Google Maps. Nuestro asistente pre-rellena la ficha oficial de tu empresa, te guía en la validación por SMS o video en 1 minuto y agrega tu botón de reservas de AgendaClick.
               </p>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-blue-200 text-xs font-semibold text-blue-900 shadow-2xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-900 shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
                 <span>Punto en mapa + Botón oficial de reservas activo</span>
               </div>
@@ -408,10 +456,10 @@ export default function LandingPage() {
 
             {/* Box 2: Reagendamiento Autónomo */}
             <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
-              <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
-                <RefreshCw className="w-6 h-6" />
+              <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
+                <RefreshCw className="w-6 h-6 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-emerald-900 transition-colors">
+              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-black transition-colors">
                 Reagendamiento Autónomo
               </h3>
               <p className="text-gray-500 leading-relaxed text-sm">
@@ -421,10 +469,10 @@ export default function LandingPage() {
 
             {/* Box 3: App Móvil Instalable (PWA) */}
             <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
-              <div className="w-12 h-12 bg-purple-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
-                <Smartphone className="w-6 h-6" />
+              <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
+                <Smartphone className="w-6 h-6 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-purple-900 transition-colors">
+              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-black transition-colors">
                 App Instalable en Celular (PWA)
               </h3>
               <p className="text-gray-500 leading-relaxed text-sm">
@@ -434,10 +482,10 @@ export default function LandingPage() {
 
             {/* Box 4: CRM Reactivación WhatsApp */}
             <motion.div variants={fadeInUp} className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-sm hover:shadow-md transition-all group">
-              <div className="w-12 h-12 bg-green-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
-                <TrendingUp className="w-6 h-6" />
+              <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
+                <TrendingUp className="w-6 h-6 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-green-900 transition-colors">
+              <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-black transition-colors">
                 Reactivación CRM por WhatsApp
               </h3>
               <p className="text-gray-500 leading-relaxed text-sm">
@@ -448,8 +496,8 @@ export default function LandingPage() {
             {/* Box 5: Sincronización Google Calendar */}
             <motion.div variants={fadeInUp} className="bg-black text-white p-8 rounded-[2rem] shadow-sm hover:shadow-lg transition-all lg:col-span-2 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-10"><CalendarCheck className="w-40 h-40" /></div>
-              <div className="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center mb-6 shadow-md relative z-10">
-                <CalendarCheck className="w-6 h-6" />
+              <div className="w-12 h-12 bg-emerald-500 text-black rounded-2xl flex items-center justify-center mb-6 shadow-md relative z-10">
+                <CalendarCheck className="w-6 h-6 text-black" />
               </div>
               <h3 className="text-2xl font-bold mb-3 relative z-10">
                 Google Calendar en Tiempo Real por Profesional
