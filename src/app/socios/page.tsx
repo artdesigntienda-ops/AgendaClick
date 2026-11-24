@@ -350,38 +350,74 @@ export default function SociosLandingPage() {
 
         </div>
 
-        {/* MATERIAL PUBLICITARIO DESCARGABLE PARA REDES */}
+        {/* MATERIAL PUBLICITARIO DESCARGABLE PARA WHATSAPP Y PROSPECTOS */}
         <div className="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/30 rounded-3xl p-8 sm:p-12 text-center">
           <span className="text-xs font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider">
-            Material de Marketing Oficial
+            Material de Difusión Oficial
           </span>
-          <h3 className="text-2xl sm:text-3xl font-black mt-4 mb-3">Piezas Listas para Tus Estados de WhatsApp e Instagram</h3>
-          <p className="text-gray-300 max-w-xl mx-auto text-sm mb-8">
-            Descarga los artes publicitarios oficiales de AgendaClick para publicar en tus redes y empezar a captar salones, barberías y negocios hoy mismo.
+          <h3 className="text-2xl sm:text-3xl font-black mt-4 mb-3">Piezas Gráficas Oficiales (Formato Estados de WhatsApp)</h3>
+          <p className="text-gray-300 max-w-2xl mx-auto text-sm mb-8">
+            Descarga las piezas publicitarias oficiales de AgendaClick en alta definición (9:16). Diseñadas 100% en español con la fórmula matemática transparente, cifras reales en pesos colombianos y llamados directos a WhatsApp.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
-            <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
-              <img src="/promos/agendaclick_afiliados_colombia_feed_1_png_1793021505003.jpg" className="w-20 h-20 rounded-xl object-cover border border-white/10" alt="Feed 1:1" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto text-left">
+            
+            {/* Pieza 1: Fórmula Matemática */}
+            <div className="bg-slate-950/90 border border-white/10 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-500/40 transition-colors">
+              <div className="aspect-[9/16] w-full rounded-xl overflow-hidden mb-3 border border-white/10 bg-slate-900">
+                <img src="/promos/socios/promo_1_formula_70.jpg" className="w-full h-full object-cover" alt="Fórmula 70% de Comisión" />
+              </div>
               <div>
-                <h4 className="font-bold text-white text-base">Arte Feed Cuadrado (1:1)</h4>
-                <p className="text-xs text-gray-400 mb-2">Para Instagram, Facebook y Grupos</p>
-                <a href="/promos/agendaclick_afiliados_colombia_feed_1_png_1793021505003.jpg" download target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
-                  <Download className="w-3 h-3" /> Descargar Imagen
+                <h4 className="font-bold text-white text-sm">1. La Fórmula del 70%</h4>
+                <p className="text-[11px] text-gray-400 mb-3">Explica de dónde sale la comisión y los $244.300 COP mensuales.</p>
+                <a href="/promos/socios/promo_1_formula_70.jpg" download="AgendaClick_Formula_70.jpg" target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
                 </a>
               </div>
             </div>
 
-            <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
-              <img src="/promos/agendaclick_afiliados_colombia_story_2_png_1793021525748.jpg" className="w-20 h-20 rounded-xl object-cover border border-white/10" alt="Stories 9:16" />
+            {/* Pieza 2: Tabla de Ingresos */}
+            <div className="bg-slate-950/90 border border-white/10 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-500/40 transition-colors">
+              <div className="aspect-[9/16] w-full rounded-xl overflow-hidden mb-3 border border-white/10 bg-slate-900">
+                <img src="/promos/socios/promo_2_tabla_ingresos.jpg" className="w-full h-full object-cover" alt="Tabla de Ingresos Pasivos" />
+              </div>
               <div>
-                <h4 className="font-bold text-white text-base">Arte Vertical Stories (9:16)</h4>
-                <p className="text-xs text-gray-400 mb-2">Para Estados de WhatsApp y Reels</p>
-                <a href="/promos/agendaclick_afiliados_colombia_story_2_png_1793021525748.jpg" download target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1">
-                  <Download className="w-3 h-3" /> Descargar Imagen
+                <h4 className="font-bold text-white text-sm">2. Tabla de Ingresos Pasivos</h4>
+                <p className="text-[11px] text-gray-400 mb-3">Metas claras de ganancias recurrentes desde 3 hasta 20 negocios.</p>
+                <a href="/promos/socios/promo_2_tabla_ingresos.jpg" download="AgendaClick_Tabla_Ingresos.jpg" target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
                 </a>
               </div>
             </div>
+
+            {/* Pieza 3: Negocio Real */}
+            <div className="bg-slate-950/90 border border-white/10 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-500/40 transition-colors">
+              <div className="aspect-[9/16] w-full rounded-xl overflow-hidden mb-3 border border-white/10 bg-slate-900">
+                <img src="/promos/socios/promo_3_negocio_real.jpg" className="w-full h-full object-cover" alt="Negocio Real vs Cripto" />
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-sm">3. Negocio 100% Real</h4>
+                <p className="text-[11px] text-gray-400 mb-3">Elimina dudas de pirámides: software útil para negocios de la ciudad.</p>
+                <a href="/promos/socios/promo_3_negocio_real.jpg" download="AgendaClick_Negocio_Real.jpg" target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
+                </a>
+              </div>
+            </div>
+
+            {/* Pieza 4: Distribuidor Oficial */}
+            <div className="bg-slate-950/90 border border-white/10 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-500/40 transition-colors">
+              <div className="aspect-[9/16] w-full rounded-xl overflow-hidden mb-3 border border-white/10 bg-slate-900">
+                <img src="/promos/socios/promo_4_distribuidor_oficial.jpg" className="w-full h-full object-cover" alt="Distribuidor Oficial AgendaClick" />
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-sm">4. Distribuidor Oficial</h4>
+                <p className="text-[11px] text-gray-400 mb-3">Muestra el CRM, tu código de vendedor y los pagos a Nequi o Banco.</p>
+                <a href="/promos/socios/promo_4_distribuidor_oficial.jpg" download="AgendaClick_Distribuidor_Oficial.jpg" target="_blank" className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Descargar Arte HD
+                </a>
+              </div>
+            </div>
+
           </div>
         </div>
 
